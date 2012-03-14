@@ -20,36 +20,43 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-public final class JobRepositoryImpl<K, R> implements JobRepository<K, R>
+public final class JobRepositoryImpl<K, D, R> implements JobRepository<K, D>
 {
-    private final JobLoader<K, R> jobLoader;
+    private final JobDefinitionLoader<K, D> jobDefinitionLoader;
     private final Map<K, Job<K, R>> jobMap;
+    private final Map<K, JobDefinition<K, D>> jobDefinitionMap;
+    private final JobFactory<K, D, R> jobFactory;
 
-    public JobRepositoryImpl(final JobLoader<K, R> jobLoader)
+    public JobRepositoryImpl(final JobDefinitionLoader<K, D> jobDefinitionLoader,
+                             final JobFactory<K, D, R> jobFactory)
     {
-        this.jobLoader = jobLoader;
+        this.jobDefinitionLoader = jobDefinitionLoader;
+        this.jobFactory = jobFactory;
         jobMap = new ConcurrentSkipListMap<>();
+        jobDefinitionMap = new ConcurrentSkipListMap<>();
     }
 
     @Override
     public void init(final String identifier)
     {
         jobMap.clear();
-        final List<Job<K,R>> jobList = jobLoader.loadJobs(identifier);
-        for (Job<K, R> job : jobList)
+        jobDefinitionMap.clear();
+        final List<JobDefinition<K,D>> jobList = jobDefinitionLoader.loadJobDefinitions(identifier);
+        for (JobDefinition<K, D> jobDefinition : jobList)
         {
-            jobMap.put(job.getKey(), job);
+            jobDefinitionMap.put(jobDefinition.getKey(), jobDefinition);
+            jobMap.put(jobDefinition.getKey(), jobFactory.createJob(jobDefinition));
         }
     }
 
     @Override
-    public Job<K, R> getJobToRun()
+    public JobDefinition<K, D> getJobToRun()
     {
         for (Job<K, R> job : jobMap.values())
         {
             if(job.transitionTo(JobState.RUNNING))
             {
-                return job;
+                return jobDefinitionMap.get(job.getKey());
             }
         }
         return null;
@@ -66,5 +73,18 @@ public final class JobRepositoryImpl<K, R> implements JobRepository<K, R>
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean areJobsComplete()
+    {
+        for (Job<K, R> job : jobMap.values())
+        {
+            if(!job.getState().isComplete())
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }

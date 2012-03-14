@@ -24,6 +24,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -36,19 +37,26 @@ public final class JobRepositoryImplTest
     private static final String IDENTIFIER = "82174";
     
     @Mock
-    private JobLoader<String, String> jobLoader;
+    private JobDefinitionLoader<String, String> jobDefinitionLoader;
+    @Mock
+    private JobFactory<String, String, String> jobFactory;
     @Mock
     private Job<String, String> jobOne;
     @Mock
     private Job<String, String> jobTwo;
-    private JobRepositoryImpl<String, String> jobRepository;
+    @Mock
+    private JobDefinition<String, String> jobDefinitionOne;
+    @Mock
+    private JobDefinition<String, String> jobDefinitionTwo;
+
+    private JobRepositoryImpl<String, String, String> jobRepository;
 
     @Test
     public void shouldLoadJobsOnInit() throws Exception
     {
         jobRepository.init(IDENTIFIER);
 
-        verify(jobLoader).loadJobs(IDENTIFIER);
+        verify(jobDefinitionLoader).loadJobDefinitions(IDENTIFIER);
     }
 
     @Test
@@ -59,8 +67,8 @@ public final class JobRepositoryImplTest
         when(jobOne.transitionTo(JobState.RUNNING)).thenReturn(true, false);
         when(jobTwo.transitionTo(JobState.RUNNING)).thenReturn(true, false);
 
-        assertThat(jobRepository.getJobToRun(), is(jobOne));
-        assertThat(jobRepository.getJobToRun(), is(jobTwo));
+        assertThat(jobRepository.getJobToRun(), is(jobDefinitionOne));
+        assertThat(jobRepository.getJobToRun(), is(jobDefinitionTwo));
         assertThat(jobRepository.getJobToRun(), is(nullValue()));
     }
 
@@ -78,9 +86,14 @@ public final class JobRepositoryImplTest
     @Before
     public void setUp() throws Exception
     {
-        when(jobLoader.loadJobs(IDENTIFIER)).thenReturn(Arrays.asList(jobOne, jobTwo));
+        when(jobDefinitionLoader.loadJobDefinitions(IDENTIFIER)).
+                thenReturn(asList(jobDefinitionOne, jobDefinitionTwo));
         when(jobOne.getKey()).thenReturn("JOB-1");
         when(jobTwo.getKey()).thenReturn("JOB-2");
-        jobRepository = new JobRepositoryImpl<>(jobLoader);
+        when(jobDefinitionOne.getKey()).thenReturn("JOB-1");
+        when(jobDefinitionTwo.getKey()).thenReturn("JOB-2");
+        when(jobFactory.createJob(jobDefinitionOne)).thenReturn(jobOne);
+        when(jobFactory.createJob(jobDefinitionTwo)).thenReturn(jobTwo);
+        jobRepository = new JobRepositoryImpl<>(jobDefinitionLoader, jobFactory);
     }
 }

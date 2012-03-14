@@ -16,11 +16,8 @@
 
 package com.epickrram.romero.core;
 
-public interface Job<K, R>
+public interface JobDefinition<K, D>
 {
-    JobState getState();
-    boolean transitionTo(final JobState newState);
-    R getResult();
-    void setResult(final R result);
     K getKey();
+    D getData();
 }

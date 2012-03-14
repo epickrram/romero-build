@@ -14,13 +14,15 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.core;
+package com.epickrram.romero.server;
 
-public interface Job<K, R>
+import com.epickrram.romero.common.BuildStatus;
+import com.epickrram.romero.common.TestExecutionResult;
+
+public interface Server
 {
-    JobState getState();
-    boolean transitionTo(final JobState newState);
-    R getResult();
-    void setResult(final R result);
-    K getKey();
+    void startTestRun(final String identifier);
+    BuildStatus getStatus();
+    String getNextTestClassToRun();
+    void onTestExecutionResult(final TestExecutionResult testExecutionResult);
 }

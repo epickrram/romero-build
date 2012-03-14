@@ -16,9 +16,10 @@
 
 package com.epickrram.romero.core;
 
-public interface JobRepository<K, R>
+public interface JobRepository<K, D>
 {
-    Job<K, R> getJobToRun();
+    JobDefinition<K, D> getJobToRun();
     boolean isJobAvailable();
+    boolean areJobsComplete();
     void init(final String identifier);
 }
