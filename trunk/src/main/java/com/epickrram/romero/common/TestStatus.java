@@ -14,11 +14,12 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.core;
+package com.epickrram.romero.common;
 
-import java.util.List;
-
-public interface JobLoader<K, R>
+public enum TestStatus
 {
-    List<Job<K, R>> loadJobs(final String identifier);
+    SUCCESS,
+    FAILURE,
+    ERROR,
+    TIMED_OUT
 }

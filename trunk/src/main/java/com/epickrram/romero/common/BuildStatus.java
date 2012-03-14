@@ -14,13 +14,11 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.core;
+package com.epickrram.romero.common;
 
-public interface Job<K, R>
+public enum BuildStatus
 {
-    JobState getState();
-    boolean transitionTo(final JobState newState);
-    R getResult();
-    void setResult(final R result);
-    K getKey();
+    WAITING_FOR_NEXT_BUILD,
+    BUILDING,
+    WAITING_FOR_TESTS_TO_COMPLETE
 }

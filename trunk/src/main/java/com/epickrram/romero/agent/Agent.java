@@ -14,13 +14,8 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.core;
+package com.epickrram.romero.agent;
 
-public interface Job<K, R>
+public final class Agent
 {
-    JobState getState();
-    boolean transitionTo(final JobState newState);
-    R getResult();
-    void setResult(final R result);
-    K getKey();
 }

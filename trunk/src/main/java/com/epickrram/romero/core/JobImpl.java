@@ -16,11 +16,41 @@
 
 package com.epickrram.romero.core;
 
-public interface Job<K, R>
+public final class JobImpl<K, R> implements Job<K, R>
 {
-    JobState getState();
-    boolean transitionTo(final JobState newState);
-    R getResult();
-    void setResult(final R result);
-    K getKey();
+    private final K key;
+
+    public JobImpl(final K key)
+    {
+        this.key = key;
+    }
+
+    @Override
+    public JobState getState()
+    {
+        return null;
+    }
+
+    @Override
+    public boolean transitionTo(final JobState newState)
+    {
+        return false;
+    }
+
+    @Override
+    public R getResult()
+    {
+        return null;
+    }
+
+    @Override
+    public void setResult(final R result)
+    {
+    }
+
+    @Override
+    public K getKey()
+    {
+        return key;
+    }
 }

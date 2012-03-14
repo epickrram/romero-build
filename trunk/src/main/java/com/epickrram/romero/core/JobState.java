@@ -20,24 +20,31 @@ import java.util.Arrays;
 
 public enum JobState
 {
-    CANCELLED(),
-    FINISHED_SUCCESS(),
-    FINISHED_FAILED(),
-    TIMEOUT_CLIENT(),
-    TIMEOUT_SERVER(),
-    RUNNING(JobState.FINISHED_SUCCESS, JobState.FINISHED_FAILED, JobState.TIMEOUT_CLIENT, JobState.TIMEOUT_SERVER),
-    PENDING(JobState.RUNNING, JobState.CANCELLED);
+    CANCELLED(true),
+    FINISHED_SUCCESS(true),
+    FINISHED_FAILED(true),
+    TIMEOUT_CLIENT(true),
+    TIMEOUT_SERVER(true),
+    RUNNING(false, JobState.FINISHED_SUCCESS, JobState.FINISHED_FAILED, JobState.TIMEOUT_CLIENT, JobState.TIMEOUT_SERVER),
+    PENDING(false, JobState.RUNNING, JobState.CANCELLED);
 
     private final JobState[] validSuccessiveStates;
+    private final boolean isComplete;
 
-    JobState(final JobState... validSuccessiveStates)
+    JobState(final boolean isComplete, final JobState... validSuccessiveStates)
     {
         this.validSuccessiveStates = validSuccessiveStates;
+        this.isComplete = isComplete;
         Arrays.sort(this.validSuccessiveStates);
     }
 
     public boolean canTransitionTo(final JobState nextState)
     {
         return Arrays.binarySearch(this.validSuccessiveStates, nextState) >= 0;
+    }
+
+    public boolean isComplete()
+    {
+        return isComplete;
     }
 }
