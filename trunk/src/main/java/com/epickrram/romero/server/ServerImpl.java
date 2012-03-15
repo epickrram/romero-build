@@ -29,10 +29,10 @@ public final class ServerImpl implements Server
 {
     private static final Logger LOGGER = Logger.getLogger(ServerImpl.class.getSimpleName());
 
-    private final JobRepository<String, Properties> jobRepository;
+    private final JobRepository<String, Properties, TestExecutionResult> jobRepository;
     private final AtomicReference<BuildStatus> buildStatus = new AtomicReference<>(BuildStatus.WAITING_FOR_NEXT_BUILD);
 
-    public ServerImpl(final JobRepository<String, Properties> jobRepository)
+    public ServerImpl(final JobRepository<String, Properties, TestExecutionResult> jobRepository)
     {
         this.jobRepository = jobRepository;
     }
@@ -50,16 +50,7 @@ public final class ServerImpl implements Server
     @Override
     public BuildStatus getStatus()
     {
-        if(!jobRepository.isJobAvailable() &&
-                buildStatus.compareAndSet(BuildStatus.BUILDING, BuildStatus.WAITING_FOR_TESTS_TO_COMPLETE))
-        {
-            LOGGER.info("Waiting for tests to complete");
-        }
-        else if(jobRepository.areJobsComplete() &&
-                buildStatus.compareAndSet(BuildStatus.WAITING_FOR_TESTS_TO_COMPLETE, BuildStatus.WAITING_FOR_NEXT_BUILD))
-        {
-            LOGGER.info("Waiting for next build");
-        }
+        determineStatus();
         return buildStatus.get();
     }
 
@@ -73,5 +64,20 @@ public final class ServerImpl implements Server
     @Override
     public void onTestExecutionResult(final TestExecutionResult testExecutionResult)
     {
+        jobRepository.onJobResult(testExecutionResult.getTestClass(), testExecutionResult);
+    }
+
+    private void determineStatus()
+    {
+        if(!jobRepository.isJobAvailable() &&
+                buildStatus.compareAndSet(BuildStatus.BUILDING, BuildStatus.WAITING_FOR_TESTS_TO_COMPLETE))
+        {
+            LOGGER.info("Waiting for tests to complete");
+        }
+        else if(jobRepository.areJobsComplete() &&
+                buildStatus.compareAndSet(BuildStatus.WAITING_FOR_TESTS_TO_COMPLETE, BuildStatus.WAITING_FOR_NEXT_BUILD))
+        {
+            LOGGER.info("Waiting for next build");
+        }
     }
 }

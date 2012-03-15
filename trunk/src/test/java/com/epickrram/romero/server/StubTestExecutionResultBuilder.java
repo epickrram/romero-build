@@ -14,15 +14,33 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.core;
+package com.epickrram.romero.server;
 
-import java.util.Collection;
+import com.epickrram.romero.common.TestExecutionResult;
+import com.epickrram.romero.common.TestStatus;
 
-public interface Job<K, R>
+public final class StubTestExecutionResultBuilder
 {
-    JobState getState();
-    boolean transitionTo(final JobState newState);
-    Collection<R> getResultList();
-    void addResult(final R result);
-    K getKey();
+    private static final String TEST_METHOD = "testMethod";
+    private static final TestStatus TEST_STATUS = TestStatus.SUCCESS;
+    private static final long DURATION_MILLIS = 1500L;
+    private static final String STDOUT = "STDOUT";
+    private static final String STDERR = "STDERR";
+
+    public static TestExecutionResult getTestExecutionResult(final String testClass)
+    {
+        return getTestExecutionResultBuilder(testClass).
+                newInstance();
+    }
+
+    public static TestExecutionResult.Builder getTestExecutionResultBuilder(final String testClass)
+    {
+        return new TestExecutionResult.Builder().
+                testClass(testClass).
+                testMethod(TEST_METHOD).
+                testStatus(TEST_STATUS).
+                durationMillis(DURATION_MILLIS).
+                stdout(STDOUT).
+                stderr(STDERR);
+    }
 }

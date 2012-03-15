@@ -14,15 +14,23 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.core;
+package com.epickrram.romero.common;
 
-import java.util.Collection;
+import com.epickrram.romero.common.TestCaseIdentifier;
+import com.epickrram.romero.common.TestExecutionResult;
+import com.epickrram.romero.core.AbstractJob;
+import com.epickrram.romero.core.JobState;
 
-public interface Job<K, R>
+public final class TestCaseJob extends AbstractJob<TestCaseIdentifier, TestExecutionResult>
 {
-    JobState getState();
-    boolean transitionTo(final JobState newState);
-    Collection<R> getResultList();
-    void addResult(final R result);
-    K getKey();
+    public TestCaseJob(final TestCaseIdentifier key)
+    {
+        super(key);
+    }
+
+    @Override
+    protected JobState getNewJobState(final TestExecutionResult result)
+    {
+        return getResultList().size() == getKey().getNumberOfTestMethods() ? JobState.FINISHED_SUCCESS : null;
+    }
 }

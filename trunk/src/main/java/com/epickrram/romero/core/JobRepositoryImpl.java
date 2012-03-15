@@ -19,9 +19,11 @@ package com.epickrram.romero.core;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.logging.Logger;
 
-public final class JobRepositoryImpl<K, D, R> implements JobRepository<K, D>
+public final class JobRepositoryImpl<K, D, R> implements JobRepository<K, D, R>
 {
+    private static final Logger LOGGER = Logger.getLogger(JobRepositoryImpl.class.getSimpleName());
     private final JobDefinitionLoader<K, D> jobDefinitionLoader;
     private final Map<K, Job<K, R>> jobMap;
     private final Map<K, JobDefinition<K, D>> jobDefinitionMap;
@@ -86,5 +88,19 @@ public final class JobRepositoryImpl<K, D, R> implements JobRepository<K, D>
             }
         }
         return true;
+    }
+
+    @Override
+    public void onJobResult(final K key, final R result)
+    {
+        final Job<K, R> job = jobMap.get(key);
+        if(job != null)
+        {
+            job.addResult(result);
+        }
+        else
+        {
+            LOGGER.warning("Received result for unknown job: " + key);
+        }
     }
 }
