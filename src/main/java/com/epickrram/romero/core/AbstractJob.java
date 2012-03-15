@@ -17,12 +17,55 @@
 package com.epickrram.romero.core;
 
 import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
-public interface Job<K, R>
+public abstract class AbstractJob<K, R> implements Job<K, R>
 {
-    JobState getState();
-    boolean transitionTo(final JobState newState);
-    Collection<R> getResultList();
-    void addResult(final R result);
-    K getKey();
+    private final AtomicReference<JobState> jobState = new AtomicReference<>(JobState.PENDING);
+    private final Collection<R> resultList = new CopyOnWriteArrayList<>();
+    private final K key;
+
+    public AbstractJob(final K key)
+    {
+        this.key = key;
+    }
+
+    @Override
+    public JobState getState()
+    {
+        return jobState.get();
+    }
+
+    @Override
+    public boolean transitionTo(final JobState newState)
+    {
+        final JobState currentState = jobState.get();
+        return currentState.canTransitionTo(newState) && jobState.compareAndSet(currentState, newState);
+    }
+
+    @Override
+    public Collection<R> getResultList()
+    {
+        return resultList;
+    }
+
+    @Override
+    public void addResult(final R result)
+    {
+        resultList.add(result);
+        final JobState newJobState = getNewJobState(result);
+        if(newJobState != null)
+        {
+            jobState.set(newJobState);
+        }
+    }
+
+    @Override
+    public K getKey()
+    {
+        return key;
+    }
+
+    protected abstract JobState getNewJobState(final R result);
 }

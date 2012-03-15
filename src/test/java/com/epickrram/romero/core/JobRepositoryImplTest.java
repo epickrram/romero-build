@@ -22,8 +22,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
-
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -35,7 +33,10 @@ import static org.mockito.Mockito.when;
 public final class JobRepositoryImplTest
 {
     private static final String IDENTIFIER = "82174";
-    
+    private static final String RESULT = "RESULT";
+    private static final String JOB_1 = "JOB-1";
+    private static final String JOB_2 = "JOB-2";
+
     @Mock
     private JobDefinitionLoader<String, String> jobDefinitionLoader;
     @Mock
@@ -83,15 +84,33 @@ public final class JobRepositoryImplTest
         assertThat(jobRepository.isJobAvailable(), is(false));
     }
 
+    @Test
+    public void shouldUpdateJobWithResult() throws Exception
+    {
+        jobRepository.init(IDENTIFIER);
+
+        jobRepository.onJobResult(JOB_1, RESULT);
+
+        verify(jobOne).addResult(RESULT);
+    }
+
+    @Test
+    public void shouldNotBlowUpIfResultIsReceivedForUnknownJob() throws Exception
+    {
+        jobRepository.init(IDENTIFIER);
+
+        jobRepository.onJobResult("OTHER_JOB", RESULT);
+    }
+
     @Before
     public void setUp() throws Exception
     {
         when(jobDefinitionLoader.loadJobDefinitions(IDENTIFIER)).
                 thenReturn(asList(jobDefinitionOne, jobDefinitionTwo));
-        when(jobOne.getKey()).thenReturn("JOB-1");
-        when(jobTwo.getKey()).thenReturn("JOB-2");
-        when(jobDefinitionOne.getKey()).thenReturn("JOB-1");
-        when(jobDefinitionTwo.getKey()).thenReturn("JOB-2");
+        when(jobOne.getKey()).thenReturn(JOB_1);
+        when(jobTwo.getKey()).thenReturn(JOB_2);
+        when(jobDefinitionOne.getKey()).thenReturn(JOB_1);
+        when(jobDefinitionTwo.getKey()).thenReturn(JOB_2);
         when(jobFactory.createJob(jobDefinitionOne)).thenReturn(jobOne);
         when(jobFactory.createJob(jobDefinitionTwo)).thenReturn(jobTwo);
         jobRepository = new JobRepositoryImpl<>(jobDefinitionLoader, jobFactory);

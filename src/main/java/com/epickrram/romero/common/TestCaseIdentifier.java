@@ -14,43 +14,54 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.core;
+package com.epickrram.romero.common;
 
-public final class JobImpl<K, R> implements Job<K, R>
+import java.util.Comparator;
+
+public final class TestCaseIdentifier implements Comparable<TestCaseIdentifier>
 {
-    private final K key;
+    private static final DefaultComparator DEFAULT_COMPARATOR = new DefaultComparator();
 
-    public JobImpl(final K key)
+    private final String testClass;
+    private final int numberOfTestMethods;
+    private final long lastRunDurationMillis;
+    private final Comparator<TestCaseIdentifier> comparator;
+
+    public TestCaseIdentifier(final String testClass, final int numberOfTestMethods, final long lastRunDurationMillis)
     {
-        this.key = key;
+        this.testClass = testClass;
+        this.numberOfTestMethods = numberOfTestMethods;
+        this.lastRunDurationMillis = lastRunDurationMillis;
+        comparator = DEFAULT_COMPARATOR;
     }
 
     @Override
-    public JobState getState()
+    public int compareTo(final TestCaseIdentifier other)
     {
-        return null;
+        return comparator.compare(this, other);
     }
 
-    @Override
-    public boolean transitionTo(final JobState newState)
+    public String getTestClass()
     {
-        return false;
+        return testClass;
     }
 
-    @Override
-    public R getResult()
+    public int getNumberOfTestMethods()
     {
-        return null;
+        return numberOfTestMethods;
     }
 
-    @Override
-    public void setResult(final R result)
+    public long getLastRunDurationMillis()
     {
+        return lastRunDurationMillis;
     }
 
-    @Override
-    public K getKey()
+    private static final class DefaultComparator implements  Comparator<TestCaseIdentifier>
     {
-        return key;
+        @Override
+        public int compare(final TestCaseIdentifier o1, final TestCaseIdentifier o2)
+        {
+            return o1.testClass.compareTo(o2.testClass);
+        }
     }
 }

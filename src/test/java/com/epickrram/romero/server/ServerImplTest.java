@@ -17,6 +17,8 @@
 package com.epickrram.romero.server;
 
 import com.epickrram.romero.common.BuildStatus;
+import com.epickrram.romero.common.TestExecutionResult;
+import com.epickrram.romero.core.Job;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobRepository;
 import org.hamcrest.CoreMatchers;
@@ -29,6 +31,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Properties;
 
+import static com.epickrram.romero.server.StubTestExecutionResultBuilder.getTestExecutionResult;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -39,10 +42,14 @@ public final class ServerImplTest
 {
     private static final String IDENTIFIER = "IDENTIFIER";
     private static final String JOB_1 = "JOB-1";
+
     @Mock
     private JobDefinition<String, Properties> jobDefinition;
     @Mock
-    private JobRepository<String, Properties> jobRepository;
+    private Job<String, TestExecutionResult> job;
+    @Mock
+    private JobRepository<String, Properties, TestExecutionResult> jobRepository;
+
     private ServerImpl server;
 
     @Test
@@ -125,6 +132,19 @@ public final class ServerImplTest
         server.startTestRun(IDENTIFIER);
 
         verify(jobRepository, times(2)).init(IDENTIFIER);
+    }
+
+    @Test
+    public void shouldUpdateRepositoryJobOnTestExecutionResult() throws Exception
+    {
+        server.startTestRun(IDENTIFIER);
+        server.getNextTestClassToRun();
+
+        final TestExecutionResult result = getTestExecutionResult(JOB_1);
+        
+        server.onTestExecutionResult(result);
+
+        verify(jobRepository).onJobResult(JOB_1, result);
     }
 
     @Before

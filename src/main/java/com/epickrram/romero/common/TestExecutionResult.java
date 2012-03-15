@@ -89,39 +89,46 @@ public final class TestExecutionResult
             return new TestExecutionResult(testClass, testMethod, testStatus, durationMillis, stdout, stderr, throwable);
         }
 
-        public void testClass(final String testClass)
+        public Builder testClass(final String testClass)
         {
             this.testClass = testClass;
+            return this;
         }
 
-        public void testMethod(final String testMethod)
+        public Builder testMethod(final String testMethod)
         {
             this.testMethod = testMethod;
+            return this;
         }
 
-        public void testStatus(final TestStatus testStatus)
+        public Builder testStatus(final TestStatus testStatus)
         {
             this.testStatus = testStatus;
+            return this;
         }
 
-        public void durationMillis(final long durationMillis)
+        public Builder durationMillis(final long durationMillis)
         {
             this.durationMillis = durationMillis;
+            return this;
         }
 
-        public void stdout(final String stdout)
+        public Builder stdout(final String stdout)
         {
             this.stdout = stdout;
+            return this;
         }
 
-        public void stderr(final String stderr)
+        public Builder stderr(final String stderr)
         {
             this.stderr = stderr;
+            return this;
         }
 
-        public void throwable(final Throwable throwable)
+        public Builder throwable(final Throwable throwable)
         {
             this.throwable = throwable;
+            return this;
         }
     }
 }
