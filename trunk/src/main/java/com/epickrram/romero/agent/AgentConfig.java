@@ -14,15 +14,19 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.core;
+package com.epickrram.romero.agent;
 
-import java.util.Collection;
-
-public interface Job<K, R>
+public final class AgentConfig
 {
-    JobState getState();
-    boolean transitionTo(final JobState newState);
-    Collection<R> getResultList();
-    void addResult(final R result, final JobEventListener<K, R> jobEventListener);
-    K getKey();
+    private final String testCaseWrapperClassName;
+
+    public AgentConfig(final String testCaseWrapperClassName)
+    {
+        this.testCaseWrapperClassName = testCaseWrapperClassName;
+    }
+
+    public String getTestCaseWrapperClassName()
+    {
+        return testCaseWrapperClassName;
+    }
 }

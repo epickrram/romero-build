@@ -49,6 +49,8 @@ public final class JobRepositoryImplTest
     private JobDefinition<String, String> jobDefinitionOne;
     @Mock
     private JobDefinition<String, String> jobDefinitionTwo;
+    @Mock
+    private JobEventListener<String, String> jobEventListener;
 
     private JobRepositoryImpl<String, String, String> jobRepository;
 
@@ -71,6 +73,9 @@ public final class JobRepositoryImplTest
         assertThat(jobRepository.getJobToRun(), is(jobDefinitionOne));
         assertThat(jobRepository.getJobToRun(), is(jobDefinitionTwo));
         assertThat(jobRepository.getJobToRun(), is(nullValue()));
+
+        verify(jobEventListener).onJobUpdate(jobOne);
+        verify(jobEventListener).onJobUpdate(jobTwo);
     }
 
     @Test
@@ -78,7 +83,7 @@ public final class JobRepositoryImplTest
     {
         jobRepository.init(IDENTIFIER);
 
-        when(jobOne.getState()).thenReturn(JobState.FINISHED_SUCCESS);
+        when(jobOne.getState()).thenReturn(JobState.FINISHED);
         when(jobTwo.getState()).thenReturn(JobState.RUNNING);
 
         assertThat(jobRepository.isJobAvailable(), is(false));
@@ -91,7 +96,7 @@ public final class JobRepositoryImplTest
 
         jobRepository.onJobResult(JOB_1, RESULT);
 
-        verify(jobOne).addResult(RESULT);
+        verify(jobOne).addResult(RESULT, jobEventListener);
     }
 
     @Test
@@ -113,6 +118,6 @@ public final class JobRepositoryImplTest
         when(jobDefinitionTwo.getKey()).thenReturn(JOB_2);
         when(jobFactory.createJob(jobDefinitionOne)).thenReturn(jobOne);
         when(jobFactory.createJob(jobDefinitionTwo)).thenReturn(jobTwo);
-        jobRepository = new JobRepositoryImpl<>(jobDefinitionLoader, jobFactory);
+        jobRepository = new JobRepositoryImpl<>(jobDefinitionLoader, jobFactory, jobEventListener);
     }
 }

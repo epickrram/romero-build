@@ -16,8 +16,6 @@
 
 package com.epickrram.romero.common;
 
-import com.epickrram.romero.common.TestCaseIdentifier;
-import com.epickrram.romero.common.TestExecutionResult;
 import com.epickrram.romero.core.AbstractJob;
 import com.epickrram.romero.core.JobState;
 
@@ -31,6 +29,6 @@ public final class TestCaseJob extends AbstractJob<TestCaseIdentifier, TestExecu
     @Override
     protected JobState getNewJobState(final TestExecutionResult result)
     {
-        return getResultList().size() == getKey().getNumberOfTestMethods() ? JobState.FINISHED_SUCCESS : null;
+        return getResultList().size() == getKey().getNumberOfTestMethods() ? JobState.FINISHED : null;
     }
 }

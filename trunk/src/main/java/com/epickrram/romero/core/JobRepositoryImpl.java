@@ -28,12 +28,15 @@ public final class JobRepositoryImpl<K, D, R> implements JobRepository<K, D, R>
     private final Map<K, Job<K, R>> jobMap;
     private final Map<K, JobDefinition<K, D>> jobDefinitionMap;
     private final JobFactory<K, D, R> jobFactory;
+    private final JobEventListener<K, R> jobEventListener;
 
     public JobRepositoryImpl(final JobDefinitionLoader<K, D> jobDefinitionLoader,
-                             final JobFactory<K, D, R> jobFactory)
+                             final JobFactory<K, D, R> jobFactory,
+                             final JobEventListener<K, R> jobEventListener)
     {
         this.jobDefinitionLoader = jobDefinitionLoader;
         this.jobFactory = jobFactory;
+        this.jobEventListener = jobEventListener;
         jobMap = new ConcurrentSkipListMap<>();
         jobDefinitionMap = new ConcurrentSkipListMap<>();
     }
@@ -58,6 +61,7 @@ public final class JobRepositoryImpl<K, D, R> implements JobRepository<K, D, R>
         {
             if(job.transitionTo(JobState.RUNNING))
             {
+                jobEventListener.onJobUpdate(job);
                 return jobDefinitionMap.get(job.getKey());
             }
         }
@@ -96,7 +100,7 @@ public final class JobRepositoryImpl<K, D, R> implements JobRepository<K, D, R>
         final Job<K, R> job = jobMap.get(key);
         if(job != null)
         {
-            job.addResult(result);
+            job.addResult(result, jobEventListener);
         }
         else
         {

@@ -16,13 +16,7 @@
 
 package com.epickrram.romero.core;
 
-import java.util.Collection;
-
-public interface Job<K, R>
+public interface JobEventListener<K, R>
 {
-    JobState getState();
-    boolean transitionTo(final JobState newState);
-    Collection<R> getResultList();
-    void addResult(final R result, final JobEventListener<K, R> jobEventListener);
-    K getKey();
+    void onJobUpdate(final Job<K, R> updatedJob);
 }
