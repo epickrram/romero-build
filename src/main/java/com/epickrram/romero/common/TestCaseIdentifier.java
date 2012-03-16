@@ -27,12 +27,19 @@ public final class TestCaseIdentifier implements Comparable<TestCaseIdentifier>
     private final long lastRunDurationMillis;
     private final Comparator<TestCaseIdentifier> comparator;
 
-    public TestCaseIdentifier(final String testClass, final int numberOfTestMethods, final long lastRunDurationMillis)
+    public TestCaseIdentifier(final String testClass, final int numberOfTestMethods,
+                              final long lastRunDurationMillis)
+    {
+        this(testClass, numberOfTestMethods, lastRunDurationMillis, DEFAULT_COMPARATOR);
+    }
+
+    public TestCaseIdentifier(final String testClass, final int numberOfTestMethods,
+                              final long lastRunDurationMillis, final Comparator<TestCaseIdentifier> comparator)
     {
         this.testClass = testClass;
         this.numberOfTestMethods = numberOfTestMethods;
         this.lastRunDurationMillis = lastRunDurationMillis;
-        comparator = DEFAULT_COMPARATOR;
+        this.comparator = comparator;
     }
 
     @Override
