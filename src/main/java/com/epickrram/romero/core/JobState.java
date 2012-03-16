@@ -21,11 +21,10 @@ import java.util.Arrays;
 public enum JobState
 {
     CANCELLED(true),
-    FINISHED_SUCCESS(true),
-    FINISHED_FAILED(true),
+    FINISHED(true),
     TIMEOUT_CLIENT(true),
     TIMEOUT_SERVER(true),
-    RUNNING(false, JobState.FINISHED_SUCCESS, JobState.FINISHED_FAILED, JobState.TIMEOUT_CLIENT, JobState.TIMEOUT_SERVER),
+    RUNNING(false, JobState.FINISHED, JobState.TIMEOUT_CLIENT, JobState.TIMEOUT_SERVER),
     PENDING(false, JobState.RUNNING, JobState.CANCELLED);
 
     private final JobState[] validSuccessiveStates;

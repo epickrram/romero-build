@@ -14,15 +14,23 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.core;
+package com.epickrram.romero.agent;
 
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
-public interface Job<K, R>
+public final class TestingContext
 {
-    JobState getState();
-    boolean transitionTo(final JobState newState);
-    Collection<R> getResultList();
-    void addResult(final R result, final JobEventListener<K, R> jobEventListener);
-    K getKey();
+    private final Map<String, Object> valueMap = new HashMap<>();
+
+    @SuppressWarnings({"unchecked"})
+    public <T> T getValue(final String key)
+    {
+        return (T) valueMap.get(key);
+    }
+
+    public <T> void setValue(final String key, final T value)
+    {
+        valueMap.put(key, value);
+    }
 }

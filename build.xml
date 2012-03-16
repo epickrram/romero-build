@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="romero" basedir="." default="all">
+
+    <property name="build.dir" value="build"/>
+    <property name="main.classes.dir" value="build/main/classes"/>
+    <property name="dist.dir" value="build/dist"/>
+    <property name="test-classes.dir" value="build/test/classes"/>
+    <property name="test-output.dir" value="build/test/output"/>
+    <property name="test.report.dir" value="${test-output.dir}/report/junit"/>
+    <property name="main.src.dir" value="src/main/java"/>
+    <property name="main.resources.dir" value="src/main/resources"/>
+    <property name="test.src.dir" value="src/test/java"/>
+    <property name="test.resources.dir" value="src/test/resources"/>
+    <property name="release.dir" value="build/release"/>
+    <property name="majorVersion" value="0"/>
+    <property name="minorVersion" value="1"/>
+
+    <path id="dist.class.path">
+        <fileset dir="lib/dist">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="build.class.path">
+        <fileset dir="lib/build">
+            <include name="*.jar"/>
+        </fileset>
+        <path refid="dist.class.path"/>
+    </path>
+
+    <path id="test-class.class.path">
+        <path refid="dist.class.path"/>
+        <path refid="build.class.path"/>
+    </path>
+
+    <path id="test.class.path">
+        <path refid="dist.class.path"/>
+        <path refid="build.class.path"/>
+        <path refid="test-class.class.path"/>
+        <path location="${main.classes.dir}"/>
+        <path location="${test-classes.dir}"/>
+    </path>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <target name="compile" depends="clean">
+        <mkdir dir="${main.classes.dir}"/>
+        <javac destdir="${main.classes.dir}" srcdir="${main.src.dir}" target="7" source="7" debug="true"
+               debuglevel="lines,vars,source">
+            <classpath refid="build.class.path"/>
+        </javac>
+    </target>
+
+    <target name="compile-test" depends="clean, compile">
+        <mkdir dir="${test-classes.dir}"/>
+        <javac destdir="${test-classes.dir}" srcdir="${test.src.dir}" target="7" source="7" debug="true"
+               debuglevel="lines,vars,source">
+            <classpath refid="test.class.path"/>
+        </javac>
+    </target>
+
+    <target name="test">
+        <mkdir dir="${test-output.dir}"/>
+        <mkdir dir="${test.report.dir}/xml"/>
+        <mkdir dir="${test.report.dir}/html"/>
+
+        <junit printsummary="yes" haltonfailure="no">
+            <classpath>
+                <path refid="test.class.path"/>
+            </classpath>
+
+            <batchtest fork="yes" todir="${test.report.dir}/xml">
+                <fileset dir="${test.src.dir}">
+                    <include name="**/*Test.java"/>
+                </fileset>
+
+                <formatter type="xml"/>
+            </batchtest>
+        </junit>
+
+        <junitreport todir="${test.report.dir}">
+            <fileset dir="${test.report.dir}/xml">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report todir="${test.report.dir}/html"
+                    format="frames">
+            </report>
+        </junitreport>
+    </target>
+
+
+    <!--<target name="jar" depends="compile">-->
+    <!--<jar destfile="${dist.dir}/romero-${majorVersion}.${minorVersion}.jar"-->
+    <!--basedir="${dist.dir}/classes" manifest="manifest/MANIFEST.MF"/>-->
+    <!--</target>-->
+
+    <!--<target name="dist" depends="jar">-->
+    <!--<delete dir="${release.dir}"/>-->
+    <!--<mkdir dir="${release.dir}"/>-->
+    <!--<copy todir="${release.dir}">-->
+    <!--<fileset dir="${dist.dir}" includes="romero-${majorVersion}.${minorVersion}.jar"/>-->
+    <!--</copy>-->
+
+    <!--<mkdir dir="${release.dir}/lib"/>-->
+    <!--<copy todir="${release.dir}/lib">-->
+    <!--<fileset dir="lib/dist">-->
+    <!--<include name="*.jar"/>-->
+    <!--</fileset>-->
+    <!--</copy>-->
+
+    <!--<zip zipfile="${dist.dir}/romero-${majorVersion}.${minorVersion}.zip">-->
+    <!--<fileset dir="${release.dir}" includes="**/*"/>-->
+    <!--</zip>-->
+    <!--</target>-->
+
+    <target name="all" depends="test"/>
+
+</project>
+	

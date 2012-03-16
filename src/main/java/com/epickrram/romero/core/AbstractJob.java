@@ -51,7 +51,7 @@ public abstract class AbstractJob<K, R> implements Job<K, R>
     }
 
     @Override
-    public void addResult(final R result)
+    public void addResult(final R result, final JobEventListener<K, R> jobEventListener)
     {
         resultList.add(result);
         final JobState newJobState = getNewJobState(result);

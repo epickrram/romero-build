@@ -35,7 +35,7 @@ public final class JobStateTest
     public void shouldTransitionFromRunningToTimeoutOrFinished() throws Exception
     {
         assertValidTransition(JobState.RUNNING, JobState.TIMEOUT_SERVER, JobState.TIMEOUT_CLIENT,
-                                                JobState.FINISHED_FAILED, JobState.FINISHED_SUCCESS);
+                                                JobState.FINISHED);
     }
 
     @Test
@@ -45,15 +45,9 @@ public final class JobStateTest
     }
 
     @Test
-    public void shouldNotTransitionFromFinishedFailed() throws Exception
+    public void shouldNotTransitionFromFinished() throws Exception
     {
-        assertValidTransition(JobState.FINISHED_FAILED);
-    }
-
-    @Test
-    public void shouldNotTransitionFromFinishedSuccess() throws Exception
-    {
-        assertValidTransition(JobState.FINISHED_SUCCESS);
+        assertValidTransition(JobState.FINISHED);
     }
 
     @Test
