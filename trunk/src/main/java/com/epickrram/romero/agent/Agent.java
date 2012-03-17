@@ -16,6 +16,16 @@
 
 package com.epickrram.romero.agent;
 
+import com.epickrram.romero.server.Server;
+
 public final class Agent
 {
+    private final Server server;
+    private final String agentId;
+
+    public Agent(final Server server, final String agentId)
+    {
+        this.server = server;
+        this.agentId = agentId;
+    }
 }
