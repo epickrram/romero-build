@@ -21,8 +21,6 @@ import com.epickrram.romero.common.TestExecutionResult;
 import com.epickrram.romero.core.Job;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobRepository;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +40,7 @@ public final class ServerImplTest
 {
     private static final String IDENTIFIER = "IDENTIFIER";
     private static final String JOB_1 = "JOB-1";
+    private static final String AGENT_ID = "AGENT_ID";
 
     @Mock
     private JobDefinition<String, Properties> jobDefinition;
@@ -81,7 +80,7 @@ public final class ServerImplTest
         when(jobRepository.isJobAvailable()).thenReturn(true);
         when(jobRepository.getJobToRun()).thenReturn(jobDefinition);
 
-        final String nextTestClassToRun = server.getNextTestClassToRun();
+        final String nextTestClassToRun = server.getNextTestClassToRun(AGENT_ID);
 
         assertThat(nextTestClassToRun, is(JOB_1));
     }
@@ -92,7 +91,7 @@ public final class ServerImplTest
         when(jobRepository.isJobAvailable()).thenReturn(true);
         when(jobRepository.getJobToRun()).thenReturn(null);
 
-        final String nextTestClassToRun = server.getNextTestClassToRun();
+        final String nextTestClassToRun = server.getNextTestClassToRun(AGENT_ID);
 
         assertThat(nextTestClassToRun, is(nullValue()));
     }
@@ -138,7 +137,7 @@ public final class ServerImplTest
     public void shouldUpdateRepositoryJobOnTestExecutionResult() throws Exception
     {
         server.startTestRun(IDENTIFIER);
-        server.getNextTestClassToRun();
+        server.getNextTestClassToRun(AGENT_ID);
 
         final TestExecutionResult result = getTestExecutionResult(JOB_1);
         

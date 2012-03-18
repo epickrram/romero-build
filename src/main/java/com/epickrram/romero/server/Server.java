@@ -23,6 +23,6 @@ public interface Server
 {
     void startTestRun(final String identifier);
     BuildStatus getStatus();
-    String getNextTestClassToRun();
+    String getNextTestClassToRun(final String agentId);
     void onTestExecutionResult(final TestExecutionResult testExecutionResult);
 }
