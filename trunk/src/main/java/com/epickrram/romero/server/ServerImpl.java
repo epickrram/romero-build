@@ -55,7 +55,7 @@ public final class ServerImpl implements Server
     }
 
     @Override
-    public String getNextTestClassToRun()
+    public String getNextTestClassToRun(final String agentId)
     {
         final JobDefinition<String,Properties> jobToRun = jobRepository.getJobToRun();
         return jobToRun != null ? jobToRun.getKey() : null;
