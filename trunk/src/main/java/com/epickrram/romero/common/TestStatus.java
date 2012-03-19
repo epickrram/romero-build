@@ -21,5 +21,6 @@ public enum TestStatus
     SUCCESS,
     FAILURE,
     ERROR,
-    TIMED_OUT
+    TIMED_OUT,
+    IGNORED
 }

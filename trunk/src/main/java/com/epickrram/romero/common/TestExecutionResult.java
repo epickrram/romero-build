@@ -74,6 +74,20 @@ public final class TestExecutionResult
         return throwable;
     }
 
+    @Override
+    public String toString()
+    {
+        return "TestExecutionResult{" +
+                "testClass='" + testClass + '\'' +
+                ", testMethod='" + testMethod + '\'' +
+                ", testStatus=" + testStatus +
+                ", durationMillis=" + durationMillis +
+                ", stdout='" + stdout + '\'' +
+                ", stderr='" + stderr + '\'' +
+                ", throwable=" + throwable +
+                '}';
+    }
+
     public static final class Builder
     {
         private String testClass;
