@@ -24,11 +24,11 @@ public final class TestExecutionResult
     private final long durationMillis;
     private final String stdout;
     private final String stderr;
-    private final Throwable throwable;
+    private final String throwable;
 
     private TestExecutionResult(final String testClass, final String testMethod, final TestStatus testStatus,
                                 final long durationMillis, final String stdout, final String stderr,
-                                final Throwable throwable)
+                                final String throwable)
     {
         this.testClass = testClass;
         this.testMethod = testMethod;
@@ -69,7 +69,7 @@ public final class TestExecutionResult
         return stderr;
     }
 
-    public Throwable getThrowable()
+    public String getThrowable()
     {
         return throwable;
     }
@@ -96,7 +96,7 @@ public final class TestExecutionResult
         private long durationMillis;
         private String stdout;
         private String stderr;
-        private Throwable throwable;
+        private String throwable;
 
         public TestExecutionResult newInstance()
         {
@@ -139,7 +139,7 @@ public final class TestExecutionResult
             return this;
         }
 
-        public Builder throwable(final Throwable throwable)
+        public Builder throwable(final String throwable)
         {
             this.throwable = throwable;
             return this;

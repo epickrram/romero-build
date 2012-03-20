@@ -1,5 +1,6 @@
 package com.epickrram.romero.agent.junit;
 
+import com.epickrram.romero.common.TestCaseJobResult;
 import com.epickrram.romero.common.TestExecutionResult;
 import com.epickrram.romero.common.TestStatus;
 import org.junit.runner.Description;
@@ -7,25 +8,27 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import static com.epickrram.romero.agent.junit.JUnitClassNameUtil.*;
 import static com.epickrram.romero.common.TestStatus.*;
 
 public final class TestExecutionResultRunListener extends RunListener
 {
-    private final Collection<TestExecutionResult> results = new ArrayList<>();
-    private TestExecutionResult.Builder resultBuilder;
+    private TestExecutionResult.Builder testMethodResultBuilder;
+    private TestCaseJobResult.Builder testCaseResultBuilder;
+    private TestCaseJobResult testCaseJobResult;
 
     @Override
     public void testRunStarted(final Description description) throws Exception
     {
+        testCaseResultBuilder = new TestCaseJobResult.Builder();
+        testCaseResultBuilder.testRunStart(System.currentTimeMillis());
     }
 
     @Override
     public void testRunFinished(final Result result) throws Exception
     {
+        testCaseResultBuilder.testRunFinish(System.currentTimeMillis());
+        testCaseJobResult = testCaseResultBuilder.newInstance();
     }
 
     @Override
@@ -44,13 +47,15 @@ public final class TestExecutionResultRunListener extends RunListener
     @Override
     public void testFailure(final Failure failure) throws Exception
     {
-        resultBuilder.testStatus(failure.getException() instanceof AssertionError ? FAILURE : ERROR);
+        final boolean isAssertionError = failure.getException() instanceof AssertionError;
+        testMethodResultBuilder.testStatus(isAssertionError ? FAILURE : ERROR);
+        testMethodResultBuilder.throwable(failure.getTrace());
     }
 
     @Override
     public void testAssumptionFailure(final Failure failure)
     {
-        resultBuilder.testStatus(FAILURE);
+        testMethodResultBuilder.testStatus(FAILURE);
     }
 
     @Override
@@ -60,27 +65,31 @@ public final class TestExecutionResultRunListener extends RunListener
         onResult();
     }
 
-    public Collection<TestExecutionResult> getResults()
+    public TestCaseJobResult getTestCaseJobResult()
     {
-        return results;
+        return testCaseJobResult == null ?
+                testCaseResultBuilder.testRunFinish(System.currentTimeMillis()).newInstance() :
+                testCaseJobResult;
     }
 
     private void onResult()
     {
-        results.add(resultBuilder.newInstance());
+        testCaseResultBuilder.testExecutionResult(testMethodResultBuilder.newInstance());
     }
 
     private void initialiseWithStatus(final Description description, final TestStatus initialStatus)
     {
-        resultBuilder = new TestExecutionResult.Builder();
+        testMethodResultBuilder = new TestExecutionResult.Builder();
         setTestDetails(description);
-        resultBuilder.testStatus(initialStatus);
+        testMethodResultBuilder.testStatus(initialStatus);
     }
 
     private void setTestDetails(final Description description)
     {
         final String[] classNameAndMethod = fromDisplayName(description.getDisplayName());
-        resultBuilder.testClass(classNameAndMethod[TEST_CLASS_NAME]);
-        resultBuilder.testMethod(classNameAndMethod[TEST_METHOD_NAME]);
+        final String testClass = classNameAndMethod[TEST_CLASS_NAME];
+        testMethodResultBuilder.testClass(testClass);
+        testMethodResultBuilder.testMethod(classNameAndMethod[TEST_METHOD_NAME]);
+        testCaseResultBuilder.testClass(testClass);
     }
 }
