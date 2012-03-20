@@ -14,9 +14,28 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+package com.epickrram.romero.core;
 
-public interface AgentStatusServer
+public final class JobDefinitionImpl<K, D> implements JobDefinition<K, D>
 {
-    void start();
+    private final K key;
+    private final D data;
+
+    public JobDefinitionImpl(final K key, final D data)
+    {
+        this.key = key;
+        this.data = data;
+    }
+
+    @Override
+    public K getKey()
+    {
+        return key;
+    }
+
+    @Override
+    public D getData()
+    {
+        return data;
+    }
 }

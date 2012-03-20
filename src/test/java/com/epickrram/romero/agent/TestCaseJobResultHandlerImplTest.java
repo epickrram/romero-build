@@ -16,7 +16,38 @@
 
 package com.epickrram.romero.agent;
 
-public interface AgentStatusServer
+import com.epickrram.romero.common.TestCaseJobResult;
+import com.epickrram.romero.server.Server;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static com.epickrram.romero.server.StubTestResultBuilder.getTestCaseJobResult;
+import static org.mockito.Mockito.verify;
+
+
+@RunWith(MockitoJUnitRunner.class)
+public final class TestCaseJobResultHandlerImplTest
 {
-    void start();
+    @Mock
+    private Server server;
+    private TestCaseJobResultHandlerImpl resultHandler;
+    private TestCaseJobResult result;
+
+    @Test
+    public void shouldNotifyServerOfTestCaseJobResult() throws Exception
+    {
+        resultHandler.onTestCaseJobResult(result);
+
+        verify(server).onTestCaseJobResult(result);
+    }
+
+    @Before
+    public void setup() throws Exception
+    {
+        resultHandler = new TestCaseJobResultHandlerImpl(server);
+        result = getTestCaseJobResult("test.class");
+    }
 }

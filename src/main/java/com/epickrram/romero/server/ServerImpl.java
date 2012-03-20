@@ -17,7 +17,8 @@
 package com.epickrram.romero.server;
 
 import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.common.TestExecutionResult;
+import com.epickrram.romero.common.TestCaseIdentifier;
+import com.epickrram.romero.common.TestCaseJobResult;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobRepository;
 
@@ -25,14 +26,16 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
+import static com.epickrram.romero.common.TestCaseIdentifier.toMapKey;
+
 public final class ServerImpl implements Server
 {
     private static final Logger LOGGER = Logger.getLogger(ServerImpl.class.getSimpleName());
 
-    private final JobRepository<String, Properties, TestExecutionResult> jobRepository;
+    private final JobRepository<TestCaseIdentifier, Properties, TestCaseJobResult> jobRepository;
     private final AtomicReference<BuildStatus> buildStatus = new AtomicReference<>(BuildStatus.WAITING_FOR_NEXT_BUILD);
 
-    public ServerImpl(final JobRepository<String, Properties, TestExecutionResult> jobRepository)
+    public ServerImpl(final JobRepository<TestCaseIdentifier, Properties, TestCaseJobResult> jobRepository)
     {
         this.jobRepository = jobRepository;
     }
@@ -57,14 +60,15 @@ public final class ServerImpl implements Server
     @Override
     public String getNextTestClassToRun(final String agentId)
     {
-        final JobDefinition<String,Properties> jobToRun = jobRepository.getJobToRun();
-        return jobToRun != null ? jobToRun.getKey() : null;
+        final JobDefinition<TestCaseIdentifier, Properties> jobToRun = jobRepository.getJobToRun();
+        return jobToRun != null ? jobToRun.getKey().getTestClass() : null;
     }
 
     @Override
-    public void onTestExecutionResult(final TestExecutionResult testExecutionResult)
+    public void onTestCaseJobResult(final TestCaseJobResult testCaseJobResult)
     {
-        jobRepository.onJobResult(testExecutionResult.getTestClass(), testExecutionResult);
+        final TestCaseIdentifier testCaseIdentifier = toMapKey(testCaseJobResult.getTestClass());
+        jobRepository.onJobResult(testCaseIdentifier, testCaseJobResult);
     }
 
     private void determineStatus()

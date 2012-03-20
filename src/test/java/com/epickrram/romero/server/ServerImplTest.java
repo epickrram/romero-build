@@ -17,7 +17,8 @@
 package com.epickrram.romero.server;
 
 import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.common.TestExecutionResult;
+import com.epickrram.romero.common.TestCaseIdentifier;
+import com.epickrram.romero.common.TestCaseJobResult;
 import com.epickrram.romero.core.Job;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobRepository;
@@ -29,7 +30,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Properties;
 
-import static com.epickrram.romero.server.StubTestExecutionResultBuilder.getTestExecutionResult;
+import static com.epickrram.romero.common.TestCaseIdentifier.toMapKey;
+import static com.epickrram.romero.server.StubTestResultBuilder.getTestCaseJobResult;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -43,11 +45,11 @@ public final class ServerImplTest
     private static final String AGENT_ID = "AGENT_ID";
 
     @Mock
-    private JobDefinition<String, Properties> jobDefinition;
+    private JobDefinition<TestCaseIdentifier, Properties> jobDefinition;
     @Mock
-    private Job<String, TestExecutionResult> job;
+    private Job<String, TestCaseJobResult> job;
     @Mock
-    private JobRepository<String, Properties, TestExecutionResult> jobRepository;
+    private JobRepository<TestCaseIdentifier, Properties, TestCaseJobResult> jobRepository;
 
     private ServerImpl server;
 
@@ -139,17 +141,17 @@ public final class ServerImplTest
         server.startTestRun(IDENTIFIER);
         server.getNextTestClassToRun(AGENT_ID);
 
-        final TestExecutionResult result = getTestExecutionResult(JOB_1);
+        final TestCaseJobResult result = getTestCaseJobResult(JOB_1);
         
-        server.onTestExecutionResult(result);
+        server.onTestCaseJobResult(result);
 
-        verify(jobRepository).onJobResult(JOB_1, result);
+        verify(jobRepository).onJobResult(eq(toMapKey(JOB_1)), same(result));
     }
 
     @Before
     public void setUp() throws Exception
     {
-        when(jobDefinition.getKey()).thenReturn(JOB_1);
+        when(jobDefinition.getKey()).thenReturn(toMapKey(JOB_1));
 
         server = new ServerImpl(jobRepository);
     }

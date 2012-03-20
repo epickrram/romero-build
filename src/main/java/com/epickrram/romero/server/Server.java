@@ -17,12 +17,12 @@
 package com.epickrram.romero.server;
 
 import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.common.TestExecutionResult;
+import com.epickrram.romero.common.TestCaseJobResult;
 
 public interface Server
 {
     void startTestRun(final String identifier);
     BuildStatus getStatus();
     String getNextTestClassToRun(final String agentId);
-    void onTestExecutionResult(final TestExecutionResult testExecutionResult);
+    void onTestCaseJobResult(final TestCaseJobResult testCaseJobResult);
 }

@@ -16,10 +16,13 @@
 
 package com.epickrram.romero.server;
 
+import com.epickrram.romero.common.TestCaseJobResult;
 import com.epickrram.romero.common.TestExecutionResult;
 import com.epickrram.romero.common.TestStatus;
 
-public final class StubTestExecutionResultBuilder
+import static java.util.Arrays.asList;
+
+public final class StubTestResultBuilder
 {
     private static final String TEST_METHOD = "testMethod";
     private static final TestStatus TEST_STATUS = TestStatus.SUCCESS;
@@ -42,5 +45,10 @@ public final class StubTestExecutionResultBuilder
                 durationMillis(DURATION_MILLIS).
                 stdout(STDOUT).
                 stderr(STDERR);
+    }
+
+    public static TestCaseJobResult getTestCaseJobResult(final String testClass)
+    {
+        return new TestCaseJobResult(testClass, 1L, asList(getTestExecutionResult(testClass)));
     }
 }
