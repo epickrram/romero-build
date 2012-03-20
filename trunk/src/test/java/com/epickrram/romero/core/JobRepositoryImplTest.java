@@ -96,7 +96,7 @@ public final class JobRepositoryImplTest
 
         jobRepository.onJobResult(JOB_1, RESULT);
 
-        verify(jobOne).addResult(RESULT, jobEventListener);
+        verify(jobOne).setResult(RESULT, jobEventListener);
     }
 
     @Test

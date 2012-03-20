@@ -19,7 +19,7 @@ package com.epickrram.romero.common;
 import com.epickrram.romero.core.AbstractJob;
 import com.epickrram.romero.core.JobState;
 
-public final class TestCaseJob extends AbstractJob<TestCaseIdentifier, TestExecutionResult>
+public final class TestCaseJob extends AbstractJob<TestCaseIdentifier, TestCaseJobResult>
 {
     public TestCaseJob(final TestCaseIdentifier key)
     {
@@ -27,8 +27,8 @@ public final class TestCaseJob extends AbstractJob<TestCaseIdentifier, TestExecu
     }
 
     @Override
-    protected JobState getNewJobState(final TestExecutionResult result)
+    protected JobState getNewJobState(final TestCaseJobResult result)
     {
-        return getResultList().size() == getKey().getNumberOfTestMethods() ? JobState.FINISHED : null;
+        return JobState.FINISHED;
     }
 }

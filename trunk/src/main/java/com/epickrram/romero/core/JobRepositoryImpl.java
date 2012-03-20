@@ -100,7 +100,7 @@ public final class JobRepositoryImpl<K, D, R> implements JobRepository<K, D, R>
         final Job<K, R> job = jobMap.get(key);
         if(job != null)
         {
-            job.addResult(result, jobEventListener);
+            job.setResult(result, jobEventListener);
         }
         else
         {

@@ -16,15 +16,13 @@
 
 package com.epickrram.romero.core;
 
-import java.util.Collection;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class AbstractJob<K, R> implements Job<K, R>
 {
     private final AtomicReference<JobState> jobState = new AtomicReference<>(JobState.PENDING);
-    private final Collection<R> resultList = new CopyOnWriteArrayList<>();
     private final K key;
+    private volatile R result;
 
     public AbstractJob(final K key)
     {
@@ -45,15 +43,15 @@ public abstract class AbstractJob<K, R> implements Job<K, R>
     }
 
     @Override
-    public Collection<R> getResultList()
+    public R getResult()
     {
-        return resultList;
+        return result;
     }
 
     @Override
-    public void addResult(final R result, final JobEventListener<K, R> jobEventListener)
+    public void setResult(final R result, final JobEventListener<K, R> jobEventListener)
     {
-        resultList.add(result);
+        this.result = result;
         final JobState newJobState = getNewJobState(result);
         if(newJobState != null)
         {

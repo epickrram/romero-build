@@ -1,5 +1,6 @@
 package com.epickrram.romero.agent.junit;
 
+import com.epickrram.romero.common.TestCaseJobResult;
 import com.epickrram.romero.common.TestExecutionResult;
 import com.epickrram.romero.common.TestStatus;
 import org.hamcrest.Description;
@@ -12,13 +13,16 @@ import org.junit.runner.JUnitCore;
 import java.util.Collection;
 
 import static com.epickrram.romero.common.TestStatus.*;
+import static java.lang.String.valueOf;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 public final class TestExecutionResultRunListenerTest
 {
     private static final int EXPECTED_NUMBER_OF_TEST_METHODS = 4;
+    private static final Class<StubJUnitTestData> TEST_CLASS = StubJUnitTestData.class;
 
     @Test
     public void shouldGenerateTestExecutionResultForEachTestMethod() throws Exception
@@ -26,16 +30,19 @@ public final class TestExecutionResultRunListenerTest
         final TestExecutionResultRunListener listener = new TestExecutionResultRunListener();
         final JUnitCore jUnitCore = new JUnitCore();
         jUnitCore.addListener(listener);
-        jUnitCore.run(StubJUnitTestData.class);
+        jUnitCore.run(TEST_CLASS);
 
-        final Collection<TestExecutionResult> results = listener.getResults();
+        final TestCaseJobResult result = listener.getTestCaseJobResult();
+        final Collection<TestExecutionResult> testMethodResults = result.getTestExecutionResults();
 
-        assertThat(results.size(), is(EXPECTED_NUMBER_OF_TEST_METHODS));
+        assertThat(result.getTestClass(), is(TEST_CLASS.getName()));
+        assertThat(result.getDurationMillis(), is(not(0L)));
+        assertThat(testMethodResults.size(), is(EXPECTED_NUMBER_OF_TEST_METHODS));
 
-        assertContains(testExecutionResult(StubJUnitTestData.class, "shouldBeIgnored", IGNORED), results);
-        assertContains(testExecutionResult(StubJUnitTestData.class, "shouldPass", SUCCESS), results);
-        assertContains(testExecutionResult(StubJUnitTestData.class, "shouldFailAssumption", FAILURE), results);
-        assertContains(testExecutionResult(StubJUnitTestData.class, "shouldThrowException", ERROR), results);
+        assertContains(testExecutionResult(TEST_CLASS, "shouldBeIgnored", IGNORED), testMethodResults);
+        assertContains(testExecutionResult(TEST_CLASS, "shouldPass", SUCCESS), testMethodResults);
+        assertContains(testExecutionResult(TEST_CLASS, "shouldFailAssumption", FAILURE), testMethodResults);
+        assertContains(testExecutionResult(TEST_CLASS, "shouldThrowException", ERROR, "ExpectedException"), testMethodResults);
     }
 
     private static void assertContains(final Matcher<TestExecutionResult> matcher, final Collection<TestExecutionResult> results)
@@ -53,8 +60,9 @@ public final class TestExecutionResultRunListenerTest
     }
 
     private static Matcher<TestExecutionResult> testExecutionResult(final Class<?> testClass,
-                                                                            final String methodName,
-                                                                            final TestStatus testStatus)
+                                                                    final String methodName,
+                                                                    final TestStatus testStatus,
+                                                                    final String traceSubstring)
     {
         return new TypeSafeMatcher<TestExecutionResult>()
         {
@@ -63,7 +71,8 @@ public final class TestExecutionResultRunListenerTest
             {
                 return testExecutionResult.getTestClass().equals(testClass.getName()) &&
                        testExecutionResult.getTestMethod().equals(methodName) &&
-                       testExecutionResult.getTestStatus().equals(testStatus);
+                       testExecutionResult.getTestStatus().equals(testStatus) &&
+                       (traceSubstring == null || valueOf(testExecutionResult.getThrowable()).contains(traceSubstring));
             }
 
             @Override
@@ -73,5 +82,12 @@ public final class TestExecutionResultRunListenerTest
                         appendText(methodName).appendText("\nstatus: ").appendText(testStatus.name());
             }
         };
+    }
+
+    private static Matcher<TestExecutionResult> testExecutionResult(final Class<?> testClass,
+                                                                    final String methodName,
+                                                                    final TestStatus testStatus)
+    {
+        return testExecutionResult(testClass, methodName, testStatus, null);
     }
 }
