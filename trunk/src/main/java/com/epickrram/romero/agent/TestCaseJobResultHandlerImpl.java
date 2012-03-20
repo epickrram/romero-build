@@ -16,7 +16,21 @@
 
 package com.epickrram.romero.agent;
 
-public interface AgentStatusServer
+import com.epickrram.romero.common.TestCaseJobResult;
+import com.epickrram.romero.server.Server;
+
+public final class TestCaseJobResultHandlerImpl implements TestCaseJobResultHandler
 {
-    void start();
+    private final Server server;
+
+    public TestCaseJobResultHandlerImpl(final Server server)
+    {
+        this.server = server;
+    }
+
+    @Override
+    public void onTestCaseJobResult(final TestCaseJobResult testCaseJobResult)
+    {
+        server.onTestCaseJobResult(testCaseJobResult);
+    }
 }

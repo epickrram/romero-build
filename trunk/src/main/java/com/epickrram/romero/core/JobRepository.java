@@ -19,6 +19,7 @@ package com.epickrram.romero.core;
 public interface JobRepository<K, D, R>
 {
     JobDefinition<K, D> getJobToRun();
+    Job<K, R> getJob(final K key);
     void onJobResult(final K key, final R result);
     boolean isJobAvailable();
     boolean areJobsComplete();

@@ -69,6 +69,12 @@ public final class JobRepositoryImpl<K, D, R> implements JobRepository<K, D, R>
     }
 
     @Override
+    public Job<K, R> getJob(final K key)
+    {
+        return jobMap.get(key);
+    }
+
+    @Override
     public boolean isJobAvailable()
     {
         for (Job<K, R> job : jobMap.values())

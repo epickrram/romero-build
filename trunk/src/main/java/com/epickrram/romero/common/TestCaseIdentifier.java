@@ -23,9 +23,9 @@ public final class TestCaseIdentifier implements Comparable<TestCaseIdentifier>
     private static final DefaultComparator DEFAULT_COMPARATOR = new DefaultComparator();
 
     private final String testClass;
-    private final int numberOfTestMethods;
-    private final long lastRunDurationMillis;
-    private final Comparator<TestCaseIdentifier> comparator;
+    private transient final int numberOfTestMethods;
+    private transient final long lastRunDurationMillis;
+    private transient final Comparator<TestCaseIdentifier> comparator;
 
     public TestCaseIdentifier(final String testClass, final int numberOfTestMethods,
                               final long lastRunDurationMillis)
@@ -61,6 +61,29 @@ public final class TestCaseIdentifier implements Comparable<TestCaseIdentifier>
     public long getLastRunDurationMillis()
     {
         return lastRunDurationMillis;
+    }
+
+    @Override
+    public boolean equals(final Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final TestCaseIdentifier that = (TestCaseIdentifier) o;
+
+        return !(testClass != null ? !testClass.equals(that.testClass) : that.testClass != null);
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return testClass != null ? testClass.hashCode() : 0;
+    }
+
+    public static TestCaseIdentifier toMapKey(final String testClass)
+    {
+        return new TestCaseIdentifier(testClass, 0, 0L);
     }
 
     private static final class DefaultComparator implements  Comparator<TestCaseIdentifier>

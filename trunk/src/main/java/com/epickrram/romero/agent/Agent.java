@@ -34,8 +34,8 @@ public final class Agent implements Runnable
     private final Sleeper sleeper;
     private final String agentId;
 
-    Agent(final Server server, final TestExecutor testExecutor,
-          final Sleeper sleeper, final String agentId)
+    public Agent(final Server server, final TestExecutor testExecutor,
+                 final Sleeper sleeper, final String agentId)
     {
         this.server = server;
         this.testExecutor = testExecutor;
@@ -76,7 +76,7 @@ public final class Agent implements Runnable
         }
     }
 
-    interface Sleeper
+    public interface Sleeper
     {
         void sleep(final long seconds);
     }

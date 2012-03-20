@@ -57,6 +57,7 @@ public abstract class AbstractJob<K, R> implements Job<K, R>
         {
             jobState.set(newJobState);
         }
+        jobEventListener.onJobUpdate(this);
     }
 
     @Override

@@ -14,9 +14,22 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+package com.epickrram.romero.server;
 
-public interface AgentStatusServer
+import com.epickrram.romero.common.TestCaseIdentifier;
+import com.epickrram.romero.common.TestCaseJob;
+import com.epickrram.romero.common.TestCaseJobResult;
+import com.epickrram.romero.core.Job;
+import com.epickrram.romero.core.JobDefinition;
+import com.epickrram.romero.core.JobFactory;
+
+import java.util.Properties;
+
+public final class TestCaseJobFactory implements JobFactory<TestCaseIdentifier, Properties, TestCaseJobResult>
 {
-    void start();
+    @Override
+    public Job<TestCaseIdentifier, TestCaseJobResult> createJob(final JobDefinition<TestCaseIdentifier, Properties> jobDefinition)
+    {
+        return new TestCaseJob(jobDefinition.getKey());
+    }
 }
