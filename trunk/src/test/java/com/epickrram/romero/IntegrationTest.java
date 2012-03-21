@@ -21,26 +21,26 @@ import com.epickrram.romero.agent.TestCaseJobResultHandlerImpl;
 import com.epickrram.romero.agent.junit.JUnitTestExecutor;
 import com.epickrram.romero.agent.junit.StubJUnitTestData;
 import com.epickrram.romero.common.TestCaseIdentifier;
-import com.epickrram.romero.common.TestCaseJob;
 import com.epickrram.romero.common.TestCaseJobResult;
+import com.epickrram.romero.common.TestPropertyKeys;
 import com.epickrram.romero.core.*;
 import com.epickrram.romero.server.ServerImpl;
 import com.epickrram.romero.server.TestCaseJobFactory;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.internal.matchers.TypeSafeMatcher;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.File;
+import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 
+import static com.epickrram.romero.MatcherFactory.testCaseJobsWithStates;
+import static com.epickrram.romero.agent.AgentTest.EXTERNAL_TEST_RESOURCE_PATH;
+import static com.epickrram.romero.agent.AgentTest.TEST_CLASS_FROM_EXTERNAL_JAR;
 import static com.epickrram.romero.common.TestCaseIdentifier.toMapKey;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
@@ -53,6 +53,7 @@ public final class IntegrationTest
     private static final String AGENT_ID = "AGENT-ID";
     private static final String TEST_RUN_IDENTIFIER = "test-run-identifier";
     private static final String TEST_CLASS = StubJUnitTestData.class.getName();
+
     @Mock
     private JobDefinitionLoader<TestCaseIdentifier, Properties> jobDefinitionLoader;
     @Mock
@@ -73,7 +74,6 @@ public final class IntegrationTest
                 sleeper, AGENT_ID);
     }
 
-    @Ignore
     @Test
     public void shouldRunBuild() throws Exception
     {
@@ -83,39 +83,45 @@ public final class IntegrationTest
 
         agent.run();
 
-        final InOrder inOrder = inOrder(eventListener);
-        inOrder.verify(eventListener).onJobUpdate(argThat(aTestCaseJobWithState(TEST_CLASS, JobState.RUNNING)));
-        inOrder.verify(eventListener).onJobUpdate(argThat(aTestCaseJobWithState(TEST_CLASS, JobState.FINISHED)));
+        verify(eventListener, times(2)).onJobUpdate(argThat(
+                testCaseJobsWithStates(TEST_CLASS, JobState.RUNNING, JobState.FINISHED)));
 
         assertThat(jobRepository.getJob(toMapKey(TEST_CLASS)).getState(), is(JobState.FINISHED));
     }
 
-    public static Matcher<TestCaseJob> aTestCaseJobWithState(final String expectedTestClassName,
-                                                             final JobState expectedJobState)
+    @Test
+    public void shouldLoadTestClassesFromExternalSource() throws Exception
     {
-        return new TypeSafeMatcher<TestCaseJob> ()
-        {
-            @Override
-            public boolean matchesSafely(final TestCaseJob testCaseJob)
-            {
-                return testCaseJob.getKey().getTestClass().equals(expectedTestClassName) &&
-                       testCaseJob.getState() == expectedJobState;
-            }
+        final Properties properties = new Properties();
 
-            @Override
-            public void describeTo(final Description description)
-            {
-                description.appendText("class: " + expectedTestClassName);
-                description.appendText("\nstate: " + expectedJobState);
-            }
-        };
+        final URL url = new File(EXTERNAL_TEST_RESOURCE_PATH).toURI().toURL();
+        properties.setProperty(TestPropertyKeys.CLASSPATH_URL + ".tests", url.toExternalForm());
+
+        final List<JobDefinition<TestCaseIdentifier, Properties>> definitionList =
+                createJobDefinitionList(toMapKey(TEST_CLASS_FROM_EXTERNAL_JAR), properties);
+        when(jobDefinitionLoader.loadJobDefinitions(TEST_RUN_IDENTIFIER)).thenReturn(definitionList);
+
+        server.startTestRun(TEST_RUN_IDENTIFIER);
+
+        agent.run();
+
+        verify(eventListener, times(2)).onJobUpdate(argThat(
+                testCaseJobsWithStates(TEST_CLASS_FROM_EXTERNAL_JAR, JobState.RUNNING, JobState.FINISHED)));
+
+        assertThat(jobRepository.getJob(toMapKey(TEST_CLASS_FROM_EXTERNAL_JAR)).getState(), is(JobState.FINISHED));
     }
 
     private List<JobDefinition<TestCaseIdentifier, Properties>> createJobDefinitionList()
     {
-        final TestCaseIdentifier key = new TestCaseIdentifier(TEST_CLASS, 0, 0L);
-        final JobDefinition<TestCaseIdentifier, Properties> jobDefinition =
-                new JobDefinitionImpl<>(key, new Properties());
+        final String testClass = TEST_CLASS;
+        final TestCaseIdentifier key = new TestCaseIdentifier(testClass, 0, 0L);
+        final Properties properties = new Properties();
+        return createJobDefinitionList(key, properties);
+    }
+
+    private List<JobDefinition<TestCaseIdentifier, Properties>> createJobDefinitionList(final TestCaseIdentifier key, final Properties properties)
+    {
+        final JobDefinition<TestCaseIdentifier, Properties> jobDefinition = new JobDefinitionImpl<>(key, properties);
         return singletonList(jobDefinition);
     }
 }

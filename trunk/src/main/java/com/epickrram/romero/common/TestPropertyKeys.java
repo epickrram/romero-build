@@ -14,20 +14,11 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server;
+package com.epickrram.romero.common;
 
-import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.common.TestCaseIdentifier;
-import com.epickrram.romero.common.TestCaseJobResult;
-import com.epickrram.romero.core.JobDefinition;
-
-import java.util.Properties;
-
-public interface Server
+public final class TestPropertyKeys
 {
-    void startTestRun(final String identifier);
-    BuildStatus getStatus();
-    JobDefinition<TestCaseIdentifier, Properties> getNextTestToRun(final String agentId);
-
-    void onTestCaseJobResult(final TestCaseJobResult testCaseJobResult);
+    public static final String CLASSPATH_URL = "classpath.additional.url";
+    
+    private TestPropertyKeys() {}
 }

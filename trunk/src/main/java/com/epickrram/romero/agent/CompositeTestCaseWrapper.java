@@ -14,20 +14,32 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server;
+package com.epickrram.romero.agent;
 
-import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.common.TestCaseIdentifier;
-import com.epickrram.romero.common.TestCaseJobResult;
-import com.epickrram.romero.core.JobDefinition;
-
-import java.util.Properties;
-
-public interface Server
+public final class CompositeTestCaseWrapper implements TestCaseWrapper
 {
-    void startTestRun(final String identifier);
-    BuildStatus getStatus();
-    JobDefinition<TestCaseIdentifier, Properties> getNextTestToRun(final String agentId);
+    private final TestCaseWrapper[] delegates;
 
-    void onTestCaseJobResult(final TestCaseJobResult testCaseJobResult);
+    public CompositeTestCaseWrapper(final TestCaseWrapper... delegates)
+    {
+        this.delegates = delegates;
+    }
+
+    @Override
+    public void beforeTestCase(final TestingContext testingContext)
+    {
+        for (TestCaseWrapper delegate : delegates)
+        {
+            delegate.beforeTestCase(testingContext);
+        }
+    }
+
+    @Override
+    public void afterTestCase(final TestingContext testingContext)
+    {
+        for (TestCaseWrapper delegate : delegates)
+        {
+            delegate.afterTestCase(testingContext);
+        }
+    }
 }

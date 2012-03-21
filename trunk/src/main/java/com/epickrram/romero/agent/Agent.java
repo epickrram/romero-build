@@ -16,8 +16,17 @@
 
 package com.epickrram.romero.agent;
 
+import com.epickrram.romero.common.TestCaseIdentifier;
+import com.epickrram.romero.common.TestPropertyKeys;
+import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.server.Server;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -65,14 +74,53 @@ public final class Agent implements Runnable
 
     private void handleBuildingStatus()
     {
-        final String testClass = server.getNextTestClassToRun(agentId);
-        if(testClass != null)
+        final JobDefinition<TestCaseIdentifier,Properties> testDefinition = server.getNextTestToRun(agentId);
+        if(testDefinition != null)
         {
-            testExecutor.runTest(testClass);
+            final ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+            try
+            {
+                setUpClasspath(testDefinition.getData(), currentClassLoader);
+                testExecutor.runTest(testDefinition.getKey().getTestClass());
+            }
+            finally
+            {
+                Thread.currentThread().setContextClassLoader(currentClassLoader);
+            }
         }
         else
         {
             sleeper.sleep(WAIT_FOR_AVAILABLE_TEST_INTERVAL_SECONDS);
+        }
+    }
+
+    private void setUpClasspath(final Properties data, final ClassLoader currentClassLoader)
+    {
+        final List<URL> urlList = new ArrayList<>();
+        for (String propertyKey : data.stringPropertyNames())
+        {
+            if(propertyKey.startsWith(TestPropertyKeys.CLASSPATH_URL))
+            {
+                urlList.add(getUrl(data, propertyKey));
+            }
+        }
+        if(!urlList.isEmpty())
+        {
+            final URLClassLoader additional = new URLClassLoader(urlList.toArray(new URL[urlList.size()]), currentClassLoader);
+            Thread.currentThread().setContextClassLoader(additional);
+        }
+    }
+
+    private static URL getUrl(final Properties data, final String propertyKey)
+    {
+        final String urlSpec = data.getProperty(propertyKey);
+        try
+        {
+            return new URL(urlSpec);
+        }
+        catch (MalformedURLException e)
+        {
+            throw new IllegalArgumentException("Could not parse URL: " + urlSpec, e);
         }
     }
 

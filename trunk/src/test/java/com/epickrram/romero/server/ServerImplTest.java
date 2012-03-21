@@ -82,9 +82,9 @@ public final class ServerImplTest
         when(jobRepository.isJobAvailable()).thenReturn(true);
         when(jobRepository.getJobToRun()).thenReturn(jobDefinition);
 
-        final String nextTestClassToRun = server.getNextTestClassToRun(AGENT_ID);
+        final JobDefinition<TestCaseIdentifier, Properties> definition = server.getNextTestToRun(AGENT_ID);
 
-        assertThat(nextTestClassToRun, is(JOB_1));
+        assertThat(definition.getKey().getTestClass(), is(JOB_1));
     }
 
     @Test
@@ -93,9 +93,9 @@ public final class ServerImplTest
         when(jobRepository.isJobAvailable()).thenReturn(true);
         when(jobRepository.getJobToRun()).thenReturn(null);
 
-        final String nextTestClassToRun = server.getNextTestClassToRun(AGENT_ID);
+        final JobDefinition<TestCaseIdentifier, Properties> definition = server.getNextTestToRun(AGENT_ID);
 
-        assertThat(nextTestClassToRun, is(nullValue()));
+        assertThat(definition, is(nullValue()));
     }
 
     @Test
@@ -139,7 +139,7 @@ public final class ServerImplTest
     public void shouldUpdateRepositoryJobOnTestExecutionResult() throws Exception
     {
         server.startTestRun(IDENTIFIER);
-        server.getNextTestClassToRun(AGENT_ID);
+        server.getNextTestToRun(AGENT_ID);
 
         final TestCaseJobResult result = getTestCaseJobResult(JOB_1);
         
