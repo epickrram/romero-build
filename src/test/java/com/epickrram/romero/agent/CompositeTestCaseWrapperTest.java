@@ -14,20 +14,47 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server;
+package com.epickrram.romero.agent;
 
-import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.common.TestCaseIdentifier;
-import com.epickrram.romero.common.TestCaseJobResult;
-import com.epickrram.romero.core.JobDefinition;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Properties;
+import static org.mockito.Mockito.verify;
 
-public interface Server
+@RunWith(MockitoJUnitRunner.class)
+public final class CompositeTestCaseWrapperTest
 {
-    void startTestRun(final String identifier);
-    BuildStatus getStatus();
-    JobDefinition<TestCaseIdentifier, Properties> getNextTestToRun(final String agentId);
+    private static final TestingContext TESTING_CONTEXT = new TestingContext();
+    @Mock
+    private TestCaseWrapper delegateOne;
+    @Mock
+    private TestCaseWrapper delegateTwo;
+    private CompositeTestCaseWrapper composite;
 
-    void onTestCaseJobResult(final TestCaseJobResult testCaseJobResult);
+    @Test
+    public void shouldDelegateBeforeTest() throws Exception
+    {
+        composite.beforeTestCase(TESTING_CONTEXT);
+
+        verify(delegateOne).beforeTestCase(TESTING_CONTEXT);
+        verify(delegateTwo).beforeTestCase(TESTING_CONTEXT);
+    }
+
+    @Test
+    public void shouldDelegateAfterTest() throws Exception
+    {
+        composite.afterTestCase(TESTING_CONTEXT);
+
+        verify(delegateOne).afterTestCase(TESTING_CONTEXT);
+        verify(delegateTwo).afterTestCase(TESTING_CONTEXT);
+    }
+
+    @Before
+    public void setup() throws Exception
+    {
+        composite = new CompositeTestCaseWrapper(delegateOne, delegateTwo);
+    }
 }

@@ -47,7 +47,7 @@ public final class JUnitTestExecutor implements TestExecutor
     {
         try
         {
-            return Class.forName(className);
+            return Thread.currentThread().getContextClassLoader().loadClass(className);
         }
         catch (ClassNotFoundException e)
         {

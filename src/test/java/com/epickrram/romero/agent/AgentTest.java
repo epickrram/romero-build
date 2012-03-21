@@ -16,6 +16,9 @@
 
 package com.epickrram.romero.agent;
 
+import com.epickrram.romero.common.TestCaseIdentifier;
+import com.epickrram.romero.common.TestPropertyKeys;
+import com.epickrram.romero.core.JobDefinitionImpl;
 import com.epickrram.romero.server.Server;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,13 +26,20 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.File;
+import java.net.URL;
+import java.util.Properties;
+
 import static com.epickrram.romero.common.BuildStatus.*;
+import static com.epickrram.romero.common.TestCaseIdentifier.toMapKey;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class AgentTest
 {
+    public static final String TEST_CLASS_FROM_EXTERNAL_JAR = "com.epickrram.romero.StubTestCaseFromExternalJar";
+    public static final String EXTERNAL_TEST_RESOURCE_PATH = "src/test/resources/external-test-archive.jar";
     private static final String AGENT_ID = "AGENT-ID";
     private static final String TEST_CLASS = "TEST-CLASS";
 
@@ -39,6 +49,7 @@ public final class AgentTest
     private Agent.Sleeper sleeper;
     @Mock
     private TestExecutor testExecutor;
+
     private Agent agent;
 
     @Test
@@ -56,7 +67,9 @@ public final class AgentTest
     public void shouldRetrieveNextJobWhenServerStatusIsBuilding() throws Exception
     {
         when(server.getStatus()).thenReturn(BUILDING);
-        when(server.getNextTestClassToRun(AGENT_ID)).thenReturn(TEST_CLASS);
+        final JobDefinitionImpl<TestCaseIdentifier, Properties> jobDefinition =
+                new JobDefinitionImpl<>(toMapKey(TEST_CLASS), new Properties());
+        when(server.getNextTestToRun(AGENT_ID)).thenReturn(jobDefinition);
 
         agent.run();
 
@@ -80,7 +93,7 @@ public final class AgentTest
     public void shouldSleepForDurationWhenServerStatusIsBuildingButNextTestIsNull() throws Exception
     {
         when(server.getStatus()).thenReturn(BUILDING);
-        when(server.getNextTestClassToRun(AGENT_ID)).thenReturn(null);
+        when(server.getNextTestToRun(AGENT_ID)).thenReturn(null);
 
         agent.run();
 
@@ -89,9 +102,29 @@ public final class AgentTest
         verify(sleeper).sleep(anyLong());
     }
 
+    @Test
+    public void shouldCreateTestCaseWrappersFromClasspathIfSpecifiedInTestDefinition() throws Exception
+    {
+        when(server.getStatus()).thenReturn(BUILDING);
+        final Properties properties = new Properties();
+
+        final URL url = new File(EXTERNAL_TEST_RESOURCE_PATH).toURI().toURL();
+        properties.setProperty(TestPropertyKeys.CLASSPATH_URL + ".tests", url.toExternalForm());
+
+        final JobDefinitionImpl<TestCaseIdentifier, Properties> jobDefinition =
+                new JobDefinitionImpl<>(toMapKey(TEST_CLASS_FROM_EXTERNAL_JAR), properties);
+        when(server.getNextTestToRun(AGENT_ID)).thenReturn(jobDefinition);
+
+        agent.run();
+
+        verify(testExecutor).runTest(TEST_CLASS_FROM_EXTERNAL_JAR);
+    }
+
     @Before
     public void setup() throws Exception
     {
         agent = new Agent(server, testExecutor, sleeper, AGENT_ID);
     }
+
+
 }
