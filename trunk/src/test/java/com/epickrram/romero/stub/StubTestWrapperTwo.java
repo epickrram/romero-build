@@ -14,35 +14,25 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent.junit;
+package com.epickrram.romero.stub;
 
-import com.epickrram.romero.agent.TestCaseJobResultHandler;
-import com.epickrram.romero.agent.TestExecutor;
-import org.junit.runner.JUnitCore;
+import com.epickrram.romero.agent.TestCaseWrapper;
+import com.epickrram.romero.agent.TestingContext;
 
-import static com.epickrram.romero.agent.ClassLoaderUtil.loadClass;
-
-public final class JUnitTestExecutor implements TestExecutor
+public final class StubTestWrapperTwo implements TestCaseWrapper
 {
-    private final JUnitCore jUnitCore;
-    private final TestCaseJobResultHandler resultHandler;
+    public static int beforeTestCaseInvocationCount = 0;
+    public static int afterTestCaseInvocationCount = 0;
 
-    public JUnitTestExecutor(final JUnitCore jUnitCore,
-                             final TestCaseJobResultHandler resultHandler)
+    @Override
+    public void beforeTestCase(final TestingContext testingContext)
     {
-        this.jUnitCore = jUnitCore;
-        this.resultHandler = resultHandler;
+        beforeTestCaseInvocationCount++;
     }
 
     @Override
-    public void runTest(final String className)
+    public void afterTestCase(final TestingContext testingContext)
     {
-        final TestExecutionResultRunListener listener = new TestExecutionResultRunListener();
-        jUnitCore.addListener(listener);
-        final Class<?> testClass = loadClass(className);
-        jUnitCore.run(testClass);
-
-        resultHandler.onTestCaseJobResult(listener.getTestCaseJobResult());
+        afterTestCaseInvocationCount++;
     }
-
 }

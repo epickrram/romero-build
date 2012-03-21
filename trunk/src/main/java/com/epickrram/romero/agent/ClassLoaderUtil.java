@@ -14,35 +14,22 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent.junit;
+package com.epickrram.romero.agent;
 
-import com.epickrram.romero.agent.TestCaseJobResultHandler;
-import com.epickrram.romero.agent.TestExecutor;
-import org.junit.runner.JUnitCore;
-
-import static com.epickrram.romero.agent.ClassLoaderUtil.loadClass;
-
-public final class JUnitTestExecutor implements TestExecutor
+public final class ClassLoaderUtil
 {
-    private final JUnitCore jUnitCore;
-    private final TestCaseJobResultHandler resultHandler;
+    private ClassLoaderUtil() {}
 
-    public JUnitTestExecutor(final JUnitCore jUnitCore,
-                             final TestCaseJobResultHandler resultHandler)
+    @SuppressWarnings({"unchecked"})
+    public static <T> Class<T> loadClass(final String className)
     {
-        this.jUnitCore = jUnitCore;
-        this.resultHandler = resultHandler;
+        try
+        {
+            return (Class<T>) Thread.currentThread().getContextClassLoader().loadClass(className);
+        }
+        catch (ClassNotFoundException e)
+        {
+            throw new IllegalArgumentException("Unable to load class " + className);
+        }
     }
-
-    @Override
-    public void runTest(final String className)
-    {
-        final TestExecutionResultRunListener listener = new TestExecutionResultRunListener();
-        jUnitCore.addListener(listener);
-        final Class<?> testClass = loadClass(className);
-        jUnitCore.run(testClass);
-
-        resultHandler.onTestCaseJobResult(listener.getTestCaseJobResult());
-    }
-
 }

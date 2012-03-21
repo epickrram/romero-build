@@ -14,7 +14,7 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent.junit;
+package com.epickrram.romero.stub;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -25,6 +25,11 @@ import static org.junit.Assert.assertThat;
 
 public final class StubJUnitTestData
 {
+    public static final String PROP_KEY_1 = "property.1";
+    public static final String PROP_KEY_2 = "property.2";
+    public static String PROP_VALUE_1;
+    public static String PROP_VALUE_2;
+
     @Ignore
     @Test
     public void shouldBeIgnored() throws Exception
@@ -35,6 +40,8 @@ public final class StubJUnitTestData
     @Test
     public void shouldPass() throws Exception
     {
+        PROP_VALUE_1 = System.getProperty(PROP_KEY_1);
+        PROP_VALUE_2 = System.getProperty(PROP_KEY_2);
         assertThat(true, is(true));
     }
 

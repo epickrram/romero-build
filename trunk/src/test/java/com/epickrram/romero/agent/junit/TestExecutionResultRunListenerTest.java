@@ -19,6 +19,7 @@ package com.epickrram.romero.agent.junit;
 import com.epickrram.romero.common.TestCaseJobResult;
 import com.epickrram.romero.common.TestExecutionResult;
 import com.epickrram.romero.common.TestStatus;
+import com.epickrram.romero.stub.StubJUnitTestData;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
