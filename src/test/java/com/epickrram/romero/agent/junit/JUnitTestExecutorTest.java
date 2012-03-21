@@ -18,6 +18,7 @@ package com.epickrram.romero.agent.junit;
 
 import com.epickrram.romero.agent.TestCaseJobResultHandler;
 import com.epickrram.romero.common.TestCaseJobResult;
+import com.epickrram.romero.stub.StubJUnitTestData;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;

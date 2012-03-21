@@ -19,13 +19,13 @@ package com.epickrram.romero;
 import com.epickrram.romero.agent.Agent;
 import com.epickrram.romero.agent.TestCaseJobResultHandlerImpl;
 import com.epickrram.romero.agent.junit.JUnitTestExecutor;
-import com.epickrram.romero.agent.junit.StubJUnitTestData;
 import com.epickrram.romero.common.TestCaseIdentifier;
 import com.epickrram.romero.common.TestCaseJobResult;
 import com.epickrram.romero.common.TestPropertyKeys;
 import com.epickrram.romero.core.*;
 import com.epickrram.romero.server.ServerImpl;
 import com.epickrram.romero.server.TestCaseJobFactory;
+import com.epickrram.romero.stub.StubJUnitTestData;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -95,7 +95,7 @@ public final class IntegrationTest
         final Properties properties = new Properties();
 
         final URL url = new File(EXTERNAL_TEST_RESOURCE_PATH).toURI().toURL();
-        properties.setProperty(TestPropertyKeys.CLASSPATH_URL + ".tests", url.toExternalForm());
+        properties.setProperty(TestPropertyKeys.CLASSPATH_URL_PREFIX + ".tests", url.toExternalForm());
 
         final List<JobDefinition<TestCaseIdentifier, Properties>> definitionList =
                 createJobDefinitionList(toMapKey(TEST_CLASS_FROM_EXTERNAL_JAR), properties);

@@ -16,22 +16,30 @@
 
 package com.epickrram.romero.agent;
 
+import com.epickrram.romero.agent.junit.JUnitTestExecutor;
 import com.epickrram.romero.common.TestCaseIdentifier;
 import com.epickrram.romero.common.TestPropertyKeys;
 import com.epickrram.romero.core.JobDefinitionImpl;
 import com.epickrram.romero.server.Server;
+import com.epickrram.romero.stub.StubJUnitTestData;
+import com.epickrram.romero.stub.StubTestWrapperOne;
+import com.epickrram.romero.stub.StubTestWrapperTwo;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.File;
-import java.net.URL;
 import java.util.Properties;
 
 import static com.epickrram.romero.common.BuildStatus.*;
 import static com.epickrram.romero.common.TestCaseIdentifier.toMapKey;
+import static com.epickrram.romero.common.TestPropertyKeys.SYSTEM_PROPERTY_PREFIX;
+import static com.epickrram.romero.stub.StubJUnitTestData.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.*;
 
@@ -49,6 +57,8 @@ public final class AgentTest
     private Agent.Sleeper sleeper;
     @Mock
     private TestExecutor testExecutor;
+    @Mock
+    private TestCaseJobResultHandler resultHandler;
 
     private Agent agent;
 
@@ -66,15 +76,11 @@ public final class AgentTest
     @Test
     public void shouldRetrieveNextJobWhenServerStatusIsBuilding() throws Exception
     {
-        when(server.getStatus()).thenReturn(BUILDING);
-        final JobDefinitionImpl<TestCaseIdentifier, Properties> jobDefinition =
-                new JobDefinitionImpl<>(toMapKey(TEST_CLASS), new Properties());
-        when(server.getNextTestToRun(AGENT_ID)).thenReturn(jobDefinition);
+        expectTestToBeRun(TEST_CLASS, new Properties());
 
-        agent.run();
+        verify(testExecutor).runTest(TEST_CLASS);
 
         verify(server).getStatus();
-        verify(testExecutor).runTest(TEST_CLASS);
         verifyZeroInteractions(sleeper);
     }
 
@@ -97,27 +103,47 @@ public final class AgentTest
 
         agent.run();
 
-        verify(server).getStatus();
         verifyZeroInteractions(testExecutor);
+        verify(server).getStatus();
         verify(sleeper).sleep(anyLong());
     }
 
     @Test
-    public void shouldCreateTestCaseWrappersFromClasspathIfSpecifiedInTestDefinition() throws Exception
+    public void shouldSetSystemPropertiesSpecifiedInTestDefinitionForDurationOfTest() throws Exception
     {
-        when(server.getStatus()).thenReturn(BUILDING);
         final Properties properties = new Properties();
+        properties.setProperty(SYSTEM_PROPERTY_PREFIX + PROP_KEY_1, "value1");
+        properties.setProperty(SYSTEM_PROPERTY_PREFIX + PROP_KEY_2, "value2");
 
-        final URL url = new File(EXTERNAL_TEST_RESOURCE_PATH).toURI().toURL();
-        properties.setProperty(TestPropertyKeys.CLASSPATH_URL + ".tests", url.toExternalForm());
+        agent = new Agent(server, new JUnitTestExecutor(new JUnitCore(), resultHandler), sleeper, AGENT_ID);
 
-        final JobDefinitionImpl<TestCaseIdentifier, Properties> jobDefinition =
-                new JobDefinitionImpl<>(toMapKey(TEST_CLASS_FROM_EXTERNAL_JAR), properties);
-        when(server.getNextTestToRun(AGENT_ID)).thenReturn(jobDefinition);
+        expectTestToBeRun(StubJUnitTestData.class.getName(), properties);
 
-        agent.run();
+        assertThat("value1", is(PROP_VALUE_1));
+        assertThat("value2", is(PROP_VALUE_2));
 
-        verify(testExecutor).runTest(TEST_CLASS_FROM_EXTERNAL_JAR);
+        assertThat(System.getProperty(PROP_KEY_1), is(nullValue()));
+        assertThat(System.getProperty(PROP_KEY_2), is(nullValue()));
+    }
+
+    @Test
+    public void shouldInstantiateAndInvokeTestCaseWrappersSpecifiedInTestDefinition() throws Exception
+    {
+        final Properties properties = new Properties();
+        properties.setProperty(TestPropertyKeys.TEST_CASE_WRAPPER_PREFIX + "1", StubTestWrapperOne.class.getName());
+        properties.setProperty(TestPropertyKeys.TEST_CASE_WRAPPER_PREFIX + "2", StubTestWrapperTwo.class.getName());
+
+        assertThat(StubTestWrapperOne.beforeTestCaseInvocationCount, is(0));
+        assertThat(StubTestWrapperOne.afterTestCaseInvocationCount, is(0));
+        assertThat(StubTestWrapperTwo.beforeTestCaseInvocationCount, is(0));
+        assertThat(StubTestWrapperTwo.afterTestCaseInvocationCount, is(0));
+
+        expectTestToBeRun(TEST_CLASS, properties);
+
+        assertThat(StubTestWrapperOne.beforeTestCaseInvocationCount, is(1));
+        assertThat(StubTestWrapperOne.afterTestCaseInvocationCount, is(1));
+        assertThat(StubTestWrapperTwo.beforeTestCaseInvocationCount, is(1));
+        assertThat(StubTestWrapperTwo.afterTestCaseInvocationCount, is(1));
     }
 
     @Before
@@ -126,5 +152,13 @@ public final class AgentTest
         agent = new Agent(server, testExecutor, sleeper, AGENT_ID);
     }
 
+    private void expectTestToBeRun(final String testClass, final Properties properties)
+    {
+        when(server.getStatus()).thenReturn(BUILDING);
+        final JobDefinitionImpl<TestCaseIdentifier, Properties> jobDefinition =
+                new JobDefinitionImpl<>(toMapKey(testClass), properties);
+        when(server.getNextTestToRun(AGENT_ID)).thenReturn(jobDefinition);
 
+        agent.run();
+    }
 }

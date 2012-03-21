@@ -17,7 +17,6 @@
 package com.epickrram.romero.agent;
 
 import com.epickrram.romero.common.TestCaseIdentifier;
-import com.epickrram.romero.common.TestPropertyKeys;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.server.Server;
 
@@ -31,6 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.epickrram.romero.common.BuildStatus.BUILDING;
+import static com.epickrram.romero.common.TestPropertyKeys.*;
 
 public final class Agent implements Runnable
 {
@@ -77,14 +77,22 @@ public final class Agent implements Runnable
         final JobDefinition<TestCaseIdentifier,Properties> testDefinition = server.getNextTestToRun(agentId);
         if(testDefinition != null)
         {
+            final Properties currentSystemProperties = (Properties) System.getProperties().clone();
             final ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
             try
             {
-                setUpClasspath(testDefinition.getData(), currentClassLoader);
+                final List<TestCaseWrapper> testCaseWrappers = new ArrayList<>();
+                handleTestProperties(testDefinition.getData(), currentClassLoader, testCaseWrappers);
+
+                beforeTestCase(testCaseWrappers);
+
                 testExecutor.runTest(testDefinition.getKey().getTestClass());
+
+                afterTestCase(testCaseWrappers);
             }
             finally
             {
+                System.setProperties(currentSystemProperties);
                 Thread.currentThread().setContextClassLoader(currentClassLoader);
             }
         }
@@ -94,20 +102,65 @@ public final class Agent implements Runnable
         }
     }
 
-    private void setUpClasspath(final Properties data, final ClassLoader currentClassLoader)
+    private void afterTestCase(final List<TestCaseWrapper> testCaseWrappers)
+    {
+        for (TestCaseWrapper testCaseWrapper : testCaseWrappers)
+        {
+            testCaseWrapper.afterTestCase(null);
+        }
+    }
+
+    private void beforeTestCase(final List<TestCaseWrapper> testCaseWrappers)
+    {
+        for (TestCaseWrapper testCaseWrapper : testCaseWrappers)
+        {
+            testCaseWrapper.beforeTestCase(null);
+        }
+    }
+
+    private void handleTestProperties(final Properties data, final ClassLoader currentClassLoader,
+                                      final List<TestCaseWrapper> testCaseWrappers)
     {
         final List<URL> urlList = new ArrayList<>();
         for (String propertyKey : data.stringPropertyNames())
         {
-            if(propertyKey.startsWith(TestPropertyKeys.CLASSPATH_URL))
+            if(propertyKey.startsWith(CLASSPATH_URL_PREFIX))
             {
                 urlList.add(getUrl(data, propertyKey));
             }
+            else if(propertyKey.startsWith(SYSTEM_PROPERTY_PREFIX))
+            {
+                System.setProperty(propertyKey.substring(SYSTEM_PROPERTY_PREFIX.length()), data.getProperty(propertyKey));
+            }
+            else if(propertyKey.startsWith(TEST_CASE_WRAPPER_PREFIX))
+            {
+                addTestCaseWrapper(propertyKey, data, testCaseWrappers);
+            }
         }
+
         if(!urlList.isEmpty())
         {
             final URLClassLoader additional = new URLClassLoader(urlList.toArray(new URL[urlList.size()]), currentClassLoader);
             Thread.currentThread().setContextClassLoader(additional);
+        }
+    }
+
+    private void addTestCaseWrapper(final String propertyKey, final Properties data,
+                                    final List<TestCaseWrapper> testCaseWrappers)
+    {
+        final String className = data.getProperty(propertyKey);
+        try
+        {
+            testCaseWrappers.add(ClassLoaderUtil.<TestCaseWrapper>loadClass(className).newInstance());
+        }
+        catch (InstantiationException e)
+        {
+            throw new IllegalArgumentException("Cannot instantiate TestCaseWrapper for " + className +
+                    " does it have a no-arg constructor?");
+        }
+        catch (IllegalAccessException e)
+        {
+            throw new IllegalArgumentException("Cannot instantiate TestCaseWrapper for " + className);
         }
     }
 
