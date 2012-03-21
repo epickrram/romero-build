@@ -26,10 +26,15 @@ import com.epickrram.romero.common.TestCaseJobResult;
 import com.epickrram.romero.core.*;
 import com.epickrram.romero.server.ServerImpl;
 import com.epickrram.romero.server.TestCaseJobFactory;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.internal.matchers.TypeSafeMatcher;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -40,7 +45,6 @@ import static com.epickrram.romero.common.TestCaseIdentifier.toMapKey;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -69,6 +73,7 @@ public final class IntegrationTest
                 sleeper, AGENT_ID);
     }
 
+    @Ignore
     @Test
     public void shouldRunBuild() throws Exception
     {
@@ -78,9 +83,32 @@ public final class IntegrationTest
 
         agent.run();
 
-        verify(eventListener, times(2)).onJobUpdate(any(TestCaseJob.class));
+        final InOrder inOrder = inOrder(eventListener);
+        inOrder.verify(eventListener).onJobUpdate(argThat(aTestCaseJobWithState(TEST_CLASS, JobState.RUNNING)));
+        inOrder.verify(eventListener).onJobUpdate(argThat(aTestCaseJobWithState(TEST_CLASS, JobState.FINISHED)));
 
         assertThat(jobRepository.getJob(toMapKey(TEST_CLASS)).getState(), is(JobState.FINISHED));
+    }
+
+    public static Matcher<TestCaseJob> aTestCaseJobWithState(final String expectedTestClassName,
+                                                             final JobState expectedJobState)
+    {
+        return new TypeSafeMatcher<TestCaseJob> ()
+        {
+            @Override
+            public boolean matchesSafely(final TestCaseJob testCaseJob)
+            {
+                return testCaseJob.getKey().getTestClass().equals(expectedTestClassName) &&
+                       testCaseJob.getState() == expectedJobState;
+            }
+
+            @Override
+            public void describeTo(final Description description)
+            {
+                description.appendText("class: " + expectedTestClassName);
+                description.appendText("\nstate: " + expectedJobState);
+            }
+        };
     }
 
     private List<JobDefinition<TestCaseIdentifier, Properties>> createJobDefinitionList()
