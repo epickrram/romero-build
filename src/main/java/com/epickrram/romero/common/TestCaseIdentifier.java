@@ -86,6 +86,14 @@ public final class TestCaseIdentifier implements Comparable<TestCaseIdentifier>
         return new TestCaseIdentifier(testClass, 0, 0L);
     }
 
+    @Override
+    public String toString()
+    {
+        return "TestCaseIdentifier{" +
+                "testClass='" + testClass + '\'' +
+                '}';
+    }
+
     private static final class DefaultComparator implements  Comparator<TestCaseIdentifier>
     {
         @Override

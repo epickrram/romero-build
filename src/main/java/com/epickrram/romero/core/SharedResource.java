@@ -16,65 +16,48 @@
 
 package com.epickrram.romero.core;
 
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class AbstractJob<K, R> implements Job<K, R>
+public final class SharedResource<T> implements Resource<T>
 {
-    private final AtomicReference<JobState> jobState = new AtomicReference<>(JobState.PENDING);
-    private final K key;
-    private volatile R result;
+    private final int maxConcurrentJobs;
+    private final T value;
+    private final AtomicInteger currentRunningJobs = new AtomicInteger(0);
 
-    public AbstractJob(final K key)
+    public SharedResource(final int maxConcurrentJobs, final T value)
     {
-        this.key = key;
+        this.maxConcurrentJobs = maxConcurrentJobs;
+        this.value = value;
     }
 
     @Override
-    public JobState getState()
+    public boolean acquire()
     {
-        return jobState.get();
+        final int currentJobs = currentRunningJobs.get();
+        return currentJobs < maxConcurrentJobs && currentRunningJobs.compareAndSet(currentJobs, currentJobs + 1);
     }
 
     @Override
-    public boolean transitionTo(final JobState newState)
+    public T getValue()
     {
-        final JobState currentState = jobState.get();
-        return currentState.canTransitionTo(newState) && jobState.compareAndSet(currentState, newState);
+        return value;
     }
 
     @Override
-    public R getResult()
+    public void release()
     {
-        return result;
+        currentRunningJobs.decrementAndGet();
     }
 
     @Override
-    public void setResult(final R result, final JobEventListener<K, R> jobEventListener)
+    public int getMaxConcurrentJobs()
     {
-        this.result = result;
-        final JobState newJobState = getNewJobState(result);
-        if(newJobState != null)
-        {
-            jobState.set(newJobState);
-        }
-        jobEventListener.onJobUpdate(this);
+        return maxConcurrentJobs;
     }
 
     @Override
-    public K getKey()
+    public int getCurrentUsageCount()
     {
-        return key;
-    }
-
-    protected abstract JobState getNewJobState(final R result);
-
-    @Override
-    public String toString()
-    {
-        return "AbstractJob{" +
-                "jobState=" + jobState +
-                ", key=" + key +
-                ", result=" + result +
-                '}';
+        return currentRunningJobs.get();
     }
 }
