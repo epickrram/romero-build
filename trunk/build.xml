@@ -9,6 +9,7 @@
     <property name="test-output.dir" value="build/test/output"/>
     <property name="test.report.dir" value="${test-output.dir}/report/junit"/>
     <property name="main.src.dir" value="src/main/java"/>
+    <property name="main.web.dir" value="src/main/web"/>
     <property name="main.resources.dir" value="src/main/resources"/>
     <property name="test.src.dir" value="src/test/java"/>
     <property name="test.resources.dir" value="src/test/resources"/>
@@ -54,7 +55,7 @@
         </javac>
     </target>
 
-    <target name="compile-test" depends="clean, compile">
+    <target name="compile-test" depends="compile">
         <mkdir dir="${test-classes.dir}"/>
         <javac destdir="${test-classes.dir}" srcdir="${test.src.dir}" target="7" source="7" debug="true"
                debuglevel="lines,vars,source">
@@ -62,7 +63,7 @@
         </javac>
     </target>
 
-    <target name="test">
+    <target name="test" depends="compile-test">
         <mkdir dir="${test-output.dir}"/>
         <mkdir dir="${test.report.dir}/xml"/>
         <mkdir dir="${test.report.dir}/html"/>
@@ -91,6 +92,37 @@
         </junitreport>
     </target>
 
+    <target name="war" depends="compile">
+        <mkdir dir="${dist.dir}/web"/>
+        <copy todir="${dist.dir}/web">
+            <fileset dir="${main.web.dir}" includes="**/*"/>
+        </copy>
+        <mkdir dir="${dist.dir}/web/WEB-INF/classes"/>
+        <copy todir="${dist.dir}/web/WEB-INF/classes">
+            <fileset dir="${main.classes.dir}">
+                <include name="com/epickrram/romero/common/**/*"/>
+                <include name="com/epickrram/romero/core/**/*"/>
+                <include name="com/epickrram/romero/server/**/*"/>
+                <include name="com/epickrram/romero/util/**/*"/>
+            </fileset>
+        </copy>
+
+        <mkdir dir="${dist.dir}/web/WEB-INF/lib"/>
+        <copy todir="${dist.dir}/web/WEB-INF/lib">
+            <fileset dir="lib/dist">
+                <include name="*.jar"/>
+                <exclude name="*sources*.jar"/>
+            </fileset>
+        </copy>
+
+        <jar destfile="${dist.dir}/romero.war">
+            <fileset dir="${dist.dir}/web">
+                <include name="**/*"/>
+            </fileset>
+        </jar>
+    </target>
+
+    
 
     <!--<target name="jar" depends="compile">-->
     <!--<jar destfile="${dist.dir}/romero-${majorVersion}.${minorVersion}.jar"-->

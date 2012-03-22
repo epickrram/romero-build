@@ -14,21 +14,30 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server;
+package com.epickrram.romero.util;
 
-import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.common.TestCaseIdentifier;
-import com.epickrram.romero.common.TestCaseJobResult;
-import com.epickrram.romero.core.JobDefinition;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.webapp.WebAppContext;
 
-import java.util.Properties;
+import java.io.File;
 
-public interface Server
+public final class WebAppRunner
 {
-    void startTestRun(final String identifier);
-    BuildStatus getStatus();
-    String getCurrentBuildId();
-    JobDefinition<TestCaseIdentifier, Properties> getNextTestToRun(final String agentId);
+    public static void main(String[] args) throws Exception
+    {
+        final Server server = new Server(8080);
+        WebAppContext context = new WebAppContext();
 
-    void onTestCaseJobResult(final TestCaseJobResult testCaseJobResult);
+        final File webAppRootDir = new File("src/main/web");
+        final String webXml = new File(webAppRootDir, "WEB-INF/web.xml").getAbsolutePath();
+        context.setDescriptor(webXml);
+        context.setResourceBase(webAppRootDir.getAbsolutePath());
+        context.setParentLoaderPriority(true);
+        context.setContextPath("/");
+        
+        server.setHandler(context);
+
+        server.start();
+        server.join();
+    }
 }

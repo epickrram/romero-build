@@ -81,8 +81,10 @@ public final class Agent implements Runnable
             final ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
             try
             {
-                final List<TestCaseWrapper> testCaseWrappers = new ArrayList<>();
-                handleTestProperties(testDefinition.getData(), currentClassLoader, testCaseWrappers);
+                final List<String>testCaseWrappersClassNames = new ArrayList<>();
+                handleTestProperties(testDefinition.getData(), currentClassLoader, testCaseWrappersClassNames);
+                final List<TestCaseWrapper> testCaseWrappers = new ArrayList<>(testCaseWrappersClassNames.size());
+                instantiateTestCaseWrappers(testCaseWrappersClassNames, testCaseWrappers);
 
                 beforeTestCase(testCaseWrappers);
 
@@ -119,7 +121,7 @@ public final class Agent implements Runnable
     }
 
     private void handleTestProperties(final Properties data, final ClassLoader currentClassLoader,
-                                      final List<TestCaseWrapper> testCaseWrappers)
+                                      final List<String> testCaseWrappers)
     {
         final List<URL> urlList = new ArrayList<>();
         for (String propertyKey : data.stringPropertyNames())
@@ -134,7 +136,7 @@ public final class Agent implements Runnable
             }
             else if(propertyKey.startsWith(TEST_CASE_WRAPPER_PREFIX))
             {
-                addTestCaseWrapper(propertyKey, data, testCaseWrappers);
+                testCaseWrappers.add(data.getProperty(propertyKey));
             }
         }
 
@@ -145,10 +147,16 @@ public final class Agent implements Runnable
         }
     }
 
-    private void addTestCaseWrapper(final String propertyKey, final Properties data,
-                                    final List<TestCaseWrapper> testCaseWrappers)
+    private void instantiateTestCaseWrappers(final List<String> testCaseWrappersClassNames, final List<TestCaseWrapper> testCaseWrappers)
     {
-        final String className = data.getProperty(propertyKey);
+        for (String className : testCaseWrappersClassNames)
+        {
+            addTestCaseWrapper(testCaseWrappers, className);
+        }
+    }
+
+    private void addTestCaseWrapper(final List<TestCaseWrapper> testCaseWrappers, final String className)
+    {
         try
         {
             testCaseWrappers.add(ClassLoaderUtil.<TestCaseWrapper>loadClass(className).newInstance());

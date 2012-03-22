@@ -34,6 +34,7 @@ public final class ServerImpl implements Server
 
     private final JobRepository<TestCaseIdentifier, Properties, TestCaseJobResult> jobRepository;
     private final AtomicReference<BuildStatus> buildStatus = new AtomicReference<>(BuildStatus.WAITING_FOR_NEXT_BUILD);
+    private volatile String currentBuildId;
 
     public ServerImpl(final JobRepository<TestCaseIdentifier, Properties, TestCaseJobResult> jobRepository)
     {
@@ -47,6 +48,7 @@ public final class ServerImpl implements Server
         {
             LOGGER.info("Starting build " + identifier);
             jobRepository.init(identifier);
+            currentBuildId = identifier;
         }
     }
 
@@ -55,6 +57,17 @@ public final class ServerImpl implements Server
     {
         determineStatus();
         return buildStatus.get();
+    }
+
+    @Override
+    public String getCurrentBuildId()
+    {
+        final BuildStatus status = buildStatus.get();
+        if(status == BuildStatus.BUILDING || status == BuildStatus.WAITING_FOR_TESTS_TO_COMPLETE)
+        {
+            return currentBuildId;
+        }
+        return null;
     }
 
     @Override
