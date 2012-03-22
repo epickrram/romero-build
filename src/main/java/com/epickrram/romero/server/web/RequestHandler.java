@@ -14,21 +14,34 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server;
+package com.epickrram.romero.server.web;
 
-import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.common.TestCaseIdentifier;
-import com.epickrram.romero.common.TestCaseJobResult;
-import com.epickrram.romero.core.JobDefinition;
+import com.google.gson.Gson;
 
-import java.util.Properties;
+import java.io.IOException;
+import java.io.Reader;
 
-public interface Server
+public abstract class RequestHandler<I, O>
 {
-    void startTestRun(final String identifier);
-    BuildStatus getStatus();
-    String getCurrentBuildId();
-    JobDefinition<TestCaseIdentifier, Properties> getNextTestToRun(final String agentId);
+    private final Class<I> inputTypeClass;
 
-    void onTestCaseJobResult(final TestCaseJobResult testCaseJobResult);
+    RequestHandler(final Class<I> inputTypeClass)
+    {
+        this.inputTypeClass = inputTypeClass;
+    }
+
+    void handleRequest(final Reader reader, final Appendable appendable) throws IOException
+    {
+        final Gson gson = new Gson();
+        final I input = isVoidInputType() ? null : gson.fromJson(reader, inputTypeClass);
+        final O output = handleRequest(input);
+        gson.toJson(output, appendable);
+    }
+
+    abstract O handleRequest(final I input);
+
+    private boolean isVoidInputType()
+    {
+        return inputTypeClass == Void.class;
+    }
 }

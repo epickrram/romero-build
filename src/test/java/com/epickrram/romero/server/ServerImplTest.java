@@ -148,6 +148,26 @@ public final class ServerImplTest
         verify(jobRepository).onJobResult(eq(toMapKey(JOB_1)), same(result));
     }
 
+    @Test
+    public void shouldReturnCurrentBuildId() throws Exception
+    {
+        when(jobRepository.isJobAvailable()).thenReturn(true, false, false);
+        when(jobRepository.areJobsComplete()).thenReturn(true);
+
+        assertThat(server.getCurrentBuildId(), is(nullValue()));
+
+        server.startTestRun(IDENTIFIER);
+
+        assertThat(server.getStatus(), is(BuildStatus.BUILDING));
+        assertThat(server.getCurrentBuildId(), is(IDENTIFIER));
+
+        assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_TESTS_TO_COMPLETE));
+        assertThat(server.getCurrentBuildId(), is(IDENTIFIER));
+
+        assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_NEXT_BUILD));
+        assertThat(server.getCurrentBuildId(), is(nullValue()));
+    }
+
     @Before
     public void setUp() throws Exception
     {

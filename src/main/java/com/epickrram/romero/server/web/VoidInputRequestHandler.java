@@ -14,21 +14,20 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server;
+package com.epickrram.romero.server.web;
 
-import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.common.TestCaseIdentifier;
-import com.epickrram.romero.common.TestCaseJobResult;
-import com.epickrram.romero.core.JobDefinition;
-
-import java.util.Properties;
-
-public interface Server
+public abstract class VoidInputRequestHandler<O> extends RequestHandler<Void, O>
 {
-    void startTestRun(final String identifier);
-    BuildStatus getStatus();
-    String getCurrentBuildId();
-    JobDefinition<TestCaseIdentifier, Properties> getNextTestToRun(final String agentId);
+    public VoidInputRequestHandler()
+    {
+        super(Void.class);
+    }
 
-    void onTestCaseJobResult(final TestCaseJobResult testCaseJobResult);
+    @Override
+    O handleRequest(final Void input)
+    {
+        return handleRequest();
+    }
+
+    abstract O handleRequest();
 }
