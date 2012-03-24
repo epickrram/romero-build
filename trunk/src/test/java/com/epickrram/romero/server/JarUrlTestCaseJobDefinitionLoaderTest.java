@@ -1,0 +1,84 @@
+//////////////////////////////////////////////////////////////////////////////////
+//   Copyright 2011   Mark Price     mark at epickrram.com                      //
+//                                                                              //
+//   Licensed under the Apache License, Version 2.0 (the "License");            //
+//   you may not use this file except in compliance with the License.           //
+//   You may obtain a copy of the License at                                    //
+//                                                                              //
+//       http://www.apache.org/licenses/LICENSE-2.0                             //
+//                                                                              //
+//   Unless required by applicable law or agreed to in writing, software        //
+//   distributed under the License is distributed on an "AS IS" BASIS,          //
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   //
+//   See the License for the specific language governing permissions and        //
+//   limitations under the License.                                             //
+//////////////////////////////////////////////////////////////////////////////////
+
+package com.epickrram.romero.server;
+
+import com.epickrram.romero.common.TestCaseIdentifier;
+import com.epickrram.romero.core.JobDefinition;
+import com.epickrram.romero.util.UrlLoader;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Properties;
+
+import static com.epickrram.romero.common.TestCaseIdentifier.toMapKey;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public final class JarUrlTestCaseJobDefinitionLoaderTest
+{
+    private static final String URL_PATTERN = "/path/${jobIdentifier}/resource";
+    private static final String TEST_IDENTIFIER = "12345";
+    private static final String EXPECTED_URL = "/path/12345/resource";
+
+    @Mock
+    private UrlLoader urlLoader;
+    private JarUrlTestCaseJobDefinitionLoader jobDefinitionLoader;
+
+    @Before
+    public void setup() throws Exception
+    {
+        jobDefinitionLoader = new JarUrlTestCaseJobDefinitionLoader(URL_PATTERN, urlLoader);
+    }
+
+    @Test
+    public void shouldLoadTestDefinitionsFromJar() throws Exception
+    {
+        when(urlLoader.downloadUrl(anyString(), anyBoolean())).thenReturn(testDefinitionJar());
+
+        final List<JobDefinition<TestCaseIdentifier, Properties>> jobDefinitions =
+                jobDefinitionLoader.loadJobDefinitions(TEST_IDENTIFIER);
+
+        assertThat(jobDefinitions.size(), is(1));
+        final TestCaseIdentifier key = jobDefinitions.get(0).getKey();
+        assertThat(key, is(toMapKey("com.epickrram.romero.StubTestCaseFromExternalJar")));
+
+        verify(urlLoader).downloadUrl(EXPECTED_URL, true);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void shouldThrowExceptionIfTestDefinitionsCannotBeLoaded() throws Exception
+    {
+        when(urlLoader.downloadUrl(anyString(), anyBoolean())).thenReturn(null);
+
+        jobDefinitionLoader.loadJobDefinitions(TEST_IDENTIFIER);
+    }
+
+    private static File testDefinitionJar()
+    {
+        return new File("src/test/resources/external-test-archive.jar");
+    }
+}
