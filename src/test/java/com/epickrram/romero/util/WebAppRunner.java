@@ -16,7 +16,11 @@
 
 package com.epickrram.romero.util;
 
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.DefaultHandler;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.File;
@@ -25,8 +29,45 @@ public final class WebAppRunner
 {
     public static void main(String[] args) throws Exception
     {
-        final Server server = new Server(8080);
-        WebAppContext context = new WebAppContext();
+        try
+        {
+            final int romeroServerPort = Integer.parseInt(args[0]);
+            final int testResourcesPort = Integer.parseInt(args[1]);
+
+            System.out.println("romero port: " + romeroServerPort);
+            System.out.println("resources port: " + testResourcesPort);
+
+            final Server romeroApplicationServer = startApplicationServer(romeroServerPort);
+            final Server server = startTestResourceServer(testResourcesPort);
+
+            romeroApplicationServer.join();
+            server.join();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace(System.out);
+        }
+    }
+
+    private static Server startTestResourceServer(final int testResourcesPort) throws Exception
+    {
+        final Server server = new Server(testResourcesPort);
+
+        final ResourceHandler resourceHandler = new ResourceHandler();
+        resourceHandler.setDirectoriesListed(true);
+        resourceHandler.setResourceBase(new File("src/test/web").getAbsolutePath());
+        final HandlerList handlers = new HandlerList();
+        handlers.setHandlers(new Handler[] { resourceHandler, new DefaultHandler() });
+        server.setHandler(handlers);
+
+        server.start();
+        return server;
+    }
+
+    private static Server startApplicationServer(final int romeroServerPort) throws Exception
+    {
+        final Server server = new Server(romeroServerPort);
+        final WebAppContext context = new WebAppContext();
 
         final File webAppRootDir = new File("src/main/web");
         final String webXml = new File(webAppRootDir, "WEB-INF/web.xml").getAbsolutePath();
@@ -34,10 +75,9 @@ public final class WebAppRunner
         context.setResourceBase(webAppRootDir.getAbsolutePath());
         context.setParentLoaderPriority(true);
         context.setContextPath("/");
-        
         server.setHandler(context);
 
         server.start();
-        server.join();
+        return server;
     }
 }

@@ -122,7 +122,21 @@
         </jar>
     </target>
 
-    
+    <target name="start-test-server" depends="compile-test">
+        <property file="${test.resources.dir}/integration-test.properties"/>
+        <exec executable="sh" dir="./bin">
+            <arg value="./start-test-server.sh"/>
+            <arg value="${romero.server.port}"/>
+            <arg value="${test.resources.port}"/>
+        </exec>
+    </target>
+
+    <target name="stop-test-server">
+        <exec executable="pkill" dir=".">
+            <arg value="-f"/>
+            <arg value="WebAppRunner"/>
+        </exec>
+    </target>
 
     <!--<target name="jar" depends="compile">-->
     <!--<jar destfile="${dist.dir}/romero-${majorVersion}.${minorVersion}.jar"-->
