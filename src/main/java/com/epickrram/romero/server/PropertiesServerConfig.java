@@ -14,15 +14,34 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.core;
+package com.epickrram.romero.server;
 
-public interface JobRepository<K, D, R>
+import com.epickrram.romero.util.UrlLoader;
+
+import java.io.IOException;
+import java.util.Properties;
+
+public final class PropertiesServerConfig implements ServerConfig
 {
-    JobDefinition<K, D> getJobToRun();
-    Job<K, R> getJob(final K key);
-    void onJobResult(final K key, final R result);
-    boolean isJobAvailable();
-    boolean areJobsComplete();
-    void init(final String identifier);
-    int size();
+    private final String propertiesUrl;
+    private final UrlLoader urlLoader;
+    private final Properties properties;
+
+    public PropertiesServerConfig(final String propertiesUrl, final UrlLoader urlLoader)
+    {
+        this.propertiesUrl = propertiesUrl;
+        this.urlLoader = urlLoader;
+        properties = new Properties();
+    }
+
+    public void init() throws IOException
+    {
+        properties.load(urlLoader.openUrlStream(propertiesUrl));
+    }
+
+    @Override
+    public String getStringProperty(final String propertyName)
+    {
+        return properties.getProperty(propertyName);
+    }
 }

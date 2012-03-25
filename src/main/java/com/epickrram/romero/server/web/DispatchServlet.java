@@ -16,6 +16,9 @@
 
 package com.epickrram.romero.server.web;
 
+import com.epickrram.romero.common.BuildStatus;
+import com.epickrram.romero.server.Server;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -25,12 +28,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class DispatchServlet extends HttpServlet
 {
     private static final Logger LOGGER = Logger.getLogger(DispatchServlet.class.getSimpleName());
-    
     private final Map<String, RequestHandler<?, ?>> requestHandlerMap = new ConcurrentHashMap<>();
 
     @Override
@@ -42,11 +45,16 @@ public final class DispatchServlet extends HttpServlet
             @Override
             Map<String, String> handleRequest()
             {
-                Map<String, String> map = new HashMap<>();
-                map.put("status", "BUILDING");
+                final Server server = ServerReference.get();
+                final BuildStatus status = server.getStatus();
+                final Map<String, String> map = new HashMap<>();
+                map.put("status", status.name());
+                map.put("totalJobs", Integer.toString(server.getTotalJobs()));
+                map.put("remainingJobs", Integer.toString(server.getRemainingJobs()));
                 return map;
             }
         });
+
     }
 
     @Override
@@ -66,6 +74,7 @@ public final class DispatchServlet extends HttpServlet
         }
         catch(RuntimeException e)
         {
+            LOGGER.log(Level.WARNING, "Failed to handle request", e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }

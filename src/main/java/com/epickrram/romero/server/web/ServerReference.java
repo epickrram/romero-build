@@ -14,15 +14,25 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.core;
+package com.epickrram.romero.server.web;
 
-public interface JobRepository<K, D, R>
+import com.epickrram.romero.server.Server;
+
+import java.util.concurrent.atomic.AtomicReference;
+
+public final class ServerReference
 {
-    JobDefinition<K, D> getJobToRun();
-    Job<K, R> getJob(final K key);
-    void onJobResult(final K key, final R result);
-    boolean isJobAvailable();
-    boolean areJobsComplete();
-    void init(final String identifier);
-    int size();
+    private static final AtomicReference<Server> serverReference = new AtomicReference<>();
+
+    private ServerReference() {}
+
+    static void set(final Server server)
+    {
+        serverReference.set(server);
+    }
+
+    public static Server get()
+    {
+        return serverReference.get();
+    }
 }

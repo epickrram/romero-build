@@ -26,14 +26,14 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
 import static com.epickrram.romero.common.TestCaseIdentifier.toMapKey;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 public final class JarUrlTestCaseJobDefinitionLoaderTest
 {
     private static final String URL_PATTERN = "/path/${jobIdentifier}/resource";
-    private static final String TEST_IDENTIFIER = "12345";
+    private static final String JOB_IDENTIFIER = "12345";
     private static final String EXPECTED_URL = "/path/12345/resource";
 
     @Mock
@@ -60,7 +60,7 @@ public final class JarUrlTestCaseJobDefinitionLoaderTest
         when(urlLoader.downloadUrl(anyString(), anyBoolean())).thenReturn(testDefinitionJar());
 
         final List<JobDefinition<TestCaseIdentifier, Properties>> jobDefinitions =
-                jobDefinitionLoader.loadJobDefinitions(TEST_IDENTIFIER);
+                jobDefinitionLoader.loadJobDefinitions(JOB_IDENTIFIER);
 
         assertThat(jobDefinitions.size(), is(1));
         final TestCaseIdentifier key = jobDefinitions.get(0).getKey();
@@ -74,7 +74,7 @@ public final class JarUrlTestCaseJobDefinitionLoaderTest
     {
         when(urlLoader.downloadUrl(anyString(), anyBoolean())).thenReturn(null);
 
-        jobDefinitionLoader.loadJobDefinitions(TEST_IDENTIFIER);
+        jobDefinitionLoader.loadJobDefinitions(JOB_IDENTIFIER);
     }
 
     private static File testDefinitionJar()

@@ -18,6 +18,7 @@ package com.epickrram.romero.server;
 
 import com.epickrram.romero.common.TestCaseIdentifier;
 import com.epickrram.romero.core.JobDefinition;
+import com.epickrram.romero.core.JobDefinitionImpl;
 import com.epickrram.romero.core.JobDefinitionLoader;
 import com.epickrram.romero.util.UrlLoader;
 
@@ -30,8 +31,11 @@ import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import static com.epickrram.romero.common.TestCaseIdentifier.toMapKey;
+
 public final class JarUrlTestCaseJobDefinitionLoader implements JobDefinitionLoader<TestCaseIdentifier, Properties>
 {
+    public static final String URL_PATTERN_PROPERTY = "server.loader.definition.jar.url.pattern";
     private static final String JOB_IDENTIFIER_TOKEN = "\\$\\{jobIdentifier\\}";
 
     private final String urlPattern;
@@ -63,14 +67,21 @@ public final class JarUrlTestCaseJobDefinitionLoader implements JobDefinitionLoa
                 final String name = jarEntry.getName();
                 if(name.contains(".class"))
                 {
-
+                    final JobDefinition<TestCaseIdentifier, Properties> definition =
+                            new JobDefinitionImpl<>(toMapKey(toClassName(name)), new Properties());
+                    definitionList.add(definition);
                 }
             }
-            return null;
+            return definitionList;
         }
         catch(IOException e)
         {
             throw new RuntimeException("Unable to open url: " + url, e);
         }
+    }
+
+    private static String toClassName(final String fileName)
+    {
+        return fileName.substring(0, fileName.lastIndexOf('.')).replace('/', '.');
     }
 }

@@ -16,13 +16,18 @@
 
 package com.epickrram.romero.core;
 
-public interface JobRepository<K, D, R>
+import com.epickrram.romero.common.TestCaseIdentifier;
+import com.epickrram.romero.common.TestCaseJobResult;
+
+import java.util.logging.Logger;
+
+public final class LoggingJobEventListener implements JobEventListener<TestCaseIdentifier, TestCaseJobResult>
 {
-    JobDefinition<K, D> getJobToRun();
-    Job<K, R> getJob(final K key);
-    void onJobResult(final K key, final R result);
-    boolean isJobAvailable();
-    boolean areJobsComplete();
-    void init(final String identifier);
-    int size();
+    private static final Logger LOGGER = Logger.getLogger(LoggingJobEventListener.class.getSimpleName());
+
+    @Override
+    public void onJobUpdate(final Job<TestCaseIdentifier, TestCaseJobResult> updatedJob)
+    {
+        LOGGER.info(updatedJob.toString());
+    }
 }

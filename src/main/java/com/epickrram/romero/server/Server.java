@@ -31,4 +31,7 @@ public interface Server
     JobDefinition<TestCaseIdentifier, Properties> getNextTestToRun(final String agentId);
 
     void onTestCaseJobResult(final TestCaseJobResult testCaseJobResult);
+
+    int getTotalJobs();
+    int getRemainingJobs();
 }

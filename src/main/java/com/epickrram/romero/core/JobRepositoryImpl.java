@@ -113,4 +113,10 @@ public final class JobRepositoryImpl<K, D, R> implements JobRepository<K, D, R>
             LOGGER.warning("Received result for unknown job: " + key);
         }
     }
+
+    @Override
+    public int size()
+    {
+        return jobMap.size();
+    }
 }

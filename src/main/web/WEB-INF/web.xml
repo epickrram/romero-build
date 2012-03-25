@@ -5,13 +5,28 @@
      version="2.5">
 
     <servlet>
+        <servlet-name>BootstrapServlet</servlet-name>
+        <servlet-class>com.epickrram.romero.server.web.BootstrapServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>StartBuildServlet</servlet-name>
+        <servlet-class>com.epickrram.romero.server.web.StartBuildServlet</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>DispatchServlet</servlet-name>
         <servlet-class>com.epickrram.romero.server.web.DispatchServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>
         <servlet-name>DispatchServlet</servlet-name>
         <url-pattern>*.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>StartBuildServlet</servlet-name>
+        <url-pattern>/start</url-pattern>
     </servlet-mapping>
 </web-app>

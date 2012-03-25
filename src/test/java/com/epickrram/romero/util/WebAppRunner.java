@@ -37,8 +37,8 @@ public final class WebAppRunner
             System.out.println("romero port: " + romeroServerPort);
             System.out.println("resources port: " + testResourcesPort);
 
-            final Server romeroApplicationServer = startApplicationServer(romeroServerPort);
             final Server server = startTestResourceServer(testResourcesPort);
+            final Server romeroApplicationServer = startApplicationServer(romeroServerPort);
 
             romeroApplicationServer.join();
             server.join();
