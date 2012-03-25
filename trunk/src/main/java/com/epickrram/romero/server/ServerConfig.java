@@ -14,15 +14,9 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.core;
+package com.epickrram.romero.server;
 
-public interface JobRepository<K, D, R>
+public interface ServerConfig
 {
-    JobDefinition<K, D> getJobToRun();
-    Job<K, R> getJob(final K key);
-    void onJobResult(final K key, final R result);
-    boolean isJobAvailable();
-    boolean areJobsComplete();
-    void init(final String identifier);
-    int size();
+    String getStringProperty(final String propertyName);
 }

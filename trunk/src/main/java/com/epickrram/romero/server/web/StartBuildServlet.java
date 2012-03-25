@@ -14,16 +14,41 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.util;
+package com.epickrram.romero.server.web;
 
-import java.io.File;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
+import java.util.logging.Logger;
 
-public interface UrlLoader
+public final class StartBuildServlet extends HttpServlet
 {
-    public InputStream openUrlStream(final String url) throws IOException;
-    public InputStream openUrlStream(final URL url) throws IOException;
-    public File downloadUrl(final String url, final boolean deleteOnExit) throws IOException;
+    private static final Logger LOGGER = Logger.getLogger(StartBuildServlet.class.getSimpleName());
+    private static final String JOB_IDENTIFIER_KEY = "jobIdentifier";
+
+    @Override
+    protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException
+    {
+        startBuild(req.getParameter(JOB_IDENTIFIER_KEY));
+    }
+
+    @Override
+    protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException
+    {
+        startBuild(req.getParameter(JOB_IDENTIFIER_KEY));
+    }
+
+    private void startBuild(final String jobIdentifier) throws ServletException
+    {
+        if(jobIdentifier != null)
+        {
+            LOGGER.info("Starting build for jobIdentifier: " + jobIdentifier);
+            ServerReference.get().startTestRun(jobIdentifier);
+            return;
+        }
+
+        throw new ServletException("Unable to initialise build");
+    }
 }

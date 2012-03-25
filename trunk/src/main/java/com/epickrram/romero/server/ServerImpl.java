@@ -83,6 +83,18 @@ public final class ServerImpl implements Server
         jobRepository.onJobResult(testCaseIdentifier, testCaseJobResult);
     }
 
+    @Override
+    public int getRemainingJobs()
+    {
+        return 0;
+    }
+
+    @Override
+    public int getTotalJobs()
+    {
+        return jobRepository.size();
+    }
+
     private void determineStatus()
     {
         if(!jobRepository.isJobAvailable() &&

@@ -8,8 +8,11 @@
 <body>
 <div id="build-status">
 </div>
+<div id="build-details">
+</div>
 
 <script language="javascript" type="text/javascript">
+
 function getBuildStatus()
 {
 	$.ajax({
@@ -20,13 +23,15 @@ function getBuildStatus()
 			if(data)
 			{
 				$("#build-status").text(data.status)
+                $("#build-details").html(['<span>Total jobs: ', data.totalJobs, '</span><br/><span>Remaining jobs:', data.remainingJobs, '</span>'].join(''));
 			}
 		}
 	});
 }
 
-$(document).ready(function() {
-    getBuildStatus();
+$(document).ready(function()
+{
+    var interval = setInterval('getBuildStatus()', 2000)
 });
 
 </script>
