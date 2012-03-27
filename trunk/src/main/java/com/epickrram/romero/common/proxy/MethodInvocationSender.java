@@ -14,11 +14,11 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+package com.epickrram.romero.common.proxy;
 
-import com.epickrram.romero.common.TestSuiteJobResult;
+import java.io.IOException;
 
-public interface TestCaseJobResultHandler
+public interface MethodInvocationSender
 {
-    void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult);
+    MethodResponse invoke(final MethodRequest methodRequest) throws IOException;
 }

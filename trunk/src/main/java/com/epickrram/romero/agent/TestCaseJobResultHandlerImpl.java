@@ -16,7 +16,7 @@
 
 package com.epickrram.romero.agent;
 
-import com.epickrram.romero.common.TestCaseJobResult;
+import com.epickrram.romero.common.TestSuiteJobResult;
 import com.epickrram.romero.server.Server;
 
 public final class TestCaseJobResultHandlerImpl implements TestCaseJobResultHandler
@@ -29,8 +29,8 @@ public final class TestCaseJobResultHandlerImpl implements TestCaseJobResultHand
     }
 
     @Override
-    public void onTestCaseJobResult(final TestCaseJobResult testCaseJobResult)
+    public void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult)
     {
-        server.onTestCaseJobResult(testCaseJobResult);
+        server.onTestCaseJobResult(testSuiteJobResult);
     }
 }

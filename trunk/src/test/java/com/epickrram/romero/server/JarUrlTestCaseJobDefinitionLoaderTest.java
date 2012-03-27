@@ -16,7 +16,7 @@
 
 package com.epickrram.romero.server;
 
-import com.epickrram.romero.common.TestCaseIdentifier;
+import com.epickrram.romero.common.TestSuiteIdentifier;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.util.UrlLoader;
 import org.junit.Before;
@@ -29,7 +29,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
-import static com.epickrram.romero.common.TestCaseIdentifier.toMapKey;
+import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyBoolean;
@@ -59,11 +59,11 @@ public final class JarUrlTestCaseJobDefinitionLoaderTest
     {
         when(urlLoader.downloadUrl(anyString(), anyBoolean())).thenReturn(testDefinitionJar());
 
-        final List<JobDefinition<TestCaseIdentifier, Properties>> jobDefinitions =
+        final List<JobDefinition<TestSuiteIdentifier, Properties>> jobDefinitions =
                 jobDefinitionLoader.loadJobDefinitions(JOB_IDENTIFIER);
 
         assertThat(jobDefinitions.size(), is(1));
-        final TestCaseIdentifier key = jobDefinitions.get(0).getKey();
+        final TestSuiteIdentifier key = jobDefinitions.get(0).getKey();
         assertThat(key, is(toMapKey("com.epickrram.romero.StubTestCaseFromExternalJar")));
 
         verify(urlLoader).downloadUrl(EXPECTED_URL, true);

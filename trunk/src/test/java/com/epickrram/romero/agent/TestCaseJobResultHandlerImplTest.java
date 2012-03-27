@@ -16,7 +16,7 @@
 
 package com.epickrram.romero.agent;
 
-import com.epickrram.romero.common.TestCaseJobResult;
+import com.epickrram.romero.common.TestSuiteJobResult;
 import com.epickrram.romero.server.Server;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public final class TestCaseJobResultHandlerImplTest
     @Mock
     private Server server;
     private TestCaseJobResultHandlerImpl resultHandler;
-    private TestCaseJobResult result;
+    private TestSuiteJobResult result;
 
     @Test
     public void shouldNotifyServerOfTestCaseJobResult() throws Exception

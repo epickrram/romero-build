@@ -18,23 +18,23 @@ package com.epickrram.romero.common;
 
 import java.util.Comparator;
 
-public final class TestCaseIdentifier implements Comparable<TestCaseIdentifier>
+public final class TestSuiteIdentifier implements Comparable<TestSuiteIdentifier>
 {
     private static final DefaultComparator DEFAULT_COMPARATOR = new DefaultComparator();
 
     private final String testClass;
     private transient final int numberOfTestMethods;
     private transient final long lastRunDurationMillis;
-    private transient final Comparator<TestCaseIdentifier> comparator;
+    private transient final Comparator<TestSuiteIdentifier> comparator;
 
-    public TestCaseIdentifier(final String testClass, final int numberOfTestMethods,
-                              final long lastRunDurationMillis)
+    public TestSuiteIdentifier(final String testClass, final int numberOfTestMethods,
+                               final long lastRunDurationMillis)
     {
         this(testClass, numberOfTestMethods, lastRunDurationMillis, DEFAULT_COMPARATOR);
     }
 
-    public TestCaseIdentifier(final String testClass, final int numberOfTestMethods,
-                              final long lastRunDurationMillis, final Comparator<TestCaseIdentifier> comparator)
+    public TestSuiteIdentifier(final String testClass, final int numberOfTestMethods,
+                               final long lastRunDurationMillis, final Comparator<TestSuiteIdentifier> comparator)
     {
         this.testClass = testClass;
         this.numberOfTestMethods = numberOfTestMethods;
@@ -43,7 +43,7 @@ public final class TestCaseIdentifier implements Comparable<TestCaseIdentifier>
     }
 
     @Override
-    public int compareTo(final TestCaseIdentifier other)
+    public int compareTo(final TestSuiteIdentifier other)
     {
         return comparator.compare(this, other);
     }
@@ -69,7 +69,7 @@ public final class TestCaseIdentifier implements Comparable<TestCaseIdentifier>
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final TestCaseIdentifier that = (TestCaseIdentifier) o;
+        final TestSuiteIdentifier that = (TestSuiteIdentifier) o;
 
         return !(testClass != null ? !testClass.equals(that.testClass) : that.testClass != null);
 
@@ -81,23 +81,23 @@ public final class TestCaseIdentifier implements Comparable<TestCaseIdentifier>
         return testClass != null ? testClass.hashCode() : 0;
     }
 
-    public static TestCaseIdentifier toMapKey(final String testClass)
+    public static TestSuiteIdentifier toMapKey(final String testClass)
     {
-        return new TestCaseIdentifier(testClass, 0, 0L);
+        return new TestSuiteIdentifier(testClass, 0, 0L);
     }
 
     @Override
     public String toString()
     {
-        return "TestCaseIdentifier{" +
+        return "TestSuiteIdentifier{" +
                 "testClass='" + testClass + '\'' +
                 '}';
     }
 
-    private static final class DefaultComparator implements  Comparator<TestCaseIdentifier>
+    private static final class DefaultComparator implements  Comparator<TestSuiteIdentifier>
     {
         @Override
-        public int compare(final TestCaseIdentifier o1, final TestCaseIdentifier o2)
+        public int compare(final TestSuiteIdentifier o1, final TestSuiteIdentifier o2)
         {
             return o1.testClass.compareTo(o2.testClass);
         }

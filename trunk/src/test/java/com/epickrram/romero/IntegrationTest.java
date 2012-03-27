@@ -19,8 +19,8 @@ package com.epickrram.romero;
 import com.epickrram.romero.agent.Agent;
 import com.epickrram.romero.agent.TestCaseJobResultHandlerImpl;
 import com.epickrram.romero.agent.junit.JUnitTestExecutor;
-import com.epickrram.romero.common.TestCaseIdentifier;
-import com.epickrram.romero.common.TestCaseJobResult;
+import com.epickrram.romero.common.TestSuiteIdentifier;
+import com.epickrram.romero.common.TestSuiteJobResult;
 import com.epickrram.romero.common.TestPropertyKeys;
 import com.epickrram.romero.core.*;
 import com.epickrram.romero.server.ServerImpl;
@@ -41,7 +41,7 @@ import java.util.Properties;
 import static com.epickrram.romero.MatcherFactory.testCaseJobsWithStates;
 import static com.epickrram.romero.agent.AgentTest.EXTERNAL_TEST_RESOURCE_PATH;
 import static com.epickrram.romero.agent.AgentTest.TEST_CLASS_FROM_EXTERNAL_JAR;
-import static com.epickrram.romero.common.TestCaseIdentifier.toMapKey;
+import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -55,14 +55,14 @@ public final class IntegrationTest
     private static final String TEST_CLASS = StubJUnitTestData.class.getName();
 
     @Mock
-    private JobDefinitionLoader<TestCaseIdentifier, Properties> jobDefinitionLoader;
+    private JobDefinitionLoader<TestSuiteIdentifier, Properties> jobDefinitionLoader;
     @Mock
-    private JobEventListener<TestCaseIdentifier, TestCaseJobResult> eventListener;
+    private JobEventListener<TestSuiteIdentifier, TestSuiteJobResult> eventListener;
     @Mock
     private Agent.Sleeper sleeper;
     private ServerImpl server;
     private Agent agent;
-    private JobRepository<TestCaseIdentifier, Properties, TestCaseJobResult> jobRepository;
+    private JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository;
 
     @Before
     public void setup() throws Exception
@@ -97,7 +97,7 @@ public final class IntegrationTest
         final URL url = new File(EXTERNAL_TEST_RESOURCE_PATH).toURI().toURL();
         properties.setProperty(TestPropertyKeys.CLASSPATH_URL_PREFIX + ".tests", url.toExternalForm());
 
-        final List<JobDefinition<TestCaseIdentifier, Properties>> definitionList =
+        final List<JobDefinition<TestSuiteIdentifier, Properties>> definitionList =
                 createJobDefinitionList(toMapKey(TEST_CLASS_FROM_EXTERNAL_JAR), properties);
         when(jobDefinitionLoader.loadJobDefinitions(TEST_RUN_IDENTIFIER)).thenReturn(definitionList);
 
@@ -111,17 +111,17 @@ public final class IntegrationTest
         assertThat(jobRepository.getJob(toMapKey(TEST_CLASS_FROM_EXTERNAL_JAR)).getState(), is(JobState.FINISHED));
     }
 
-    private List<JobDefinition<TestCaseIdentifier, Properties>> createJobDefinitionList()
+    private List<JobDefinition<TestSuiteIdentifier, Properties>> createJobDefinitionList()
     {
         final String testClass = TEST_CLASS;
-        final TestCaseIdentifier key = new TestCaseIdentifier(testClass, 0, 0L);
+        final TestSuiteIdentifier key = new TestSuiteIdentifier(testClass, 0, 0L);
         final Properties properties = new Properties();
         return createJobDefinitionList(key, properties);
     }
 
-    private List<JobDefinition<TestCaseIdentifier, Properties>> createJobDefinitionList(final TestCaseIdentifier key, final Properties properties)
+    private List<JobDefinition<TestSuiteIdentifier, Properties>> createJobDefinitionList(final TestSuiteIdentifier key, final Properties properties)
     {
-        final JobDefinition<TestCaseIdentifier, Properties> jobDefinition = new JobDefinitionImpl<>(key, properties);
+        final JobDefinition<TestSuiteIdentifier, Properties> jobDefinition = new JobDefinitionImpl<>(key, properties);
         return singletonList(jobDefinition);
     }
 }

@@ -14,11 +14,21 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+package com.epickrram.romero.common;
 
-import com.epickrram.romero.common.TestSuiteJobResult;
+import com.epickrram.romero.core.AbstractJob;
+import com.epickrram.romero.core.JobState;
 
-public interface TestCaseJobResultHandler
+public final class TestSuiteJob extends AbstractJob<TestSuiteIdentifier, TestSuiteJobResult>
 {
-    void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult);
+    public TestSuiteJob(final TestSuiteIdentifier key)
+    {
+        super(key);
+    }
+
+    @Override
+    protected JobState getNewJobState(final TestSuiteJobResult result)
+    {
+        return JobState.FINISHED;
+    }
 }

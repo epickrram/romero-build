@@ -14,11 +14,40 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+package com.epickrram.romero.common.proxy;
 
-import com.epickrram.romero.common.TestSuiteJobResult;
-
-public interface TestCaseJobResultHandler
+public final class MethodResponse
 {
-    void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult);
+    private final String exceptionMessage;
+    private final Object result;
+
+    public MethodResponse(final String exceptionMessage, final Object result)
+    {
+        this.exceptionMessage = exceptionMessage;
+        this.result = result;
+    }
+
+    public boolean containsException()
+    {
+        return null != exceptionMessage;
+    }
+
+    public String getExceptionMessage()
+    {
+        return exceptionMessage;
+    }
+
+    public Object getResult()
+    {
+        return result;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "MethodResponse{" +
+                "exceptionMessage='" + exceptionMessage + '\'' +
+                ", result=" + result +
+                '}';
+    }
 }

@@ -14,11 +14,24 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+package com.epickrram.romero.common.proxy;
 
-import com.epickrram.romero.common.TestSuiteJobResult;
-
-public interface TestCaseJobResultHandler
+public final class SerialisationUtil
 {
-    void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult);
+    private SerialisationUtil() {}
+
+    public static Object coerceValue(final Object value, final Class<?> type)
+    {
+        if(value == null)
+        {
+            return null;
+        }
+
+        if(value instanceof Double && (type == Integer.class || type == int.class))
+        {
+            return ((Double) value).intValue();
+        }
+
+        return value;
+    }
 }

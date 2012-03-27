@@ -17,7 +17,7 @@
 package com.epickrram.romero.agent;
 
 import com.epickrram.romero.agent.junit.JUnitTestExecutor;
-import com.epickrram.romero.common.TestCaseIdentifier;
+import com.epickrram.romero.common.TestSuiteIdentifier;
 import com.epickrram.romero.common.TestPropertyKeys;
 import com.epickrram.romero.core.JobDefinitionImpl;
 import com.epickrram.romero.server.Server;
@@ -34,7 +34,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Properties;
 
 import static com.epickrram.romero.common.BuildStatus.*;
-import static com.epickrram.romero.common.TestCaseIdentifier.toMapKey;
+import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
 import static com.epickrram.romero.common.TestPropertyKeys.SYSTEM_PROPERTY_PREFIX;
 import static com.epickrram.romero.stub.StubJUnitTestData.*;
 import static org.hamcrest.CoreMatchers.is;
@@ -155,7 +155,7 @@ public final class AgentTest
     private void expectTestToBeRun(final String testClass, final Properties properties)
     {
         when(server.getStatus()).thenReturn(BUILDING);
-        final JobDefinitionImpl<TestCaseIdentifier, Properties> jobDefinition =
+        final JobDefinitionImpl<TestSuiteIdentifier, Properties> jobDefinition =
                 new JobDefinitionImpl<>(toMapKey(testClass), properties);
         when(server.getNextTestToRun(AGENT_ID)).thenReturn(jobDefinition);
 

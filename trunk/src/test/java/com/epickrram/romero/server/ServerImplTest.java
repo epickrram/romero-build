@@ -17,8 +17,8 @@
 package com.epickrram.romero.server;
 
 import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.common.TestCaseIdentifier;
-import com.epickrram.romero.common.TestCaseJobResult;
+import com.epickrram.romero.common.TestSuiteIdentifier;
+import com.epickrram.romero.common.TestSuiteJobResult;
 import com.epickrram.romero.core.Job;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobRepository;
@@ -30,7 +30,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Properties;
 
-import static com.epickrram.romero.common.TestCaseIdentifier.toMapKey;
+import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
 import static com.epickrram.romero.server.StubTestResultBuilder.getTestCaseJobResult;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -45,11 +45,11 @@ public final class ServerImplTest
     private static final String AGENT_ID = "AGENT_ID";
 
     @Mock
-    private JobDefinition<TestCaseIdentifier, Properties> jobDefinition;
+    private JobDefinition<TestSuiteIdentifier, Properties> jobDefinition;
     @Mock
-    private Job<String, TestCaseJobResult> job;
+    private Job<String, TestSuiteJobResult> job;
     @Mock
-    private JobRepository<TestCaseIdentifier, Properties, TestCaseJobResult> jobRepository;
+    private JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository;
 
     private ServerImpl server;
 
@@ -82,7 +82,7 @@ public final class ServerImplTest
         when(jobRepository.isJobAvailable()).thenReturn(true);
         when(jobRepository.getJobToRun()).thenReturn(jobDefinition);
 
-        final JobDefinition<TestCaseIdentifier, Properties> definition = server.getNextTestToRun(AGENT_ID);
+        final JobDefinition<TestSuiteIdentifier, Properties> definition = server.getNextTestToRun(AGENT_ID);
 
         assertThat(definition.getKey().getTestClass(), is(JOB_1));
     }
@@ -93,7 +93,7 @@ public final class ServerImplTest
         when(jobRepository.isJobAvailable()).thenReturn(true);
         when(jobRepository.getJobToRun()).thenReturn(null);
 
-        final JobDefinition<TestCaseIdentifier, Properties> definition = server.getNextTestToRun(AGENT_ID);
+        final JobDefinition<TestSuiteIdentifier, Properties> definition = server.getNextTestToRun(AGENT_ID);
 
         assertThat(definition, is(nullValue()));
     }
@@ -141,7 +141,7 @@ public final class ServerImplTest
         server.startTestRun(IDENTIFIER);
         server.getNextTestToRun(AGENT_ID);
 
-        final TestCaseJobResult result = getTestCaseJobResult(JOB_1);
+        final TestSuiteJobResult result = getTestCaseJobResult(JOB_1);
         
         server.onTestCaseJobResult(result);
 

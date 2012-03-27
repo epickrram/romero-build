@@ -16,7 +16,7 @@
 
 package com.epickrram.romero.server;
 
-import com.epickrram.romero.common.TestCaseJobResult;
+import com.epickrram.romero.common.TestSuiteJobResult;
 import com.epickrram.romero.common.TestExecutionResult;
 import com.epickrram.romero.common.TestStatus;
 
@@ -47,8 +47,8 @@ public final class StubTestResultBuilder
                 stderr(STDERR);
     }
 
-    public static TestCaseJobResult getTestCaseJobResult(final String testClass)
+    public static TestSuiteJobResult getTestCaseJobResult(final String testClass)
     {
-        return new TestCaseJobResult(testClass, 1L, asList(getTestExecutionResult(testClass)));
+        return new TestSuiteJobResult(testClass, 1L, asList(getTestExecutionResult(testClass)));
     }
 }

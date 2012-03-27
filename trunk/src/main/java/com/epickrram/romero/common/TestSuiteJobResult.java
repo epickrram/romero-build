@@ -19,14 +19,14 @@ package com.epickrram.romero.common;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public final class TestCaseJobResult
+public final class TestSuiteJobResult
 {
     private final String testClass;
     private final long durationMillis;
     private final Collection<TestExecutionResult> testExecutionResults;
 
-    public TestCaseJobResult(final String testClass, final long durationMillis,
-                             final Collection<TestExecutionResult> testExecutionResults)
+    public TestSuiteJobResult(final String testClass, final long durationMillis,
+                              final Collection<TestExecutionResult> testExecutionResults)
     {
         this.testClass = testClass;
         this.durationMillis = durationMillis;
@@ -79,9 +79,9 @@ public final class TestCaseJobResult
             return this;
         }
 
-        public TestCaseJobResult newInstance()
+        public TestSuiteJobResult newInstance()
         {
-            return new TestCaseJobResult(testClass, testRunFinish - testRunStart, testExecutionResults);
+            return new TestSuiteJobResult(testClass, testRunFinish - testRunStart, testExecutionResults);
         }
     }
 }
