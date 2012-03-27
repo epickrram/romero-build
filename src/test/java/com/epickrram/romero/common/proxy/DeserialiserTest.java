@@ -14,41 +14,47 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent.junit;
+package com.epickrram.romero.common.proxy;
 
-import com.epickrram.romero.agent.TestCaseJobResultHandler;
-import com.epickrram.romero.common.TestSuiteJobResult;
-import com.epickrram.romero.stub.StubJUnitTestData;
+import com.google.gson.Gson;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
+import java.io.StringReader;
 
+import static com.epickrram.romero.common.proxy.SerialisationTestFixture.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
-public final class JUnitTestExecutorTest
+public final class DeserialiserTest
 {
-    @Mock
-    private TestCaseJobResultHandler resultHandler;
-    private JUnitTestExecutor unitTestExecutor;
+    private Deserialiser deserialiser;
 
     @Before
     public void setUp() throws Exception
     {
-        final JUnitCore jUnitCore = new JUnitCore();
-        unitTestExecutor = new JUnitTestExecutor(jUnitCore, resultHandler);
+        final Gson gson = new Gson();
+        deserialiser = new Deserialiser(gson);
     }
 
     @Test
-    public void shouldNotifyHandlerOfTestCaseJobResult() throws Exception
+    public void shouldDeserialiseMethodCall() throws Exception
     {
-        unitTestExecutor.runTest(StubJUnitTestData.class.getName());
+        final StringReader reader = new StringReader(SERIALISED_METHOD_REQUEST);
+        final MethodRequest methodRequest = deserialiser.readMethodRequest(reader);
 
-        verify(resultHandler).onTestCaseJobResult(any(TestSuiteJobResult.class));
+        assertThat(methodRequest.getClassName(), is(CLASS_NAME));
+        assertThat(methodRequest.getMethodName(), is(METHOD_NAME));
+        assertThat(methodRequest.getArguments(), equalTo(METHOD_ARGS));
+    }
+
+    @Test
+    public void shouldDeserialiseMethodResponse() throws Exception
+    {
+        final StringReader reader = new StringReader(SERIALISED_METHOD_RESPONSE);
+        final MethodResponse methodResponse = deserialiser.readMethodResponse(reader);
+
+        assertThat(methodResponse.getExceptionMessage(), is(nullValue()));
+        assertThat(methodResponse.getResult(), equalTo(METHOD_ARGS[0]));
     }
 }

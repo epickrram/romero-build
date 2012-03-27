@@ -14,11 +14,41 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+package com.epickrram.romero.common.proxy;
 
-import com.epickrram.romero.common.TestSuiteJobResult;
+import com.google.gson.Gson;
+import org.junit.Before;
+import org.junit.Test;
 
-public interface TestCaseJobResultHandler
+import static com.epickrram.romero.common.proxy.SerialisationTestFixture.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+public final class SerialiserTest
 {
-    void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult);
+    private Serialiser serialiser;
+
+    @Before
+    public void setUp() throws Exception
+    {
+        serialiser = new Serialiser(new Gson());
+    }
+
+    @Test
+    public void shouldSerialiseMethodRequestIntoAppendable() throws Exception
+    {
+        final StringBuilder builder = new StringBuilder();
+        serialiser.writeInto(builder, METHOD_REQUEST);
+
+        assertThat(builder.toString(), is(SERIALISED_METHOD_REQUEST));
+    }
+
+    @Test
+    public void shouldSerialiseMethodResponseIntoAppendable() throws Exception
+    {
+        final StringBuilder builder = new StringBuilder();
+        serialiser.writeInto(builder, METHOD_RESPONSE);
+
+        assertThat(builder.toString(), is(SERIALISED_METHOD_RESPONSE));
+    }
 }

@@ -14,11 +14,11 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+package com.epickrram.romero.server.dao;
 
-import com.epickrram.romero.common.TestSuiteJobResult;
+import java.sql.SQLException;
 
-public interface TestCaseJobResultHandler
+public interface ConnectionHandler
 {
-    void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult);
+    void execute(final JdbcExecutor executor);
 }

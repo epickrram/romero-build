@@ -14,21 +14,21 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.common;
+package com.epickrram.romero.common.proxy;
 
-import com.epickrram.romero.core.AbstractJob;
-import com.epickrram.romero.core.JobState;
-
-public final class TestCaseJob extends AbstractJob<TestCaseIdentifier, TestCaseJobResult>
+public final class SerialisationTestFixture
 {
-    public TestCaseJob(final TestCaseIdentifier key)
-    {
-        super(key);
-    }
+    static final Object[] METHOD_ARGS = new Object[]
+            {
+                    "foo",
+                    null,
+                    3.147d
+            };
 
-    @Override
-    protected JobState getNewJobState(final TestCaseJobResult result)
-    {
-        return JobState.FINISHED;
-    }
+    static final String CLASS_NAME = "com.epickrram.romero.TestClass";
+    static final String METHOD_NAME = "someMethod";
+    static final MethodRequest METHOD_REQUEST = new MethodRequest(CLASS_NAME, METHOD_NAME, METHOD_ARGS);
+    static final MethodResponse METHOD_RESPONSE = new MethodResponse(null, METHOD_ARGS[0]);
+    static final String SERIALISED_METHOD_REQUEST = "{\"className\":\"com.epickrram.romero.TestClass\",\"methodName\":\"someMethod\",\"arguments\":[\"foo\",null,3.147]}";
+    static final String SERIALISED_METHOD_RESPONSE = "{\"result\":\"foo\"}";
 }

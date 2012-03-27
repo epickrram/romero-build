@@ -16,20 +16,20 @@
 
 package com.epickrram.romero.server;
 
-import com.epickrram.romero.common.TestCaseIdentifier;
-import com.epickrram.romero.common.TestCaseJob;
-import com.epickrram.romero.common.TestCaseJobResult;
+import com.epickrram.romero.common.TestSuiteIdentifier;
+import com.epickrram.romero.common.TestSuiteJob;
+import com.epickrram.romero.common.TestSuiteJobResult;
 import com.epickrram.romero.core.Job;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobFactory;
 
 import java.util.Properties;
 
-public final class TestCaseJobFactory implements JobFactory<TestCaseIdentifier, Properties, TestCaseJobResult>
+public final class TestCaseJobFactory implements JobFactory<TestSuiteIdentifier, Properties, TestSuiteJobResult>
 {
     @Override
-    public Job<TestCaseIdentifier, TestCaseJobResult> createJob(final JobDefinition<TestCaseIdentifier, Properties> jobDefinition)
+    public Job<TestSuiteIdentifier, TestSuiteJobResult> createJob(final JobDefinition<TestSuiteIdentifier, Properties> jobDefinition)
     {
-        return new TestCaseJob(jobDefinition.getKey());
+        return new TestSuiteJob(jobDefinition.getKey());
     }
 }

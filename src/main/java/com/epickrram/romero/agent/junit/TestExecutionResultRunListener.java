@@ -16,7 +16,7 @@
 
 package com.epickrram.romero.agent.junit;
 
-import com.epickrram.romero.common.TestCaseJobResult;
+import com.epickrram.romero.common.TestSuiteJobResult;
 import com.epickrram.romero.common.TestExecutionResult;
 import com.epickrram.romero.common.TestStatus;
 import org.junit.runner.Description;
@@ -30,13 +30,13 @@ import static com.epickrram.romero.common.TestStatus.*;
 public final class TestExecutionResultRunListener extends RunListener
 {
     private TestExecutionResult.Builder testMethodResultBuilder;
-    private TestCaseJobResult.Builder testCaseResultBuilder;
-    private TestCaseJobResult testCaseJobResult;
+    private TestSuiteJobResult.Builder testCaseResultBuilder;
+    private TestSuiteJobResult testSuiteJobResult;
 
     @Override
     public void testRunStarted(final Description description) throws Exception
     {
-        testCaseResultBuilder = new TestCaseJobResult.Builder();
+        testCaseResultBuilder = new TestSuiteJobResult.Builder();
         testCaseResultBuilder.testRunStart(System.currentTimeMillis());
     }
 
@@ -44,7 +44,7 @@ public final class TestExecutionResultRunListener extends RunListener
     public void testRunFinished(final Result result) throws Exception
     {
         testCaseResultBuilder.testRunFinish(System.currentTimeMillis());
-        testCaseJobResult = testCaseResultBuilder.newInstance();
+        testSuiteJobResult = testCaseResultBuilder.newInstance();
     }
 
     @Override
@@ -81,11 +81,11 @@ public final class TestExecutionResultRunListener extends RunListener
         onResult();
     }
 
-    public TestCaseJobResult getTestCaseJobResult()
+    public TestSuiteJobResult getTestSuiteJobResult()
     {
-        return testCaseJobResult == null ?
+        return testSuiteJobResult == null ?
                 testCaseResultBuilder.testRunFinish(System.currentTimeMillis()).newInstance() :
-                testCaseJobResult;
+                testSuiteJobResult;
     }
 
     private void onResult()

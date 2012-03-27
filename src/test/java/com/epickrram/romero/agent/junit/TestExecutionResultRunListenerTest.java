@@ -16,7 +16,7 @@
 
 package com.epickrram.romero.agent.junit;
 
-import com.epickrram.romero.common.TestCaseJobResult;
+import com.epickrram.romero.common.TestSuiteJobResult;
 import com.epickrram.romero.common.TestExecutionResult;
 import com.epickrram.romero.common.TestStatus;
 import com.epickrram.romero.stub.StubJUnitTestData;
@@ -49,7 +49,7 @@ public final class TestExecutionResultRunListenerTest
         jUnitCore.addListener(listener);
         jUnitCore.run(TEST_CLASS);
 
-        final TestCaseJobResult result = listener.getTestCaseJobResult();
+        final TestSuiteJobResult result = listener.getTestSuiteJobResult();
         final Collection<TestExecutionResult> testMethodResults = result.getTestExecutionResults();
 
         assertThat(result.getTestClass(), is(TEST_CLASS.getName()));

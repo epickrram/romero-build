@@ -16,7 +16,7 @@
 
 package com.epickrram.romero;
 
-import com.epickrram.romero.common.TestCaseJob;
+import com.epickrram.romero.common.TestSuiteJob;
 import com.epickrram.romero.core.JobState;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -28,18 +28,18 @@ public final class MatcherFactory
 {
     private MatcherFactory() {}
 
-    public static Matcher<TestCaseJob> testCaseJobsWithStates(final String expectedTestClassName,
+    public static Matcher<TestSuiteJob> testCaseJobsWithStates(final String expectedTestClassName,
                                                               final JobState... expectedJobStates)
     {
-        return new TypeSafeMatcher<TestCaseJob>()
+        return new TypeSafeMatcher<TestSuiteJob>()
         {
             @Override
-            public boolean matchesSafely(final TestCaseJob testCaseJob)
+            public boolean matchesSafely(final TestSuiteJob testSuiteJob)
             {
                 for(int i = 0, n = expectedJobStates.length; i < n; i++)
                 {
-                    if(testCaseJob.getKey().getTestClass().equals(expectedTestClassName) &&
-                       testCaseJob.getState() == expectedJobStates[i])
+                    if(testSuiteJob.getKey().getTestClass().equals(expectedTestClassName) &&
+                       testSuiteJob.getState() == expectedJobStates[i])
                     {
                         return true;
                     }

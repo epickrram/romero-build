@@ -16,7 +16,7 @@
 
 package com.epickrram.romero.agent;
 
-import com.epickrram.romero.common.TestCaseIdentifier;
+import com.epickrram.romero.common.TestSuiteIdentifier;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.server.Server;
 
@@ -74,7 +74,7 @@ public final class Agent implements Runnable
 
     private void handleBuildingStatus()
     {
-        final JobDefinition<TestCaseIdentifier,Properties> testDefinition = server.getNextTestToRun(agentId);
+        final JobDefinition<TestSuiteIdentifier,Properties> testDefinition = server.getNextTestToRun(agentId);
         if(testDefinition != null)
         {
             final Properties currentSystemProperties = (Properties) System.getProperties().clone();

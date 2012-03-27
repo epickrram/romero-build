@@ -17,8 +17,8 @@
 package com.epickrram.romero.server;
 
 import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.common.TestCaseIdentifier;
-import com.epickrram.romero.common.TestCaseJobResult;
+import com.epickrram.romero.common.TestSuiteIdentifier;
+import com.epickrram.romero.common.TestSuiteJobResult;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobRepository;
 
@@ -26,17 +26,17 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
-import static com.epickrram.romero.common.TestCaseIdentifier.toMapKey;
+import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
 
 public final class ServerImpl implements Server
 {
     private static final Logger LOGGER = Logger.getLogger(ServerImpl.class.getSimpleName());
 
-    private final JobRepository<TestCaseIdentifier, Properties, TestCaseJobResult> jobRepository;
+    private final JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository;
     private final AtomicReference<BuildStatus> buildStatus = new AtomicReference<>(BuildStatus.WAITING_FOR_NEXT_BUILD);
     private volatile String currentBuildId;
 
-    public ServerImpl(final JobRepository<TestCaseIdentifier, Properties, TestCaseJobResult> jobRepository)
+    public ServerImpl(final JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository)
     {
         this.jobRepository = jobRepository;
     }
@@ -71,16 +71,16 @@ public final class ServerImpl implements Server
     }
 
     @Override
-    public JobDefinition<TestCaseIdentifier, Properties> getNextTestToRun(final String agentId)
+    public JobDefinition<TestSuiteIdentifier, Properties> getNextTestToRun(final String agentId)
     {
         return jobRepository.getJobToRun();
     }
 
     @Override
-    public void onTestCaseJobResult(final TestCaseJobResult testCaseJobResult)
+    public void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult)
     {
-        final TestCaseIdentifier testCaseIdentifier = toMapKey(testCaseJobResult.getTestClass());
-        jobRepository.onJobResult(testCaseIdentifier, testCaseJobResult);
+        final TestSuiteIdentifier testSuiteIdentifier = toMapKey(testSuiteJobResult.getTestClass());
+        jobRepository.onJobResult(testSuiteIdentifier, testSuiteJobResult);
     }
 
     @Override

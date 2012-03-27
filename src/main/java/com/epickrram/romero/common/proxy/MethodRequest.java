@@ -14,11 +14,34 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+package com.epickrram.romero.common.proxy;
 
-import com.epickrram.romero.common.TestSuiteJobResult;
-
-public interface TestCaseJobResultHandler
+public final class MethodRequest
 {
-    void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult);
+    private final String className;
+    private final String methodName;
+    private final Object[] arguments;
+
+    public MethodRequest(final String className, final String methodName,
+                         final Object[] arguments)
+    {
+        this.className = className;
+        this.methodName = methodName;
+        this.arguments = arguments;
+    }
+
+    public String getClassName()
+    {
+        return className;
+    }
+
+    public String getMethodName()
+    {
+        return methodName;
+    }
+
+    public Object[] getArguments()
+    {
+        return arguments;
+    }
 }

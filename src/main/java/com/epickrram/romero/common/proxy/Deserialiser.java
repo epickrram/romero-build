@@ -14,11 +14,33 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+package com.epickrram.romero.common.proxy;
 
-import com.epickrram.romero.common.TestSuiteJobResult;
+import com.google.gson.Gson;
 
-public interface TestCaseJobResultHandler
+import java.io.Reader;
+
+public final class Deserialiser
 {
-    void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult);
+    private final Gson gson;
+
+    public Deserialiser()
+    {
+        this(new Gson());
+    }
+
+    public Deserialiser(final Gson gson)
+    {
+        this.gson = gson;
+    }
+
+    public MethodRequest readMethodRequest(final Reader reader)
+    {
+        return gson.fromJson(reader, MethodRequest.class);
+    }
+
+    public MethodResponse readMethodResponse(final Reader reader)
+    {
+        return gson.fromJson(reader, MethodResponse.class);
+    }
 }

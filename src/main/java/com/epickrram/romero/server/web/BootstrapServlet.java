@@ -16,20 +16,24 @@
 
 package com.epickrram.romero.server.web;
 
-import com.epickrram.romero.common.TestCaseIdentifier;
-import com.epickrram.romero.common.TestCaseJobResult;
+import com.epickrram.romero.common.TestSuiteIdentifier;
+import com.epickrram.romero.common.TestSuiteJobResult;
+import com.epickrram.romero.common.proxy.BlockingMethodInvocationReceiver;
+import com.epickrram.romero.common.proxy.Deserialiser;
+import com.epickrram.romero.common.proxy.Serialiser;
 import com.epickrram.romero.core.JobRepository;
 import com.epickrram.romero.core.JobRepositoryImpl;
 import com.epickrram.romero.core.LoggingJobEventListener;
-import com.epickrram.romero.server.JarUrlTestCaseJobDefinitionLoader;
-import com.epickrram.romero.server.PropertiesServerConfig;
-import com.epickrram.romero.server.ServerImpl;
-import com.epickrram.romero.server.TestCaseJobFactory;
+import com.epickrram.romero.server.*;
 import com.epickrram.romero.util.UrlLoaderImpl;
 
+import javax.net.ServerSocketFactory;
 import javax.servlet.*;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,6 +42,10 @@ import static com.epickrram.romero.server.JarUrlTestCaseJobDefinitionLoader.URL_
 public final class BootstrapServlet extends GenericServlet
 {
     private static final Logger LOGGER = Logger.getLogger(BootstrapServlet.class.getSimpleName());
+
+    private final ExecutorService executor = Executors.newFixedThreadPool(10);
+    private volatile BlockingMethodInvocationReceiver<Server> invocationReceiver;
+
     @Override
     public void init(final ServletConfig config) throws ServletException
     {
@@ -61,10 +69,20 @@ public final class BootstrapServlet extends GenericServlet
         final String loaderUrlPattern = serverConfig.getStringProperty(URL_PATTERN_PROPERTY);
         final JarUrlTestCaseJobDefinitionLoader definitionLoader = new JarUrlTestCaseJobDefinitionLoader(loaderUrlPattern, urlLoader);
         final TestCaseJobFactory jobFactory = new TestCaseJobFactory();
-        final JobRepository<TestCaseIdentifier, Properties, TestCaseJobResult> jobRepository =
+        final JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository =
                 new JobRepositoryImpl<>(definitionLoader, jobFactory, new LoggingJobEventListener());
         final ServerImpl server = new ServerImpl(jobRepository);
+        final int serverAppPort = Integer.parseInt(serverConfig.getStringProperty("server.application.listen.port"));
+        invocationReceiver = new BlockingMethodInvocationReceiver<>(serverAppPort, server, Server.class, new Serialiser(), new Deserialiser(), ServerSocketFactory.getDefault(), executor);
         ServerReference.set(server);
+        invocationReceiver.start();
+    }
+
+    @Override
+    public void destroy()
+    {
+        executor.shutdown();
+        invocationReceiver.stop();
     }
 
     @Override

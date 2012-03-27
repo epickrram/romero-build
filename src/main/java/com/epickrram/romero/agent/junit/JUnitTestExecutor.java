@@ -42,7 +42,7 @@ public final class JUnitTestExecutor implements TestExecutor
         final Class<?> testClass = loadClass(className);
         jUnitCore.run(testClass);
 
-        resultHandler.onTestCaseJobResult(listener.getTestCaseJobResult());
+        resultHandler.onTestCaseJobResult(listener.getTestSuiteJobResult());
     }
 
 }

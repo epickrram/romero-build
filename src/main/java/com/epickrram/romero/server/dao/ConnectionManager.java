@@ -14,11 +14,24 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+package com.epickrram.romero.server.dao;
 
-import com.epickrram.romero.common.TestSuiteJobResult;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
-public interface TestCaseJobResultHandler
+public final class ConnectionManager
 {
-    void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult);
+    public static Connection getConnection()
+    {
+//        Class.forName("org.h2.Driver");
+        try
+        {
+            return DriverManager.getConnection("jdbc:h2:~/romero.test.db");
+        }
+        catch (SQLException e)
+        {
+            throw new IllegalStateException("Cannot connect to database");
+        }
+    }
 }

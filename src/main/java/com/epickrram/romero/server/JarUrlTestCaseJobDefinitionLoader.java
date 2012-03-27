@@ -16,7 +16,7 @@
 
 package com.epickrram.romero.server;
 
-import com.epickrram.romero.common.TestCaseIdentifier;
+import com.epickrram.romero.common.TestSuiteIdentifier;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobDefinitionImpl;
 import com.epickrram.romero.core.JobDefinitionLoader;
@@ -31,9 +31,9 @@ import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import static com.epickrram.romero.common.TestCaseIdentifier.toMapKey;
+import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
 
-public final class JarUrlTestCaseJobDefinitionLoader implements JobDefinitionLoader<TestCaseIdentifier, Properties>
+public final class JarUrlTestCaseJobDefinitionLoader implements JobDefinitionLoader<TestSuiteIdentifier, Properties>
 {
     public static final String URL_PATTERN_PROPERTY = "server.loader.definition.jar.url.pattern";
     private static final String JOB_IDENTIFIER_TOKEN = "\\$\\{jobIdentifier\\}";
@@ -48,9 +48,9 @@ public final class JarUrlTestCaseJobDefinitionLoader implements JobDefinitionLoa
     }
 
     @Override
-    public List<JobDefinition<TestCaseIdentifier, Properties>> loadJobDefinitions(final String identifier)
+    public List<JobDefinition<TestSuiteIdentifier, Properties>> loadJobDefinitions(final String identifier)
     {
-        final List<JobDefinition<TestCaseIdentifier, Properties>> definitionList = new ArrayList<>();
+        final List<JobDefinition<TestSuiteIdentifier, Properties>> definitionList = new ArrayList<>();
         final String url = urlPattern.replaceAll(JOB_IDENTIFIER_TOKEN, identifier);
         try
         {
@@ -67,7 +67,7 @@ public final class JarUrlTestCaseJobDefinitionLoader implements JobDefinitionLoa
                 final String name = jarEntry.getName();
                 if(name.contains(".class"))
                 {
-                    final JobDefinition<TestCaseIdentifier, Properties> definition =
+                    final JobDefinition<TestSuiteIdentifier, Properties> definition =
                             new JobDefinitionImpl<>(toMapKey(toClassName(name)), new Properties());
                     definitionList.add(definition);
                 }

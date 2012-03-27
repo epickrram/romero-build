@@ -14,11 +14,39 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+package com.epickrram.romero.server.dao;
 
 import com.epickrram.romero.common.TestSuiteJobResult;
 
-public interface TestCaseJobResultHandler
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+public final class TestSuiteJobDaoImpl implements TestSuiteJobDao
 {
-    void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult);
+    private final ConnectionHandler connectionHandler;
+
+    public TestSuiteJobDaoImpl(final ConnectionHandler connectionHandler)
+    {
+        this.connectionHandler = connectionHandler;
+    }
+
+    @Override
+    public void onTestJobComplete(final String jobIdentifier, final long startTimestamp, final long endTimestamp)
+    {
+    }
+
+    @Override
+    public void onTestSuiteJobResult(final String jobIdentifier, final TestSuiteJobResult jobResult)
+    {
+        connectionHandler.execute(new JdbcExecutor()
+        {
+            @Override
+            public void withConnection(final Connection connection) throws SQLException
+            {
+                final PreparedStatement statement = connection.prepareStatement("");
+                statement.setString(1, jobIdentifier);
+            }
+        });
+    }
 }

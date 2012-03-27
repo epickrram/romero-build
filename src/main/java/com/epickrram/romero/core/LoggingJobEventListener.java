@@ -16,17 +16,17 @@
 
 package com.epickrram.romero.core;
 
-import com.epickrram.romero.common.TestCaseIdentifier;
-import com.epickrram.romero.common.TestCaseJobResult;
+import com.epickrram.romero.common.TestSuiteIdentifier;
+import com.epickrram.romero.common.TestSuiteJobResult;
 
 import java.util.logging.Logger;
 
-public final class LoggingJobEventListener implements JobEventListener<TestCaseIdentifier, TestCaseJobResult>
+public final class LoggingJobEventListener implements JobEventListener<TestSuiteIdentifier, TestSuiteJobResult>
 {
     private static final Logger LOGGER = Logger.getLogger(LoggingJobEventListener.class.getSimpleName());
 
     @Override
-    public void onJobUpdate(final Job<TestCaseIdentifier, TestCaseJobResult> updatedJob)
+    public void onJobUpdate(final Job<TestSuiteIdentifier, TestSuiteJobResult> updatedJob)
     {
         LOGGER.info(updatedJob.toString());
     }

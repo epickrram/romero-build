@@ -14,11 +14,12 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+package com.epickrram.romero.server.dao;
 
 import com.epickrram.romero.common.TestSuiteJobResult;
 
-public interface TestCaseJobResultHandler
+public interface TestSuiteJobDao
 {
-    void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult);
+    void onTestJobComplete(final String jobIdentifier, final long startTimestamp, final long endTimestamp);
+    void onTestSuiteJobResult(final String jobIdentifier, final TestSuiteJobResult jobResult);
 }
