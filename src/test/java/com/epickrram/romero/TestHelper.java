@@ -14,39 +14,15 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.common.proxy;
+package com.epickrram.romero;
 
-import com.epickrram.romero.common.BuildStatus;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import com.epickrram.romero.common.RunningJob;
+import com.epickrram.romero.common.TestSuiteIdentifier;
 
-import java.io.IOException;
-
-public final class Serialiser
+public final class TestHelper
 {
-    private final Gson gson;
-
-    public Serialiser()
+    public static RunningJob<TestSuiteIdentifier> runningJob(final String agentId, final TestSuiteIdentifier jobKey)
     {
-        final GsonBuilder gsonBuilder = new GsonBuilder();
-        final TypeAdapterRegistry registry = new TypeAdapterRegistry();
-        for(Class<?> cls : registry.getRegisteredTypes())
-        {
-            gsonBuilder.registerTypeAdapter(cls, registry.getTypeAdapter(cls));
-        }
-        this.gson = gsonBuilder.create();
-    }
-
-    public void writeInto(final Appendable appendable, final MethodRequest request)
-    {
-        gson.toJson(request, appendable);
-    }
-
-    public void writeInto(final Appendable appendable, final MethodResponse response)
-    {
-        gson.toJson(response, appendable);
+        return RunningJob.<TestSuiteIdentifier>create(agentId, jobKey);
     }
 }

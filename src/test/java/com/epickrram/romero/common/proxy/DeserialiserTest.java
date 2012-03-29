@@ -33,8 +33,7 @@ public final class DeserialiserTest
     @Before
     public void setUp() throws Exception
     {
-        final Gson gson = new Gson();
-        deserialiser = new Deserialiser(gson);
+        deserialiser = new Deserialiser();
     }
 
     @Test

@@ -16,8 +16,16 @@
 
 package com.epickrram.romero.common.proxy;
 
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+
+import java.io.IOException;
+import java.io.StringReader;
+
 public final class SerialisationUtil
 {
+    private static final TypeAdapterRegistry REGISTRY = new TypeAdapterRegistry();
+
     private SerialisationUtil() {}
 
     public static Object coerceValue(final Object value, final Class<?> type)
@@ -25,6 +33,21 @@ public final class SerialisationUtil
         if(value == null)
         {
             return null;
+        }
+
+        if(REGISTRY.containsEntryFor(type))
+        {
+            final TypeAdapter<?> typeAdapter = REGISTRY.getTypeAdapter(type);
+            try
+            {
+                final JsonReader jsonReader = new JsonReader(new StringReader(String.valueOf(value)));
+                jsonReader.setLenient(true);
+                return typeAdapter.read(jsonReader);
+            }
+            catch (IOException e)
+            {
+                throw new IllegalArgumentException("Failed to deserialise value " + value + " using TypeAdapter for " + type, e);
+            }
         }
 
         if(value instanceof Double && (type == Integer.class || type == int.class))

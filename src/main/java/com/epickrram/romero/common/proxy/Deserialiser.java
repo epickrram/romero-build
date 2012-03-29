@@ -16,8 +16,14 @@
 
 package com.epickrram.romero.common.proxy;
 
+import com.epickrram.romero.common.BuildStatus;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
+import java.io.IOException;
 import java.io.Reader;
 
 public final class Deserialiser
@@ -26,7 +32,13 @@ public final class Deserialiser
 
     public Deserialiser()
     {
-        this(new Gson());
+        final GsonBuilder gsonBuilder = new GsonBuilder();
+        final TypeAdapterRegistry registry = new TypeAdapterRegistry();
+        for(Class<?> cls : registry.getRegisteredTypes())
+        {
+            gsonBuilder.registerTypeAdapter(cls, registry.getTypeAdapter(cls));
+        }
+        this.gson = gsonBuilder.create();
     }
 
     public Deserialiser(final Gson gson)

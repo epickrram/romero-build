@@ -14,39 +14,31 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.common.proxy;
+package com.epickrram.romero.server.web;
 
 import com.epickrram.romero.common.BuildStatus;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import com.epickrram.romero.server.Server;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-public final class Serialiser
+final class BuildStatusRequestHandler extends VoidInputRequestHandler<Map<String, String>>
 {
-    private final Gson gson;
+    private final Server server;
 
-    public Serialiser()
+    public BuildStatusRequestHandler(final Server server)
     {
-        final GsonBuilder gsonBuilder = new GsonBuilder();
-        final TypeAdapterRegistry registry = new TypeAdapterRegistry();
-        for(Class<?> cls : registry.getRegisteredTypes())
-        {
-            gsonBuilder.registerTypeAdapter(cls, registry.getTypeAdapter(cls));
-        }
-        this.gson = gsonBuilder.create();
+        this.server = server;
     }
 
-    public void writeInto(final Appendable appendable, final MethodRequest request)
+    @Override
+    Map<String, String> handleRequest()
     {
-        gson.toJson(request, appendable);
-    }
-
-    public void writeInto(final Appendable appendable, final MethodResponse response)
-    {
-        gson.toJson(response, appendable);
+        final BuildStatus status = server.getStatus();
+        final Map<String, String> map = new HashMap<>();
+        map.put("status", status.name());
+        map.put("totalJobs", Integer.toString(server.getTotalJobs()));
+        map.put("remainingJobs", Integer.toString(server.getRemainingJobs()));
+        return map;
     }
 }

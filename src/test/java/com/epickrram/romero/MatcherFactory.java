@@ -16,6 +16,8 @@
 
 package com.epickrram.romero;
 
+import com.epickrram.romero.common.RunningJob;
+import com.epickrram.romero.common.TestSuiteIdentifier;
 import com.epickrram.romero.common.TestSuiteJob;
 import com.epickrram.romero.core.JobState;
 import org.hamcrest.Description;
@@ -23,6 +25,7 @@ import org.hamcrest.Matcher;
 import org.junit.internal.matchers.TypeSafeMatcher;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 public final class MatcherFactory
 {
@@ -52,6 +55,45 @@ public final class MatcherFactory
             {
                 description.appendText("class: " + expectedTestClassName);
                 description.appendText("\nstates: " + Arrays.toString(expectedJobStates));
+            }
+        };
+    }
+
+    public static Matcher<Collection<RunningJob<TestSuiteIdentifier>>> runningJobs(final RunningJob... expected)
+    {
+        return new TypeSafeMatcher<Collection<RunningJob<TestSuiteIdentifier>>>()
+        {
+            @Override
+            public boolean matchesSafely(final Collection<RunningJob<TestSuiteIdentifier>> runningJobs)
+            {
+                if((expected == null || expected.length == 0) && runningJobs.isEmpty())
+                {
+                    return true;
+                }
+                if(expected.length != runningJobs.size())
+                {
+                    return false;
+                }
+                int matchCount = 0;
+                for (int i = 0; i < expected.length; i++)
+                {
+                    final RunningJob runningJob = expected[i];
+                    for (RunningJob<TestSuiteIdentifier> actual : runningJobs)
+                    {
+                        if(runningJob.getJobKey().equals(actual.getJobKey()) &&
+                           runningJob.getAgentId().equals(actual.getAgentId()))
+                        {
+                            matchCount++;
+                        }
+                    }
+                }
+                return matchCount == runningJobs.size();
+            }
+
+            @Override
+            public void describeTo(final Description description)
+            {
+                description.appendText("running jobs matching:\n" + Arrays.toString(expected));
             }
         };
     }

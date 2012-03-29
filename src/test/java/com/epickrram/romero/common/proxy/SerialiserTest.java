@@ -31,7 +31,7 @@ public final class SerialiserTest
     @Before
     public void setUp() throws Exception
     {
-        serialiser = new Serialiser(new Gson());
+        serialiser = new Serialiser();
     }
 
     @Test

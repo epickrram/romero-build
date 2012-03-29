@@ -14,39 +14,34 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.common.proxy;
+package com.epickrram.romero.server.web;
 
-import com.epickrram.romero.common.BuildStatus;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.epickrram.romero.common.RunningJob;
+import com.epickrram.romero.common.TestSuiteIdentifier;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 
-public final class Serialiser
+public final class TestSuiteIdentifierRunningJobTypeAdapter extends TypeAdapter<RunningJob<TestSuiteIdentifier>>
 {
-    private final Gson gson;
-
-    public Serialiser()
+    @Override
+    public void write(final JsonWriter jsonWriter, final RunningJob<TestSuiteIdentifier> runningJob) throws IOException
     {
-        final GsonBuilder gsonBuilder = new GsonBuilder();
-        final TypeAdapterRegistry registry = new TypeAdapterRegistry();
-        for(Class<?> cls : registry.getRegisteredTypes())
-        {
-            gsonBuilder.registerTypeAdapter(cls, registry.getTypeAdapter(cls));
-        }
-        this.gson = gsonBuilder.create();
+        jsonWriter.beginObject();
+        jsonWriter.name("testSuite");
+        jsonWriter.value(runningJob.getJobKey().getTestClass());
+        jsonWriter.name("agentId");
+        jsonWriter.value(runningJob.getAgentId());
+        jsonWriter.name("startedAt");
+        jsonWriter.value(runningJob.getStartedTimestamp());
+        jsonWriter.endObject();
     }
 
-    public void writeInto(final Appendable appendable, final MethodRequest request)
+    @Override
+    public RunningJob<TestSuiteIdentifier> read(final JsonReader jsonReader) throws IOException
     {
-        gson.toJson(request, appendable);
-    }
-
-    public void writeInto(final Appendable appendable, final MethodResponse response)
-    {
-        gson.toJson(response, appendable);
+        throw new IllegalStateException("For writing only");
     }
 }

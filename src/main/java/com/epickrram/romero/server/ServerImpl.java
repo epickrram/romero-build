@@ -17,12 +17,16 @@
 package com.epickrram.romero.server;
 
 import com.epickrram.romero.common.BuildStatus;
+import com.epickrram.romero.common.RunningJob;
 import com.epickrram.romero.common.TestSuiteIdentifier;
 import com.epickrram.romero.common.TestSuiteJobResult;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobRepository;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
@@ -34,6 +38,7 @@ public final class ServerImpl implements Server
 
     private final JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository;
     private final AtomicReference<BuildStatus> buildStatus = new AtomicReference<>(BuildStatus.WAITING_FOR_NEXT_BUILD);
+    private final Map<TestSuiteIdentifier, RunningJob<TestSuiteIdentifier>> runningJobMap = new ConcurrentHashMap<>();
     private volatile String currentBuildId;
 
     public ServerImpl(final JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository)
@@ -73,14 +78,26 @@ public final class ServerImpl implements Server
     @Override
     public JobDefinition<TestSuiteIdentifier, Properties> getNextTestToRun(final String agentId)
     {
-        return jobRepository.getJobToRun();
+        final JobDefinition<TestSuiteIdentifier, Properties> job = jobRepository.getJobToRun();
+        if(job != null)
+        {
+            recordRunningJob(agentId, job);
+        }
+        return job;
     }
 
     @Override
     public void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult)
     {
+        recordFinishedJob(testSuiteJobResult.getTestClass());
         final TestSuiteIdentifier testSuiteIdentifier = toMapKey(testSuiteJobResult.getTestClass());
         jobRepository.onJobResult(testSuiteIdentifier, testSuiteJobResult);
+    }
+
+    @Override
+    public Collection<RunningJob<TestSuiteIdentifier>> getRunningJobs()
+    {
+        return runningJobMap.values();
     }
 
     @Override
@@ -93,6 +110,16 @@ public final class ServerImpl implements Server
     public int getTotalJobs()
     {
         return jobRepository.size();
+    }
+
+    private void recordRunningJob(final String agentId, final JobDefinition<TestSuiteIdentifier, Properties> job)
+    {
+        runningJobMap.put(job.getKey(), RunningJob.<TestSuiteIdentifier>create(agentId, job.getKey()));
+    }
+
+    private void recordFinishedJob(final String testSuite)
+    {
+        runningJobMap.remove(TestSuiteIdentifier.toMapKey(testSuite));
     }
 
     private void determineStatus()

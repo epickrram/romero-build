@@ -16,7 +16,6 @@
 
 package com.epickrram.romero.server.web;
 
-import com.epickrram.romero.common.BuildStatus;
 import com.epickrram.romero.server.Server;
 
 import javax.servlet.ServletConfig;
@@ -25,7 +24,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -40,21 +38,9 @@ public final class DispatchServlet extends HttpServlet
     public void init(final ServletConfig config) throws ServletException
     {
         super.init(config);
-        requestHandlerMap.put("/build/status.do", new VoidInputRequestHandler<Map<String, String>>()
-        {
-            @Override
-            Map<String, String> handleRequest()
-            {
-                final Server server = ServerReference.get();
-                final BuildStatus status = server.getStatus();
-                final Map<String, String> map = new HashMap<>();
-                map.put("status", status.name());
-                map.put("totalJobs", Integer.toString(server.getTotalJobs()));
-                map.put("remainingJobs", Integer.toString(server.getRemainingJobs()));
-                return map;
-            }
-        });
-
+        final Server server = ServerReference.get();
+        requestHandlerMap.put("/build/status.json", new BuildStatusRequestHandler(server));
+        requestHandlerMap.put("/build/runningJobs.json", new RunningJobsRequestHandler(server));
     }
 
     @Override
@@ -78,4 +64,5 @@ public final class DispatchServlet extends HttpServlet
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
+
 }

@@ -16,37 +16,18 @@
 
 package com.epickrram.romero.common.proxy;
 
-import com.epickrram.romero.common.BuildStatus;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import javax.net.SocketFactory;
+import java.lang.reflect.Proxy;
 
-import java.io.IOException;
-
-public final class Serialiser
+public final class ProxyFactory
 {
-    private final Gson gson;
-
-    public Serialiser()
+    @SuppressWarnings({"unchecked"})
+    public <T> T createProxy(final Class<T> remoteInterface, final String remoteHost, final int remotePort)
     {
-        final GsonBuilder gsonBuilder = new GsonBuilder();
-        final TypeAdapterRegistry registry = new TypeAdapterRegistry();
-        for(Class<?> cls : registry.getRegisteredTypes())
-        {
-            gsonBuilder.registerTypeAdapter(cls, registry.getTypeAdapter(cls));
-        }
-        this.gson = gsonBuilder.create();
-    }
-
-    public void writeInto(final Appendable appendable, final MethodRequest request)
-    {
-        gson.toJson(request, appendable);
-    }
-
-    public void writeInto(final Appendable appendable, final MethodResponse response)
-    {
-        gson.toJson(response, appendable);
+        final BlockingMethodInvocationSender sender =
+                new BlockingMethodInvocationSender(remoteHost, remotePort,
+                    new Serialiser(), new Deserialiser(), SocketFactory.getDefault());
+        return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                new Class[] {remoteInterface}, new PublisherInvocationHandler(sender));
     }
 }
