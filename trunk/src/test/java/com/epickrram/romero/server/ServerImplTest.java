@@ -16,6 +16,7 @@
 
 package com.epickrram.romero.server;
 
+import com.epickrram.romero.TestHelper;
 import com.epickrram.romero.common.BuildStatus;
 import com.epickrram.romero.common.TestSuiteIdentifier;
 import com.epickrram.romero.common.TestSuiteJobResult;
@@ -30,6 +31,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Properties;
 
+import static com.epickrram.romero.MatcherFactory.runningJobs;
+import static com.epickrram.romero.TestHelper.runningJob;
 import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
 import static com.epickrram.romero.server.StubTestResultBuilder.getTestCaseJobResult;
 import static org.hamcrest.CoreMatchers.is;
@@ -42,10 +45,15 @@ public final class ServerImplTest
 {
     private static final String IDENTIFIER = "IDENTIFIER";
     private static final String JOB_1 = "JOB-1";
+    private static final TestSuiteIdentifier JOB_1_ID = toMapKey(JOB_1);
+    private static final String JOB_2 = "JOB-2";
+    private static final TestSuiteIdentifier JOB_2_ID = toMapKey(JOB_2);
     private static final String AGENT_ID = "AGENT_ID";
 
     @Mock
     private JobDefinition<TestSuiteIdentifier, Properties> jobDefinition;
+    @Mock
+    private JobDefinition<TestSuiteIdentifier, Properties> jobDefinition2;
     @Mock
     private Job<String, TestSuiteJobResult> job;
     @Mock
@@ -85,6 +93,32 @@ public final class ServerImplTest
         final JobDefinition<TestSuiteIdentifier, Properties> definition = server.getNextTestToRun(AGENT_ID);
 
         assertThat(definition.getKey().getTestClass(), is(JOB_1));
+    }
+
+    @SuppressWarnings({"unchecked"})
+    @Test
+    public void shouldRecordAgentsActivelyRunningJobs() throws Exception
+    {
+        when(jobRepository.isJobAvailable()).thenReturn(true, true, false);
+        when(jobRepository.getJobToRun()).thenReturn(jobDefinition, jobDefinition2);
+
+        server.getNextTestToRun(AGENT_ID);
+
+        assertThat(server.getRunningJobs(), runningJobs(runningJob(AGENT_ID, JOB_1_ID)));
+
+        final String agentTwoId = "agent-2";
+        server.getNextTestToRun(agentTwoId);
+
+        assertThat(server.getRunningJobs(),
+                runningJobs(runningJob(AGENT_ID, JOB_1_ID), runningJob(agentTwoId, JOB_2_ID)));
+
+        server.onTestCaseJobResult(getTestCaseJobResult(JOB_1));
+
+        assertThat(server.getRunningJobs(), runningJobs(runningJob(agentTwoId, JOB_2_ID)));
+
+        server.onTestCaseJobResult(getTestCaseJobResult(JOB_2));
+
+        assertThat(server.getRunningJobs(), runningJobs());
     }
 
     @Test
@@ -171,8 +205,10 @@ public final class ServerImplTest
     @Before
     public void setUp() throws Exception
     {
-        when(jobDefinition.getKey()).thenReturn(toMapKey(JOB_1));
+        when(jobDefinition.getKey()).thenReturn(JOB_1_ID);
+        when(jobDefinition2.getKey()).thenReturn(JOB_2_ID);
 
         server = new ServerImpl(jobRepository);
     }
+
 }

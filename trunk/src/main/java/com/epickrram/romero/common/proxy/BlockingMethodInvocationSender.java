@@ -19,15 +19,19 @@ package com.epickrram.romero.common.proxy;
 import javax.net.SocketFactory;
 import java.io.*;
 import java.net.Socket;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
+import java.util.logging.Logger;
 
 public final class BlockingMethodInvocationSender implements MethodInvocationSender
 {
+    private static final Logger LOGGER = Logger.getLogger(BlockingMethodInvocationSender.class.getSimpleName());
     private final String remoteHost;
     private final int remotePort;
     private final Serialiser serialiser;
     private final Deserialiser deserialiser;
     private final SocketFactory socketFactory;
-    private Socket socket = null;
+    private Socket connectedSocket = null;
 
     public BlockingMethodInvocationSender(final String remoteHost, final int remotePort,
                                           final Serialiser serialiser, final Deserialiser deserialiser,
@@ -43,24 +47,58 @@ public final class BlockingMethodInvocationSender implements MethodInvocationSen
     @Override
     public MethodResponse invoke(final MethodRequest methodRequest) throws IOException
     {
-        final OutputStream outputStream = getSocket().getOutputStream();
+        final Socket socket = getConnectedSocket();
+        final OutputStream outputStream = socket.getOutputStream();
         final PrintWriter writer = new PrintWriter(outputStream, true);
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(getSocket().getInputStream()));
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         serialiser.writeInto(writer, methodRequest);
         writer.write("\n");
         writer.flush();
         final String responseLine = reader.readLine();
         final MethodResponse methodResponse = deserialiser.readMethodResponse(new StringReader(responseLine));
-        socket = null;
+        destroyConnectedSocket();
         return methodResponse;
     }
 
-    private Socket getSocket() throws IOException
+    private void destroyConnectedSocket()
     {
-        if(socket == null)
+        if(connectedSocket != null)
         {
-            socket = socketFactory.createSocket(remoteHost, remotePort);
+            try
+            {
+                connectedSocket.close();
+            }
+            catch (IOException e)
+            {
+                LOGGER.warning("Unable to close connectedSocket");
+            }
+            connectedSocket = null;
         }
-        return socket;
+    }
+
+    private Socket getConnectedSocket() throws IOException
+    {
+        if(connectedSocket == null)
+        {
+            int retriesLeft = 3;
+            for (int i = retriesLeft; i != 0; --i)
+            {
+                try
+                {
+                    connectedSocket = socketFactory.createSocket(remoteHost, remotePort);
+                    break;
+                }
+                catch (IOException e)
+                {
+                    LOGGER.warning("Failed to connect to server, retries remaining: " + i);
+                }
+                LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(100));
+            }
+            if(connectedSocket == null)
+            {
+                throw new IOException("Unable to connect to " + remoteHost + ":" + remotePort);
+            }
+        }
+        return connectedSocket;
     }
 }

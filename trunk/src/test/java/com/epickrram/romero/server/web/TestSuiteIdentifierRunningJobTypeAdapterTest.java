@@ -14,39 +14,33 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.common.proxy;
+package com.epickrram.romero.server.web;
 
-import com.epickrram.romero.common.BuildStatus;
+import com.epickrram.romero.common.RunningJob;
+import com.epickrram.romero.common.TestSuiteIdentifier;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import org.junit.Test;
 
-import java.io.IOException;
+import java.io.StringWriter;
 
-public final class Serialiser
+import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+public final class TestSuiteIdentifierRunningJobTypeAdapterTest
 {
-    private final Gson gson;
-
-    public Serialiser()
+    @Test
+    public void shouldSerialise() throws Exception
     {
-        final GsonBuilder gsonBuilder = new GsonBuilder();
-        final TypeAdapterRegistry registry = new TypeAdapterRegistry();
-        for(Class<?> cls : registry.getRegisteredTypes())
-        {
-            gsonBuilder.registerTypeAdapter(cls, registry.getTypeAdapter(cls));
-        }
-        this.gson = gsonBuilder.create();
-    }
+        final RunningJob<TestSuiteIdentifier> value = new RunningJob<>("agent-1", toMapKey("foo.bar"), 123456L);
+        final Gson gson = new GsonBuilder().
+                registerTypeAdapter(RunningJob.class, new TestSuiteIdentifierRunningJobTypeAdapter()).
+                create();
 
-    public void writeInto(final Appendable appendable, final MethodRequest request)
-    {
-        gson.toJson(request, appendable);
-    }
+        final StringWriter writer = new StringWriter();
+        gson.toJson(value, writer);
 
-    public void writeInto(final Appendable appendable, final MethodResponse response)
-    {
-        gson.toJson(response, appendable);
+        assertThat(writer.toString(), is("{\"testSuite\":\"foo.bar\",\"agentId\":\"agent-1\",\"startedAt\":123456}"));
     }
 }

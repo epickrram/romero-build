@@ -14,39 +14,48 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.common.proxy;
+package com.epickrram.romero.common;
 
-import com.epickrram.romero.common.BuildStatus;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-
-import java.io.IOException;
-
-public final class Serialiser
+public final class RunningJob<K>
 {
-    private final Gson gson;
+    private final String agentId;
+    private final K jobKey;
+    private final long startedTimestamp;
 
-    public Serialiser()
+    public RunningJob(final String agentId, final K jobKey, final long startedTimestamp)
     {
-        final GsonBuilder gsonBuilder = new GsonBuilder();
-        final TypeAdapterRegistry registry = new TypeAdapterRegistry();
-        for(Class<?> cls : registry.getRegisteredTypes())
-        {
-            gsonBuilder.registerTypeAdapter(cls, registry.getTypeAdapter(cls));
-        }
-        this.gson = gsonBuilder.create();
+        this.agentId = agentId;
+        this.jobKey = jobKey;
+        this.startedTimestamp = startedTimestamp;
     }
 
-    public void writeInto(final Appendable appendable, final MethodRequest request)
+    public static <K> RunningJob<K> create(final String agentId, final K jobKey)
     {
-        gson.toJson(request, appendable);
+        return new RunningJob<>(agentId, jobKey, System.currentTimeMillis());
     }
 
-    public void writeInto(final Appendable appendable, final MethodResponse response)
+    public K getJobKey()
     {
-        gson.toJson(response, appendable);
+        return jobKey;
+    }
+
+    public String getAgentId()
+    {
+        return agentId;
+    }
+
+    public long getStartedTimestamp()
+    {
+        return startedTimestamp;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "RunningJob{" +
+                "agentId='" + agentId + '\'' +
+                ", jobKey=" + jobKey +
+                ", startedTimestamp=" + startedTimestamp +
+                '}';
     }
 }

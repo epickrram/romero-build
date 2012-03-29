@@ -17,10 +17,12 @@
 package com.epickrram.romero.server;
 
 import com.epickrram.romero.common.BuildStatus;
+import com.epickrram.romero.common.RunningJob;
 import com.epickrram.romero.common.TestSuiteIdentifier;
 import com.epickrram.romero.common.TestSuiteJobResult;
 import com.epickrram.romero.core.JobDefinition;
 
+import java.util.Collection;
 import java.util.Properties;
 
 public interface Server
@@ -34,4 +36,6 @@ public interface Server
 
     int getTotalJobs();
     int getRemainingJobs();
+
+    Collection<RunningJob<TestSuiteIdentifier>> getRunningJobs();
 }
