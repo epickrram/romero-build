@@ -16,9 +16,16 @@
 
 package com.epickrram.romero.common;
 
+import com.epickrram.freewheel.io.DecoderStream;
+import com.epickrram.freewheel.io.EncoderStream;
+import com.epickrram.freewheel.protocol.AbstractTranslator;
+import com.epickrram.freewheel.protocol.Translatable;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+@Translatable(codeBookId = 2003)
 public final class TestSuiteJobResult
 {
     private final String testClass;
@@ -46,6 +53,28 @@ public final class TestSuiteJobResult
     public Collection<TestExecutionResult> getTestExecutionResults()
     {
         return testExecutionResults;
+    }
+
+    private static final class Translator extends AbstractTranslator<TestSuiteJobResult>
+    {
+        @Override
+        protected void doEncode(final TestSuiteJobResult encodable, final EncoderStream encoderStream) throws IOException
+        {
+            encoderStream.writeString(encodable.testClass);
+            encoderStream.writeLong(encodable.durationMillis);
+            encoderStream.writeCollection(encodable.testExecutionResults);
+        }
+
+        @Override
+        protected TestSuiteJobResult doDecode(final DecoderStream decoderStream) throws IOException
+        {
+            final String testClass = decoderStream.readString();
+            final long durationMillis = decoderStream.readLong();
+            final Collection<TestExecutionResult> testExecutionResults = new ArrayList<>();
+            decoderStream.readCollection(testExecutionResults);
+
+            return new TestSuiteJobResult(testClass, durationMillis, testExecutionResults);
+        }
     }
 
     public static final class Builder

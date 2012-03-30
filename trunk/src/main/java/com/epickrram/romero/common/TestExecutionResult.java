@@ -16,6 +16,14 @@
 
 package com.epickrram.romero.common;
 
+import com.epickrram.freewheel.io.DecoderStream;
+import com.epickrram.freewheel.io.EncoderStream;
+import com.epickrram.freewheel.protocol.AbstractTranslator;
+import com.epickrram.freewheel.protocol.Translatable;
+
+import java.io.IOException;
+
+@Translatable(codeBookId = 2000)
 public final class TestExecutionResult
 {
     private final String testClass;
@@ -86,6 +94,35 @@ public final class TestExecutionResult
                 ", stderr='" + stderr + '\'' +
                 ", throwable=" + throwable +
                 '}';
+    }
+
+    public static final class Translator extends AbstractTranslator<TestExecutionResult>
+    {
+        @Override
+        protected void doEncode(final TestExecutionResult encodable, final EncoderStream encoderStream) throws IOException
+        {
+            encoderStream.writeString(encodable.testClass);
+            encoderStream.writeString(encodable.testMethod);
+            encoderStream.writeObject(encodable.testStatus);
+            encoderStream.writeLong(encodable.durationMillis);
+            encoderStream.writeString(encodable.stdout);
+            encoderStream.writeString(encodable.stderr);
+            encoderStream.writeString(encodable.throwable);
+        }
+
+        @Override
+        protected TestExecutionResult doDecode(final DecoderStream decoderStream) throws IOException
+        {
+            final String testClass = decoderStream.readString();
+            final String testMethod = decoderStream.readString();
+            final TestStatus testStatus = decoderStream.readObject();
+            final long durationMillis = decoderStream.readLong();
+            final String stdout = decoderStream.readString();
+            final String stderr = decoderStream.readString();
+            final String throwable = decoderStream.readString();
+
+            return new TestExecutionResult(testClass, testMethod, testStatus, durationMillis, stdout, stderr, throwable);
+        }
     }
 
     public static final class Builder
