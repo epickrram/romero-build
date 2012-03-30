@@ -17,15 +17,11 @@
 package com.epickrram.romero.agent;
 
 import com.epickrram.romero.agent.junit.JUnitTestExecutor;
-import com.epickrram.romero.common.proxy.BlockingMethodInvocationSender;
-import com.epickrram.romero.common.proxy.Deserialiser;
-import com.epickrram.romero.common.proxy.PublisherInvocationHandler;
-import com.epickrram.romero.common.proxy.Serialiser;
+import com.epickrram.romero.agent.remote.FixedEndPointProvider;
+import com.epickrram.romero.agent.remote.ServerConnectionFactory;
 import com.epickrram.romero.server.Server;
 import org.junit.runner.JUnitCore;
 
-import javax.net.SocketFactory;
-import java.lang.reflect.Proxy;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -50,10 +46,7 @@ public final class AgentRunner
 
     private void start()
     {
-        final BlockingMethodInvocationSender sender = new BlockingMethodInvocationSender(serverHost, serverPort, new Serialiser(), new Deserialiser(), SocketFactory.getDefault());
-        final PublisherInvocationHandler invocationHandler = new PublisherInvocationHandler(sender);
-        final Server server = (Server) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[]{Server.class}, invocationHandler);
-
+        final Server server = new ServerConnectionFactory(new FixedEndPointProvider(serverHost, serverPort)).getServer();
         final Agent agent = new Agent(server, new JUnitTestExecutor(new JUnitCore(), new TestCaseJobResultHandlerImpl(server)), new SleeperImpl(), agentId);
 
         Executors.newScheduledThreadPool(1).scheduleAtFixedRate(agent, 0, 1, TimeUnit.MILLISECONDS);

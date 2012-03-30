@@ -16,11 +16,36 @@
 
 package com.epickrram.romero.common;
 
+import com.epickrram.freewheel.io.DecoderStream;
+import com.epickrram.freewheel.io.EncoderStream;
+import com.epickrram.freewheel.protocol.AbstractTranslator;
+import com.epickrram.freewheel.protocol.Translatable;
+
+import java.io.IOException;
+
+@Translatable(codeBookId = 2001)
 public enum TestStatus
 {
     SUCCESS,
     FAILURE,
     ERROR,
     TIMED_OUT,
-    IGNORED
+    IGNORED;
+
+    public static final class Translator extends AbstractTranslator<TestStatus>
+    {
+        private final AbstractTranslator<TestStatus> delegate = new EnumTranslator<>(TestStatus.class);
+
+        @Override
+        protected void doEncode(final TestStatus encodable, final EncoderStream encoderStream) throws IOException
+        {
+            delegate.encode(encodable, encoderStream);
+        }
+
+        @Override
+        protected TestStatus doDecode(final DecoderStream decoderStream) throws IOException
+        {
+            return delegate.decode(decoderStream);
+        }
+    }
 }

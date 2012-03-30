@@ -16,8 +16,15 @@
 
 package com.epickrram.romero.common;
 
+import com.epickrram.freewheel.io.DecoderStream;
+import com.epickrram.freewheel.io.EncoderStream;
+import com.epickrram.freewheel.protocol.AbstractTranslator;
+import com.epickrram.freewheel.protocol.Translatable;
+
+import java.io.IOException;
 import java.util.Comparator;
 
+@Translatable(codeBookId = 2002)
 public final class TestSuiteIdentifier implements Comparable<TestSuiteIdentifier>
 {
     private static final DefaultComparator DEFAULT_COMPARATOR = new DefaultComparator();
@@ -61,6 +68,22 @@ public final class TestSuiteIdentifier implements Comparable<TestSuiteIdentifier
     public long getLastRunDurationMillis()
     {
         return lastRunDurationMillis;
+    }
+
+    public static final class Translator extends AbstractTranslator<TestSuiteIdentifier>
+    {
+        @Override
+        protected void doEncode(final TestSuiteIdentifier encodable, final EncoderStream encoderStream) throws IOException
+        {
+            encoderStream.writeString(encodable.testClass);
+        }
+
+        @Override
+        protected TestSuiteIdentifier doDecode(final DecoderStream decoderStream) throws IOException
+        {
+            final String testClass = decoderStream.readString();
+            return TestSuiteIdentifier.toMapKey(testClass);
+        }
     }
 
     @Override
