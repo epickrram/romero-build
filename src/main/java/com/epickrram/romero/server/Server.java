@@ -34,8 +34,8 @@ public interface Server
 
     void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult);
 
-    int getTotalJobs();
-    int getRemainingJobs();
+    Integer getTotalJobs();
+    Integer getRemainingJobs();
 
     Collection<RunningJob<TestSuiteIdentifier>> getRunningJobs();
 }

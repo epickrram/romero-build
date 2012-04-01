@@ -16,30 +16,44 @@
 
 package com.epickrram.romero.server;
 
+import com.epickrram.freewheel.io.DecoderStream;
+import com.epickrram.freewheel.io.EncoderStream;
+import com.epickrram.freewheel.messaging.MessagingContext;
+import com.epickrram.freewheel.messaging.MessagingContextFactory;
+import com.epickrram.freewheel.messaging.ptp.EndPointProvider;
+import com.epickrram.freewheel.protocol.CodeBookRegistry;
+import com.epickrram.freewheel.protocol.Translator;
+import com.epickrram.romero.agent.remote.FixedEndPointProvider;
 import com.epickrram.romero.common.BuildStatus;
+import com.epickrram.romero.common.RunningJob;
 import com.epickrram.romero.common.TestSuiteIdentifier;
+import com.epickrram.romero.common.TestSuiteJobResult;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobDefinitionImpl;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.LockSupport;
 
 import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public final class ServerImplProxyIntegrationTest
 {
@@ -52,27 +66,33 @@ public final class ServerImplProxyIntegrationTest
     @Mock
     private Server server;
     private Server serverProxy;
-    private ExecutorService executor;
+    private MessagingContext messagingContext;
 
     @Before
     public void setup()
     {
-//        serverProxy = new ProxyFactory().createProxy(Server.class, HOST, PORT);
-        executor = Executors.newCachedThreadPool();
+        final EndPointProvider endPointProvider = new FixedEndPointProvider(HOST, PORT);
+        final MessagingContextFactory contextFactory = new MessagingContextFactory();
+        registerCodeBookEntries(contextFactory);
+        messagingContext = contextFactory.createDirectBlockingPointToPointMessagingContext(endPointProvider);
+        messagingContext.createSubscriber(Server.class, server);
+        serverProxy = messagingContext.createPublisher(Server.class);
+        messagingContext.start();
     }
 
     @After
     public void teardown()
     {
-        executor.shutdown();
+        messagingContext.stop();
     }
-
+    
     @Test
     public void shouldReturnStatus() throws Exception
     {
         when(server.getStatus()).thenReturn(STATUS);
 
-        assertThat(serverProxy.getStatus(), is(STATUS));
+        final BuildStatus status = serverProxy.getStatus();
+        assertThat(status, is(STATUS));
 
         verify(server).getStatus();
     }
@@ -80,7 +100,20 @@ public final class ServerImplProxyIntegrationTest
     @Test
     public void shouldStartTestRun() throws Exception
     {
+        final CountDownLatch latch = new CountDownLatch(1);
+        doAnswer(new Answer<Void>()
+        {
+            @Override
+            public Void answer(final InvocationOnMock invocationOnMock) throws Throwable
+            {
+                latch.countDown();
+                return null;
+            }
+        }).when(server).startTestRun(IDENTIFIER);
+        
         serverProxy.startTestRun(IDENTIFIER);
+
+        latch.await();
 
         verify(server).startTestRun(IDENTIFIER);
     }
@@ -100,8 +133,30 @@ public final class ServerImplProxyIntegrationTest
     {
         final JobDefinition<TestSuiteIdentifier, Properties> definition =
                 new JobDefinitionImpl<>(toMapKey(getClass().getName()), new Properties());
-        when(server.getNextTestToRun(IDENTIFIER)).thenReturn(definition);
+        when(server.getNextTestToRun(AGENT_ID)).thenReturn(definition);
 
-        assertThat(serverProxy.getNextTestToRun(IDENTIFIER), equalTo(definition));
+        assertThat(serverProxy.getNextTestToRun(AGENT_ID), equalTo(definition));
+    }
+
+    private void registerCodeBookEntries(final MessagingContextFactory contextFactory)
+    {
+        final CodeBookRegistry codeBookRegistry = contextFactory.getCodeBookRegistry();
+        codeBookRegistry.registerTranslatable(BuildStatus.class);
+        codeBookRegistry.registerTranslatable(JobDefinitionImpl.class);
+        codeBookRegistry.registerTranslatable(TestSuiteIdentifier.class);
+        codeBookRegistry.registerTranslator(5010, new Translator<Properties>()
+        {
+            @Override
+            public void encode(final Properties encodable, final EncoderStream encoderStream)
+            {
+            }
+
+            @Override
+            public Properties decode(final DecoderStream decoderStream)
+            {
+
+                return new Properties();
+            }
+        }, Properties.class);
     }
 }
