@@ -16,9 +16,7 @@
 
 package com.epickrram.romero.server.web;
 
-import com.epickrram.romero.TestHelper;
 import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.common.TestSuiteIdentifier;
 import com.epickrram.romero.server.Server;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +24,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
 import java.util.Map;
 
 import static com.epickrram.romero.TestHelper.runningJob;
@@ -66,7 +63,6 @@ public final class BuildStatusRequestHandlerTest
         assertThat(responseData.get("status"), is(STATUS.name()));
         assertThat(responseData.get("totalJobs"), is(valueOf(TOTAL_JOBS)));
         assertThat(responseData.get("remainingJobs"), is(valueOf(REMAINING_JOBS)));
-        assertThat(responseData.get("runningJobs"), is(""));
     }
 
     @Before

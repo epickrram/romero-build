@@ -101,13 +101,13 @@ public final class ServerImpl implements Server
     }
 
     @Override
-    public int getRemainingJobs()
+    public Integer getRemainingJobs()
     {
         return 0;
     }
 
     @Override
-    public int getTotalJobs()
+    public Integer getTotalJobs()
     {
         return jobRepository.size();
     }

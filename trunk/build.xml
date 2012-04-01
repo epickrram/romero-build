@@ -68,7 +68,7 @@
         <mkdir dir="${test.report.dir}/xml"/>
         <mkdir dir="${test.report.dir}/html"/>
 
-        <junit printsummary="yes" haltonfailure="no">
+        <junit printsummary="yes" haltonfailure="no" failureproperty="test.failure">
             <classpath>
                 <path refid="test.class.path"/>
             </classpath>
@@ -90,6 +90,8 @@
                     format="frames">
             </report>
         </junitreport>
+
+        <fail if="${test.failure}" message="Unit tests failed"/>
     </target>
 
     <target name="war" depends="compile">
