@@ -33,7 +33,7 @@ import java.util.Properties;
 import static com.epickrram.romero.MatcherFactory.runningJobs;
 import static com.epickrram.romero.TestHelper.runningJob;
 import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
-import static com.epickrram.romero.server.StubTestResultBuilder.getTestCaseJobResult;
+import static com.epickrram.romero.testing.server.StubTestResultBuilder.getTestCaseJobResult;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;

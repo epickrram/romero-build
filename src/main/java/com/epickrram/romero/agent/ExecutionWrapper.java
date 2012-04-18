@@ -16,39 +16,8 @@
 
 package com.epickrram.romero.agent;
 
-import com.epickrram.romero.testing.common.TestSuiteJobResult;
-import com.epickrram.romero.server.Server;
-import com.epickrram.romero.testing.agent.TestCaseJobResultHandlerImpl;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import static com.epickrram.romero.server.StubTestResultBuilder.getTestCaseJobResult;
-import static org.mockito.Mockito.verify;
-
-
-@RunWith(MockitoJUnitRunner.class)
-public final class TestCaseJobResultHandlerImplTest
+public interface ExecutionWrapper
 {
-    @Mock
-    private Server server;
-    private TestCaseJobResultHandlerImpl resultHandler;
-    private TestSuiteJobResult result;
-
-    @Test
-    public void shouldNotifyServerOfTestCaseJobResult() throws Exception
-    {
-        resultHandler.onTestCaseJobResult(result);
-
-        verify(server).onTestCaseJobResult(result);
-    }
-
-    @Before
-    public void setup() throws Exception
-    {
-        resultHandler = new TestCaseJobResultHandlerImpl(server);
-        result = getTestCaseJobResult("test.class");
-    }
+    void beforeExecution(final ExecutionContext executionContext);
+    void afterExecution(final ExecutionContext executionContext);
 }

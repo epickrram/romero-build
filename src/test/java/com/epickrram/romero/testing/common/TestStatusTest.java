@@ -14,34 +14,18 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.testing.agent;
+package com.epickrram.romero.testing.common;
 
-import com.epickrram.romero.agent.ExecutionContext;
+import com.epickrram.romero.testing.common.TestStatus;
+import org.junit.Test;
 
-public final class CompositeTestCaseWrapper implements TestCaseWrapper
+import static com.epickrram.romero.TranslatorAssert.assertTranslation;
+
+public final class TestStatusTest
 {
-    private final TestCaseWrapper[] delegates;
-
-    public CompositeTestCaseWrapper(final TestCaseWrapper... delegates)
+    @Test
+    public void shouldTranslate() throws Exception
     {
-        this.delegates = delegates;
-    }
-
-    @Override
-    public void beforeTestCase(final ExecutionContext executionContext)
-    {
-        for (TestCaseWrapper delegate : delegates)
-        {
-            delegate.beforeTestCase(executionContext);
-        }
-    }
-
-    @Override
-    public void afterTestCase(final ExecutionContext executionContext)
-    {
-        for (TestCaseWrapper delegate : delegates)
-        {
-            delegate.afterTestCase(executionContext);
-        }
+        assertTranslation(TestStatus.SUCCESS);
     }
 }
