@@ -17,31 +17,37 @@
 package com.epickrram.romero.server.web;
 
 import com.epickrram.romero.common.RunningJob;
-import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.server.Server;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
 
-final class RunningJobsRequestHandler extends VoidInputRequestHandler<Collection<RunningJob<TestSuiteIdentifier>>>
+final class RunningJobsRequestHandler extends VoidInputRequestHandler<Collection<RunningJob>>
 {
     private final Server server;
-    private List<RunningJob<TestSuiteIdentifier>> runningJobs;
+    private Collection<RunningJob> jobs;
+    //    private List<RunningJob<K>> runningJobs;
 
     public RunningJobsRequestHandler(final Server server)
     {
         this.server = server;
-        runningJobs = Arrays.asList(RunningJob.<TestSuiteIdentifier>create("agent-1", toMapKey("com.bar")),
-                RunningJob.<TestSuiteIdentifier>create("agent-2", toMapKey("com.foo")));
+//        runningJobs = Arrays.asList(RunningJob.<TestSuiteIdentifier>create("agent-1", toMapKey("com.bar")),
+//                RunningJob.<TestSuiteIdentifier>create("agent-2", toMapKey("com.foo")));
+        jobs = new ArrayList<>();
+        jobs.add(RunningJob.<TestSuiteIdentifier>create("agent-1", toMapKey("com.bar")));
+        jobs.add(RunningJob.<TestSuiteIdentifier>create("agent-2", toMapKey("com.foo")));
     }
 
     @Override
-    Collection<RunningJob<TestSuiteIdentifier>> handleRequest()
+    Collection<RunningJob> handleRequest()
     {
-        return runningJobs;
+
+        return jobs;
+//        return runningJobs;
 //        return server.getRunningJobs();
     }
 }

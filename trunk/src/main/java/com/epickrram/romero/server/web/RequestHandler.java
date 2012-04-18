@@ -16,7 +16,9 @@
 
 package com.epickrram.romero.server.web;
 
+import com.epickrram.romero.common.RunningJob;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -32,7 +34,11 @@ public abstract class RequestHandler<I, O>
 
     void handleRequest(final Reader reader, final Appendable appendable) throws IOException
     {
-        final Gson gson = new Gson();
+        // TODO one builder instance, create new Gson object for each request
+        final Gson gson = new GsonBuilder().
+                registerTypeAdapter(RunningJob.class, new RunningJobTypeAdapter()).
+                create();
+
         final I input = isVoidInputType() ? null : gson.fromJson(reader, inputTypeClass);
         final O output = handleRequest(input);
         gson.toJson(output, appendable);
