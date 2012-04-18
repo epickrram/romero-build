@@ -22,6 +22,7 @@ import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.core.Job;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobRepository;
+import com.epickrram.romero.testing.server.TestSuiteKeyFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,7 +59,7 @@ public final class ServerImplTest
     @Mock
     private JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository;
 
-    private ServerImpl server;
+    private ServerImpl<TestSuiteIdentifier, Properties, TestSuiteJobResult> server;
 
     @Test
     public void shouldSwitchToBuildingStatusAfterInitialisation() throws Exception
@@ -111,11 +112,11 @@ public final class ServerImplTest
         assertThat(server.getRunningJobs(),
                 runningJobs(runningJob(AGENT_ID, JOB_1_ID), runningJob(agentTwoId, JOB_2_ID)));
 
-        server.onTestCaseJobResult(getTestCaseJobResult(JOB_1));
+        server.onJobResult(getTestCaseJobResult(JOB_1));
 
         assertThat(server.getRunningJobs(), runningJobs(runningJob(agentTwoId, JOB_2_ID)));
 
-        server.onTestCaseJobResult(getTestCaseJobResult(JOB_2));
+        server.onJobResult(getTestCaseJobResult(JOB_2));
 
         assertThat(server.getRunningJobs(), runningJobs());
     }
@@ -176,7 +177,7 @@ public final class ServerImplTest
 
         final TestSuiteJobResult result = getTestCaseJobResult(JOB_1);
         
-        server.onTestCaseJobResult(result);
+        server.onJobResult(result);
 
         verify(jobRepository).onJobResult(eq(toMapKey(JOB_1)), same(result));
     }
@@ -207,7 +208,7 @@ public final class ServerImplTest
         when(jobDefinition.getKey()).thenReturn(JOB_1_ID);
         when(jobDefinition2.getKey()).thenReturn(JOB_2_ID);
 
-        server = new ServerImpl(jobRepository);
+        server = new ServerImpl<>(jobRepository, new TestSuiteKeyFactory());
     }
 
 }

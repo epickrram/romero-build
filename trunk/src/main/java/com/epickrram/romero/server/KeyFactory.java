@@ -14,11 +14,9 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.testing.agent;
+package com.epickrram.romero.server;
 
-import com.epickrram.romero.testing.common.TestSuiteJobResult;
-
-public interface TestCaseJobResultHandler
+public interface KeyFactory<K, R>
 {
-    void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult);
+    K getKey(R result);
 }

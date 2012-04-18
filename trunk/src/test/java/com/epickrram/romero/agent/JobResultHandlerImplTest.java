@@ -14,35 +14,40 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.testing.agent.junit;
+package com.epickrram.romero.agent;
 
-import com.epickrram.romero.agent.ClassExecutor;
-import com.epickrram.romero.agent.JobResultHandler;
+import com.epickrram.romero.server.Server;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
-import org.junit.runner.JUnitCore;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.epickrram.romero.agent.ClassLoaderUtil.loadClass;
+import static com.epickrram.romero.testing.server.StubTestResultBuilder.getTestCaseJobResult;
+import static org.mockito.Mockito.verify;
 
-public final class JUnitClassExecutor implements ClassExecutor
+
+@RunWith(MockitoJUnitRunner.class)
+public final class JobResultHandlerImplTest
 {
-    private final JUnitCore jUnitCore;
-    private final JobResultHandler<TestSuiteJobResult> resultHandler;
+    @Mock
+    private Server<?, ?, TestSuiteJobResult> server;
+    private JobResultHandlerImpl<TestSuiteJobResult> resultHandler;
+    private TestSuiteJobResult result;
 
-    public JUnitClassExecutor(final JUnitCore jUnitCore,
-                              final JobResultHandler<TestSuiteJobResult> resultHandler)
+    @Test
+    public void shouldNotifyServerOfTestCaseJobResult() throws Exception
     {
-        this.jUnitCore = jUnitCore;
-        this.resultHandler = resultHandler;
+        resultHandler.onJobResult(result);
+
+        verify(server).onJobResult(result);
     }
 
-    @Override
-    public void execute(final String className)
+    @Before
+    public void setup() throws Exception
     {
-        final TestExecutionResultRunListener listener = new TestExecutionResultRunListener();
-        jUnitCore.addListener(listener);
-        final Class<?> testClass = loadClass(className);
-        jUnitCore.run(testClass);
-
-        resultHandler.onJobResult(listener.getTestSuiteJobResult());
+        resultHandler = new JobResultHandlerImpl<>(server);
+        result = getTestCaseJobResult("test.class");
     }
 }

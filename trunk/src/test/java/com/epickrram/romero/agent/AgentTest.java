@@ -16,7 +16,6 @@
 
 package com.epickrram.romero.agent;
 
-import com.epickrram.romero.testing.agent.TestCaseJobResultHandler;
 import com.epickrram.romero.testing.agent.junit.JUnitClassExecutor;
 import com.epickrram.romero.testing.common.TestPropertyKeys;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
@@ -25,6 +24,7 @@ import com.epickrram.romero.server.Server;
 import com.epickrram.romero.stub.StubJUnitTestData;
 import com.epickrram.romero.stub.StubTestWrapperOne;
 import com.epickrram.romero.stub.StubTestWrapperTwo;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -59,7 +59,7 @@ public final class AgentTest
     @Mock
     private ClassExecutor classExecutor;
     @Mock
-    private TestCaseJobResultHandler resultHandler;
+    private JobResultHandler<TestSuiteJobResult> resultHandler;
 
     private Agent agent;
 

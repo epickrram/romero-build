@@ -18,32 +18,29 @@ package com.epickrram.romero.server;
 
 import com.epickrram.romero.common.BuildStatus;
 import com.epickrram.romero.common.RunningJob;
-import com.epickrram.romero.testing.common.TestSuiteIdentifier;
-import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobRepository;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
-import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
-
-public final class ServerImpl implements Server
+public final class ServerImpl<K, D, R> implements Server<K, D, R>
 {
     private static final Logger LOGGER = Logger.getLogger(ServerImpl.class.getSimpleName());
 
-    private final JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository;
+    private final JobRepository<K, D, R> jobRepository;
+    private final KeyFactory<K, R> keyFactory;
     private final AtomicReference<BuildStatus> buildStatus = new AtomicReference<>(BuildStatus.WAITING_FOR_NEXT_BUILD);
-    private final Map<TestSuiteIdentifier, RunningJob<TestSuiteIdentifier>> runningJobMap = new ConcurrentHashMap<>();
+    private final Map<K, RunningJob<K>> runningJobMap = new ConcurrentHashMap<>();
     private volatile String currentBuildId;
 
-    public ServerImpl(final JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository)
+    public ServerImpl(final JobRepository<K, D, R> jobRepository, final KeyFactory<K, R> keyFactory)
     {
         this.jobRepository = jobRepository;
+        this.keyFactory = keyFactory;
     }
 
     @Override
@@ -76,9 +73,9 @@ public final class ServerImpl implements Server
     }
 
     @Override
-    public JobDefinition<TestSuiteIdentifier, Properties> getNextTestToRun(final String agentId)
+    public JobDefinition<K, D> getNextTestToRun(final String agentId)
     {
-        final JobDefinition<TestSuiteIdentifier, Properties> job = jobRepository.getJobToRun();
+        final JobDefinition<K, D> job = jobRepository.getJobToRun();
         if(job != null)
         {
             recordRunningJob(agentId, job);
@@ -87,15 +84,15 @@ public final class ServerImpl implements Server
     }
 
     @Override
-    public void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult)
+    public void onJobResult(final R result)
     {
-        recordFinishedJob(testSuiteJobResult.getTestClass());
-        final TestSuiteIdentifier testSuiteIdentifier = toMapKey(testSuiteJobResult.getTestClass());
-        jobRepository.onJobResult(testSuiteIdentifier, testSuiteJobResult);
+        final K key = keyFactory.getKey(result);
+        runningJobMap.remove(key);
+        jobRepository.onJobResult(key, result);
     }
 
     @Override
-    public Collection<RunningJob<TestSuiteIdentifier>> getRunningJobs()
+    public Collection<RunningJob<K>> getRunningJobs()
     {
         return runningJobMap.values();
     }
@@ -112,14 +109,9 @@ public final class ServerImpl implements Server
         return jobRepository.size();
     }
 
-    private void recordRunningJob(final String agentId, final JobDefinition<TestSuiteIdentifier, Properties> job)
+    private void recordRunningJob(final String agentId, final JobDefinition<K, D> job)
     {
-        runningJobMap.put(job.getKey(), RunningJob.<TestSuiteIdentifier>create(agentId, job.getKey()));
-    }
-
-    private void recordFinishedJob(final String testSuite)
-    {
-        runningJobMap.remove(TestSuiteIdentifier.toMapKey(testSuite));
+        runningJobMap.put(job.getKey(), RunningJob.<K>create(agentId, job.getKey()));
     }
 
     private void determineStatus()

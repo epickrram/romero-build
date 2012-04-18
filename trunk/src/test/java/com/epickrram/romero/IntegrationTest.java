@@ -17,15 +17,23 @@
 package com.epickrram.romero;
 
 import com.epickrram.romero.agent.Agent;
-import com.epickrram.romero.testing.agent.TestCaseJobResultHandlerImpl;
-import com.epickrram.romero.testing.agent.junit.JUnitClassExecutor;
-import com.epickrram.romero.testing.common.TestSuiteIdentifier;
-import com.epickrram.romero.testing.common.TestPropertyKeys;
-import com.epickrram.romero.core.*;
+import com.epickrram.romero.agent.JobResultHandler;
+import com.epickrram.romero.agent.JobResultHandlerImpl;
+import com.epickrram.romero.core.JobDefinition;
+import com.epickrram.romero.core.JobDefinitionImpl;
+import com.epickrram.romero.core.JobDefinitionLoader;
+import com.epickrram.romero.core.JobEventListener;
+import com.epickrram.romero.core.JobRepository;
+import com.epickrram.romero.core.JobRepositoryImpl;
+import com.epickrram.romero.core.JobState;
 import com.epickrram.romero.server.ServerImpl;
-import com.epickrram.romero.testing.server.TestCaseJobFactory;
 import com.epickrram.romero.stub.StubJUnitTestData;
+import com.epickrram.romero.testing.agent.junit.JUnitClassExecutor;
+import com.epickrram.romero.testing.common.TestPropertyKeys;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
+import com.epickrram.romero.testing.server.TestCaseJobFactory;
+import com.epickrram.romero.testing.server.TestSuiteKeyFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -60,7 +68,7 @@ public final class IntegrationTest
     private JobEventListener<TestSuiteIdentifier, TestSuiteJobResult> eventListener;
     @Mock
     private Agent.Sleeper sleeper;
-    private ServerImpl server;
+    private ServerImpl<TestSuiteIdentifier, Properties, TestSuiteJobResult> server;
     private Agent agent;
     private JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository;
 
@@ -69,8 +77,9 @@ public final class IntegrationTest
     {
         final TestCaseJobFactory jobFactory = new TestCaseJobFactory();
         jobRepository = new JobRepositoryImpl<>(jobDefinitionLoader, jobFactory, eventListener);
-        server = new ServerImpl(jobRepository);
-        agent = new Agent(server, new JUnitClassExecutor(new JUnitCore(), new TestCaseJobResultHandlerImpl(server)),
+        server = new ServerImpl<>(jobRepository, new TestSuiteKeyFactory());
+        final JobResultHandler<TestSuiteJobResult> resultHandler = new JobResultHandlerImpl<>(server);
+        agent = new Agent(server, new JUnitClassExecutor(new JUnitCore(), resultHandler),
                 sleeper, AGENT_ID);
     }
 

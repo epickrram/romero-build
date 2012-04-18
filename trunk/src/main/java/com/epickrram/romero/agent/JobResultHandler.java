@@ -14,23 +14,9 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.testing.agent;
+package com.epickrram.romero.agent;
 
-import com.epickrram.romero.testing.common.TestSuiteJobResult;
-import com.epickrram.romero.server.Server;
-
-public final class TestCaseJobResultHandlerImpl implements TestCaseJobResultHandler
+public interface JobResultHandler<R>
 {
-    private final Server server;
-
-    public TestCaseJobResultHandlerImpl(final Server server)
-    {
-        this.server = server;
-    }
-
-    @Override
-    public void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult)
-    {
-        server.onTestCaseJobResult(testSuiteJobResult);
-    }
+    void onJobResult(final R result);
 }
