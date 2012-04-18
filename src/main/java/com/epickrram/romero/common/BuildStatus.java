@@ -28,7 +28,7 @@ public enum BuildStatus
 {
     WAITING_FOR_NEXT_BUILD,
     BUILDING,
-    WAITING_FOR_TESTS_TO_COMPLETE;
+    WAITING_FOR_JOBS_TO_COMPLETE;
 
     public static final class Translator extends AbstractTranslator<BuildStatus>
     {

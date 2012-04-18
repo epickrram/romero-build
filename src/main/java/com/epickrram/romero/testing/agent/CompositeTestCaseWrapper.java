@@ -14,12 +14,34 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server.dao;
+package com.epickrram.romero.testing.agent;
 
-import com.epickrram.romero.common.TestSuiteJobResult;
+import com.epickrram.romero.agent.ExecutionContext;
 
-public interface TestSuiteJobDao
+public final class CompositeTestCaseWrapper implements TestCaseWrapper
 {
-    void onTestJobComplete(final String jobIdentifier, final long startTimestamp, final long endTimestamp);
-    void onTestSuiteJobResult(final String jobIdentifier, final TestSuiteJobResult jobResult);
+    private final TestCaseWrapper[] delegates;
+
+    public CompositeTestCaseWrapper(final TestCaseWrapper... delegates)
+    {
+        this.delegates = delegates;
+    }
+
+    @Override
+    public void beforeTestCase(final ExecutionContext executionContext)
+    {
+        for (TestCaseWrapper delegate : delegates)
+        {
+            delegate.beforeTestCase(executionContext);
+        }
+    }
+
+    @Override
+    public void afterTestCase(final ExecutionContext executionContext)
+    {
+        for (TestCaseWrapper delegate : delegates)
+        {
+            delegate.afterTestCase(executionContext);
+        }
+    }
 }

@@ -27,7 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Map;
 
 import static com.epickrram.romero.TestHelper.runningJob;
-import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
+import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public final class BuildStatusRequestHandlerTest
 {
-    private static final BuildStatus STATUS = BuildStatus.WAITING_FOR_TESTS_TO_COMPLETE;
+    private static final BuildStatus STATUS = BuildStatus.WAITING_FOR_JOBS_TO_COMPLETE;
     private static final int TOTAL_JOBS = 4564;
     private static final int REMAINING_JOBS = 232;
     private static final String AGENT_1 = "agent1";

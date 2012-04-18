@@ -14,22 +14,23 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server;
+package com.epickrram.romero.testing.agent;
 
-import com.epickrram.romero.common.TestSuiteIdentifier;
-import com.epickrram.romero.common.TestSuiteJob;
-import com.epickrram.romero.common.TestSuiteJobResult;
-import com.epickrram.romero.core.Job;
-import com.epickrram.romero.core.JobDefinition;
-import com.epickrram.romero.core.JobFactory;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
+import com.epickrram.romero.server.Server;
 
-import java.util.Properties;
-
-public final class TestCaseJobFactory implements JobFactory<TestSuiteIdentifier, Properties, TestSuiteJobResult>
+public final class TestCaseJobResultHandlerImpl implements TestCaseJobResultHandler
 {
-    @Override
-    public Job<TestSuiteIdentifier, TestSuiteJobResult> createJob(final JobDefinition<TestSuiteIdentifier, Properties> jobDefinition)
+    private final Server server;
+
+    public TestCaseJobResultHandlerImpl(final Server server)
     {
-        return new TestSuiteJob(jobDefinition.getKey());
+        this.server = server;
+    }
+
+    @Override
+    public void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult)
+    {
+        server.onTestCaseJobResult(testSuiteJobResult);
     }
 }

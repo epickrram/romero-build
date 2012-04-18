@@ -14,41 +14,39 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent.junit;
+package com.epickrram.romero.testing.common;
 
-import com.epickrram.romero.agent.TestCaseJobResultHandler;
-import com.epickrram.romero.common.TestSuiteJobResult;
-import com.epickrram.romero.stub.StubJUnitTestData;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.epickrram.freewheel.io.DecoderStream;
+import com.epickrram.freewheel.io.EncoderStream;
+import com.epickrram.freewheel.protocol.AbstractTranslator;
+import com.epickrram.freewheel.protocol.Translatable;
+import com.epickrram.romero.common.EnumTranslator;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
+import java.io.IOException;
 
-
-@RunWith(MockitoJUnitRunner.class)
-public final class JUnitTestExecutorTest
+@Translatable(codeBookId = 2001)
+public enum TestStatus
 {
-    @Mock
-    private TestCaseJobResultHandler resultHandler;
-    private JUnitTestExecutor unitTestExecutor;
+    SUCCESS,
+    FAILURE,
+    ERROR,
+    TIMED_OUT,
+    IGNORED;
 
-    @Before
-    public void setUp() throws Exception
+    public static final class Translator extends AbstractTranslator<TestStatus>
     {
-        final JUnitCore jUnitCore = new JUnitCore();
-        unitTestExecutor = new JUnitTestExecutor(jUnitCore, resultHandler);
-    }
+        private final AbstractTranslator<TestStatus> delegate = new EnumTranslator<>(TestStatus.class);
 
-    @Test
-    public void shouldNotifyHandlerOfTestCaseJobResult() throws Exception
-    {
-        unitTestExecutor.runTest(StubJUnitTestData.class.getName());
+        @Override
+        protected void doEncode(final TestStatus encodable, final EncoderStream encoderStream) throws IOException
+        {
+            delegate.encode(encodable, encoderStream);
+        }
 
-        verify(resultHandler).onTestCaseJobResult(any(TestSuiteJobResult.class));
+        @Override
+        protected TestStatus doDecode(final DecoderStream decoderStream) throws IOException
+        {
+            return delegate.decode(decoderStream);
+        }
     }
 }

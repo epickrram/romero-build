@@ -14,18 +14,18 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent.junit;
+package com.epickrram.romero.testing.agent.junit;
 
-import com.epickrram.romero.common.TestSuiteJobResult;
-import com.epickrram.romero.common.TestExecutionResult;
-import com.epickrram.romero.common.TestStatus;
+import com.epickrram.romero.testing.common.TestExecutionResult;
+import com.epickrram.romero.testing.common.TestStatus;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 
-import static com.epickrram.romero.agent.junit.JUnitClassNameUtil.*;
-import static com.epickrram.romero.common.TestStatus.*;
+import static com.epickrram.romero.testing.agent.junit.JUnitClassNameUtil.*;
+import static com.epickrram.romero.testing.common.TestStatus.*;
 
 public final class TestExecutionResultRunListener extends RunListener
 {

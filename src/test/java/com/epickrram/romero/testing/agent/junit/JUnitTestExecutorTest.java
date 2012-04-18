@@ -14,13 +14,41 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.common;
+package com.epickrram.romero.testing.agent.junit;
 
-public final class TestPropertyKeys
+import com.epickrram.romero.testing.agent.TestCaseJobResultHandler;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
+import com.epickrram.romero.stub.StubJUnitTestData;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+
+
+@RunWith(MockitoJUnitRunner.class)
+public final class JUnitTestExecutorTest
 {
-    public static final String CLASSPATH_URL_PREFIX = "classpath.additional.url";
-    public static final String SYSTEM_PROPERTY_PREFIX = "system.";
-    public static final String TEST_CASE_WRAPPER_PREFIX = "test.wrapper.";
+    @Mock
+    private TestCaseJobResultHandler resultHandler;
+    private JUnitClassExecutor unitTestExecutor;
 
-    private TestPropertyKeys() {}
+    @Before
+    public void setUp() throws Exception
+    {
+        final JUnitCore jUnitCore = new JUnitCore();
+        unitTestExecutor = new JUnitClassExecutor(jUnitCore, resultHandler);
+    }
+
+    @Test
+    public void shouldNotifyHandlerOfTestCaseJobResult() throws Exception
+    {
+        unitTestExecutor.execute(StubJUnitTestData.class.getName());
+
+        verify(resultHandler).onTestCaseJobResult(any(TestSuiteJobResult.class));
+    }
 }

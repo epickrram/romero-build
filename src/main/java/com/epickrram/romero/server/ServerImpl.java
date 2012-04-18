@@ -18,8 +18,8 @@ package com.epickrram.romero.server;
 
 import com.epickrram.romero.common.BuildStatus;
 import com.epickrram.romero.common.RunningJob;
-import com.epickrram.romero.common.TestSuiteIdentifier;
-import com.epickrram.romero.common.TestSuiteJobResult;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobRepository;
 
@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
-import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
+import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
 
 public final class ServerImpl implements Server
 {
@@ -68,7 +68,7 @@ public final class ServerImpl implements Server
     public String getCurrentBuildId()
     {
         final BuildStatus status = buildStatus.get();
-        if(status == BuildStatus.BUILDING || status == BuildStatus.WAITING_FOR_TESTS_TO_COMPLETE)
+        if(status == BuildStatus.BUILDING || status == BuildStatus.WAITING_FOR_JOBS_TO_COMPLETE)
         {
             return currentBuildId;
         }
@@ -125,12 +125,12 @@ public final class ServerImpl implements Server
     private void determineStatus()
     {
         if(!jobRepository.isJobAvailable() &&
-                buildStatus.compareAndSet(BuildStatus.BUILDING, BuildStatus.WAITING_FOR_TESTS_TO_COMPLETE))
+                buildStatus.compareAndSet(BuildStatus.BUILDING, BuildStatus.WAITING_FOR_JOBS_TO_COMPLETE))
         {
             LOGGER.info("Waiting for tests to complete");
         }
         else if(jobRepository.areJobsComplete() &&
-                buildStatus.compareAndSet(BuildStatus.WAITING_FOR_TESTS_TO_COMPLETE, BuildStatus.WAITING_FOR_NEXT_BUILD))
+                buildStatus.compareAndSet(BuildStatus.WAITING_FOR_JOBS_TO_COMPLETE, BuildStatus.WAITING_FOR_NEXT_BUILD))
         {
             LOGGER.info("Waiting for next build");
         }

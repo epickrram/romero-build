@@ -17,14 +17,14 @@
 package com.epickrram.romero.server.web;
 
 import com.epickrram.romero.common.RunningJob;
-import com.epickrram.romero.common.TestSuiteIdentifier;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.server.Server;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
+import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
 
 final class RunningJobsRequestHandler extends VoidInputRequestHandler<Collection<RunningJob<TestSuiteIdentifier>>>
 {

@@ -17,7 +17,7 @@
 package com.epickrram.romero.server.web;
 
 import com.epickrram.romero.common.RunningJob;
-import com.epickrram.romero.common.TestSuiteIdentifier;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;

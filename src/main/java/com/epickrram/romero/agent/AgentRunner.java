@@ -16,7 +16,8 @@
 
 package com.epickrram.romero.agent;
 
-import com.epickrram.romero.agent.junit.JUnitTestExecutor;
+import com.epickrram.romero.testing.agent.TestCaseJobResultHandlerImpl;
+import com.epickrram.romero.testing.agent.junit.JUnitClassExecutor;
 import com.epickrram.romero.agent.remote.FixedEndPointProvider;
 import com.epickrram.romero.agent.remote.ServerConnectionFactory;
 import com.epickrram.romero.server.Server;
@@ -47,7 +48,7 @@ public final class AgentRunner
     private void start()
     {
         final Server server = new ServerConnectionFactory(new FixedEndPointProvider(serverHost, serverPort)).getServer();
-        final Agent agent = new Agent(server, new JUnitTestExecutor(new JUnitCore(), new TestCaseJobResultHandlerImpl(server)), new SleeperImpl(), agentId);
+        final Agent agent = new Agent(server, new JUnitClassExecutor(new JUnitCore(), new TestCaseJobResultHandlerImpl(server)), new SleeperImpl(), agentId);
 
         Executors.newScheduledThreadPool(1).scheduleAtFixedRate(agent, 0, 1, TimeUnit.MILLISECONDS);
     }

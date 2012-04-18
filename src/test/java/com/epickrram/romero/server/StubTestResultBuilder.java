@@ -16,9 +16,9 @@
 
 package com.epickrram.romero.server;
 
-import com.epickrram.romero.common.TestSuiteJobResult;
-import com.epickrram.romero.common.TestExecutionResult;
-import com.epickrram.romero.common.TestStatus;
+import com.epickrram.romero.testing.common.TestExecutionResult;
+import com.epickrram.romero.testing.common.TestStatus;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 
 import static java.util.Arrays.asList;
 

@@ -16,9 +16,10 @@
 
 package com.epickrram.romero.agent;
 
-import com.epickrram.romero.common.TestSuiteIdentifier;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.server.Server;
+import com.epickrram.romero.testing.agent.TestCaseWrapper;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,7 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.epickrram.romero.common.BuildStatus.BUILDING;
-import static com.epickrram.romero.common.TestPropertyKeys.*;
+import static com.epickrram.romero.testing.common.TestPropertyKeys.*;
 
 public final class Agent implements Runnable
 {
@@ -39,15 +40,15 @@ public final class Agent implements Runnable
     private static final long WAIT_FOR_AVAILABLE_TEST_INTERVAL_SECONDS = 2L;
 
     private final Server server;
-    private final TestExecutor testExecutor;
+    private final ClassExecutor classExecutor;
     private final Sleeper sleeper;
     private final String agentId;
 
-    public Agent(final Server server, final TestExecutor testExecutor,
+    public Agent(final Server server, final ClassExecutor classExecutor,
                  final Sleeper sleeper, final String agentId)
     {
         this.server = server;
-        this.testExecutor = testExecutor;
+        this.classExecutor = classExecutor;
         this.sleeper = sleeper;
         this.agentId = agentId;
     }
@@ -88,7 +89,7 @@ public final class Agent implements Runnable
 
                 beforeTestCase(testCaseWrappers);
 
-                testExecutor.runTest(testDefinition.getKey().getTestClass());
+                classExecutor.execute(testDefinition.getKey().getTestClass());
 
                 afterTestCase(testCaseWrappers);
             }

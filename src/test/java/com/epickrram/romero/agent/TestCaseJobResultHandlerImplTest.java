@@ -16,8 +16,9 @@
 
 package com.epickrram.romero.agent;
 
-import com.epickrram.romero.common.TestSuiteJobResult;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.server.Server;
+import com.epickrram.romero.testing.agent.TestCaseJobResultHandlerImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

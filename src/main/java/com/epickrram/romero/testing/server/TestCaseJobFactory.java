@@ -14,38 +14,22 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.common;
+package com.epickrram.romero.testing.server;
 
-import com.epickrram.freewheel.io.DecoderStream;
-import com.epickrram.freewheel.io.EncoderStream;
-import com.epickrram.freewheel.protocol.AbstractTranslator;
-import com.epickrram.freewheel.protocol.Translatable;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
+import com.epickrram.romero.testing.common.TestSuiteJob;
+import com.epickrram.romero.core.Job;
+import com.epickrram.romero.core.JobDefinition;
+import com.epickrram.romero.core.JobFactory;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 
-import java.io.IOException;
+import java.util.Properties;
 
-@Translatable(codeBookId = 2001)
-public enum TestStatus
+public final class TestCaseJobFactory implements JobFactory<TestSuiteIdentifier, Properties, TestSuiteJobResult>
 {
-    SUCCESS,
-    FAILURE,
-    ERROR,
-    TIMED_OUT,
-    IGNORED;
-
-    public static final class Translator extends AbstractTranslator<TestStatus>
+    @Override
+    public Job<TestSuiteIdentifier, TestSuiteJobResult> createJob(final JobDefinition<TestSuiteIdentifier, Properties> jobDefinition)
     {
-        private final AbstractTranslator<TestStatus> delegate = new EnumTranslator<>(TestStatus.class);
-
-        @Override
-        protected void doEncode(final TestStatus encodable, final EncoderStream encoderStream) throws IOException
-        {
-            delegate.encode(encodable, encoderStream);
-        }
-
-        @Override
-        protected TestStatus doDecode(final DecoderStream decoderStream) throws IOException
-        {
-            return delegate.decode(decoderStream);
-        }
+        return new TestSuiteJob(jobDefinition.getKey());
     }
 }
