@@ -16,7 +16,7 @@
 
 package com.epickrram.romero.testing.agent.junit;
 
-import com.epickrram.romero.testing.agent.TestCaseJobResultHandler;
+import com.epickrram.romero.agent.JobResultHandler;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.stub.StubJUnitTestData;
 import org.junit.Before;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.verify;
 public final class JUnitTestExecutorTest
 {
     @Mock
-    private TestCaseJobResultHandler resultHandler;
+    private JobResultHandler<TestSuiteJobResult> resultHandler;
     private JUnitClassExecutor unitTestExecutor;
 
     @Before
@@ -49,6 +49,6 @@ public final class JUnitTestExecutorTest
     {
         unitTestExecutor.execute(StubJUnitTestData.class.getName());
 
-        verify(resultHandler).onTestCaseJobResult(any(TestSuiteJobResult.class));
+        verify(resultHandler).onJobResult(any(TestSuiteJobResult.class));
     }
 }

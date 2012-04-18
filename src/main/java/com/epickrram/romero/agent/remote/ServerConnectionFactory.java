@@ -36,7 +36,8 @@ public final class ServerConnectionFactory
         this.endPointProvider = endPointProvider;
     }
 
-    public Server getServer()
+    @SuppressWarnings({"unchecked"})
+    public <K, D, R> Server<K, D, R> getServer()
     {
         final MessagingContextFactory contextFactory = new MessagingContextFactory();
         final CodeBookRegistry codeBookRegistry = contextFactory.getCodeBookRegistry();

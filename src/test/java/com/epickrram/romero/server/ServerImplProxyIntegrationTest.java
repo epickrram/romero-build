@@ -28,6 +28,7 @@ import com.epickrram.romero.common.BuildStatus;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobDefinitionImpl;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,10 +59,11 @@ public final class ServerImplProxyIntegrationTest
     private static final String AGENT_ID = "agent-id";
 
     @Mock
-    private Server server;
-    private Server serverProxy;
+    private Server<TestSuiteIdentifier, Properties, TestSuiteJobResult> server;
+    private Server<TestSuiteIdentifier, Properties, TestSuiteJobResult> serverProxy;
     private MessagingContext messagingContext;
 
+    @SuppressWarnings({"unchecked"})
     @Before
     public void setup()
     {

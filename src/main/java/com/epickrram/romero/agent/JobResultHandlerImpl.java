@@ -16,40 +16,20 @@
 
 package com.epickrram.romero.agent;
 
-import com.epickrram.romero.testing.agent.TestCaseJobResultHandlerImpl;
-import com.epickrram.romero.testing.agent.junit.JUnitClassExecutor;
-import com.epickrram.romero.agent.remote.FixedEndPointProvider;
-import com.epickrram.romero.agent.remote.ServerConnectionFactory;
 import com.epickrram.romero.server.Server;
-import org.junit.runner.JUnitCore;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-public final class AgentRunner
+public final class JobResultHandlerImpl<R> implements JobResultHandler<R>
 {
-    private final String serverHost;
-    private final int serverPort;
-    private final String agentId;
+    private final Server<?, ?, R> server;
 
-    public static void main(String[] args)
+    public JobResultHandlerImpl(final Server<?, ?, R> server)
     {
-        final AgentRunner agentRunner = new AgentRunner("localhost", 9001, "agent-1");
-        agentRunner.start();
+        this.server = server;
     }
 
-    private AgentRunner(final String serverHost, final int serverPort, final String agentId)
+    @Override
+    public void onJobResult(final R result)
     {
-        this.serverHost = serverHost;
-        this.serverPort = serverPort;
-        this.agentId = agentId;
-    }
-
-    private void start()
-    {
-        final Server server = new ServerConnectionFactory(new FixedEndPointProvider(serverHost, serverPort)).getServer();
-        final Agent agent = new Agent(server, new JUnitClassExecutor(new JUnitCore(), new TestCaseJobResultHandlerImpl(server)), new SleeperImpl(), agentId);
-
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(agent, 0, 1, TimeUnit.MILLISECONDS);
+        server.onJobResult(result);
     }
 }

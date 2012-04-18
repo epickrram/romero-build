@@ -25,17 +25,17 @@ import com.epickrram.romero.core.JobDefinition;
 import java.util.Collection;
 import java.util.Properties;
 
-public interface Server
+public interface Server<K, D, R>
 {
     void startTestRun(final String identifier);
     BuildStatus getStatus();
     String getCurrentBuildId();
-    JobDefinition<TestSuiteIdentifier, Properties> getNextTestToRun(final String agentId);
+    JobDefinition<K, D> getNextTestToRun(final String agentId);
 
-    void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult);
+    void onJobResult(final R result);
 
     Integer getTotalJobs();
     Integer getRemainingJobs();
 
-    Collection<RunningJob<TestSuiteIdentifier>> getRunningJobs();
+    Collection<RunningJob<K>> getRunningJobs();
 }

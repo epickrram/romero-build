@@ -25,6 +25,7 @@ import com.epickrram.romero.testing.server.JarUrlTestCaseJobDefinitionLoader;
 import com.epickrram.romero.server.PropertiesServerConfig;
 import com.epickrram.romero.server.ServerImpl;
 import com.epickrram.romero.testing.server.TestCaseJobFactory;
+import com.epickrram.romero.testing.server.TestSuiteKeyFactory;
 import com.epickrram.romero.util.UrlLoaderImpl;
 
 import javax.servlet.GenericServlet;
@@ -72,7 +73,7 @@ public final class BootstrapServlet extends GenericServlet
         final TestCaseJobFactory jobFactory = new TestCaseJobFactory();
         final JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository =
                 new JobRepositoryImpl<>(definitionLoader, jobFactory, new LoggingJobEventListener());
-        final ServerImpl server = new ServerImpl(jobRepository);
+        final ServerImpl<TestSuiteIdentifier, Properties, TestSuiteJobResult> server = new ServerImpl<>(jobRepository, new TestSuiteKeyFactory());
         final int serverAppPort = Integer.parseInt(serverConfig.getStringProperty("server.application.listen.port"));
         ServerReference.set(server);
     }
