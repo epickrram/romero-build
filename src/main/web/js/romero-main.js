@@ -30,9 +30,9 @@ function displayRunningJobs()
                     html.push('<span>');
                     html.push(data[i].agentId);
                     html.push(' - ');
-                    html.push(data[i].jobKey.testClass);
+                    html.push(data[i].jobKey);
                     html.push(' (');
-                    html.push(toTimeString(currentTime - Number(data[i].startedTimestamp)));
+                    html.push(toTimeString(currentTime - Number(data[i].startedAt)));
                     html.push(')</span><br/>');
                 }
                 $('#running-jobs').html(html.join(''));

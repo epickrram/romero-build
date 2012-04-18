@@ -112,9 +112,7 @@ public final class TestSuiteIdentifier implements Comparable<TestSuiteIdentifier
     @Override
     public String toString()
     {
-        return "TestSuiteIdentifier{" +
-                "testClass='" + testClass + '\'' +
-                '}';
+        return testClass;
     }
 
     private static final class DefaultComparator implements  Comparator<TestSuiteIdentifier>

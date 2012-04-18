@@ -24,18 +24,20 @@ import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 
-public final class TestSuiteIdentifierRunningJobTypeAdapter extends TypeAdapter<RunningJob<TestSuiteIdentifier>>
+public final class RunningJobTypeAdapter extends TypeAdapter<RunningJob<?>>
 {
     @Override
-    public void write(final JsonWriter jsonWriter, final RunningJob<TestSuiteIdentifier> runningJob) throws IOException
+    public void write(final JsonWriter jsonWriter, final RunningJob<?> runningJob) throws IOException
     {
         jsonWriter.beginObject();
-        jsonWriter.name("testSuite");
-        jsonWriter.value(runningJob.getJobKey().getTestClass());
+        jsonWriter.name("jobKey");
+        jsonWriter.value(runningJob.getJobKey().toString());
         jsonWriter.name("agentId");
         jsonWriter.value(runningJob.getAgentId());
         jsonWriter.name("startedAt");
         jsonWriter.value(runningJob.getStartedTimestamp());
+        jsonWriter.name("foo");
+        jsonWriter.value("type adapter");
         jsonWriter.endObject();
     }
 

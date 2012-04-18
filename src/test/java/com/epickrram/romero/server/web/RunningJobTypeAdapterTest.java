@@ -28,19 +28,19 @@ import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public final class TestSuiteIdentifierRunningJobTypeAdapterTest
+public final class RunningJobTypeAdapterTest
 {
     @Test
     public void shouldSerialise() throws Exception
     {
         final RunningJob<TestSuiteIdentifier> value = new RunningJob<>("agent-1", toMapKey("foo.bar"), 123456L);
         final Gson gson = new GsonBuilder().
-                registerTypeAdapter(RunningJob.class, new TestSuiteIdentifierRunningJobTypeAdapter()).
+                registerTypeAdapter(RunningJob.class, new RunningJobTypeAdapter()).
                 create();
 
         final StringWriter writer = new StringWriter();
         gson.toJson(value, writer);
 
-        assertThat(writer.toString(), is("{\"testSuite\":\"foo.bar\",\"agentId\":\"agent-1\",\"startedAt\":123456}"));
+        assertThat(writer.toString(), is("{\"jobKey\":\"foo.bar\",\"agentId\":\"agent-1\",\"startedAt\":123456,\"foo\":\"type adapter\"}"));
     }
 }
