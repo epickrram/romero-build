@@ -19,7 +19,6 @@ package com.epickrram.romero.agent;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.server.Server;
-import com.epickrram.romero.testing.agent.TestCaseWrapper;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -84,14 +83,14 @@ public final class Agent implements Runnable
             {
                 final List<String>testCaseWrappersClassNames = new ArrayList<>();
                 handleTestProperties(testDefinition.getData(), currentClassLoader, testCaseWrappersClassNames);
-                final List<TestCaseWrapper> testCaseWrappers = new ArrayList<>(testCaseWrappersClassNames.size());
-                instantiateTestCaseWrappers(testCaseWrappersClassNames, testCaseWrappers);
+                final List<ExecutionWrapper> executionWrappers = new ArrayList<>(testCaseWrappersClassNames.size());
+                instantiateTestCaseWrappers(testCaseWrappersClassNames, executionWrappers);
 
-                beforeTestCase(testCaseWrappers);
+                beforeTestCase(executionWrappers);
 
                 classExecutor.execute(testDefinition.getKey().getTestClass());
 
-                afterTestCase(testCaseWrappers);
+                afterTestCase(executionWrappers);
             }
             finally
             {
@@ -105,19 +104,19 @@ public final class Agent implements Runnable
         }
     }
 
-    private void afterTestCase(final List<TestCaseWrapper> testCaseWrappers)
+    private void afterTestCase(final List<ExecutionWrapper> executionWrappers)
     {
-        for (TestCaseWrapper testCaseWrapper : testCaseWrappers)
+        for (ExecutionWrapper executionWrapper : executionWrappers)
         {
-            testCaseWrapper.afterTestCase(null);
+            executionWrapper.afterExecution(null);
         }
     }
 
-    private void beforeTestCase(final List<TestCaseWrapper> testCaseWrappers)
+    private void beforeTestCase(final List<ExecutionWrapper> executionWrappers)
     {
-        for (TestCaseWrapper testCaseWrapper : testCaseWrappers)
+        for (ExecutionWrapper executionWrapper : executionWrappers)
         {
-            testCaseWrapper.beforeTestCase(null);
+            executionWrapper.beforeExecution(null);
         }
     }
 
@@ -148,28 +147,28 @@ public final class Agent implements Runnable
         }
     }
 
-    private void instantiateTestCaseWrappers(final List<String> testCaseWrappersClassNames, final List<TestCaseWrapper> testCaseWrappers)
+    private void instantiateTestCaseWrappers(final List<String> testCaseWrappersClassNames, final List<ExecutionWrapper> executionWrappers)
     {
         for (String className : testCaseWrappersClassNames)
         {
-            addTestCaseWrapper(testCaseWrappers, className);
+            addTestCaseWrapper(executionWrappers, className);
         }
     }
 
-    private void addTestCaseWrapper(final List<TestCaseWrapper> testCaseWrappers, final String className)
+    private void addTestCaseWrapper(final List<ExecutionWrapper> executionWrappers, final String className)
     {
         try
         {
-            testCaseWrappers.add(ClassLoaderUtil.<TestCaseWrapper>loadClass(className).newInstance());
+            executionWrappers.add(ClassLoaderUtil.<ExecutionWrapper>loadClass(className).newInstance());
         }
         catch (InstantiationException e)
         {
-            throw new IllegalArgumentException("Cannot instantiate TestCaseWrapper for " + className +
+            throw new IllegalArgumentException("Cannot instantiate ExecutionWrapper for " + className +
                     " does it have a no-arg constructor?");
         }
         catch (IllegalAccessException e)
         {
-            throw new IllegalArgumentException("Cannot instantiate TestCaseWrapper for " + className);
+            throw new IllegalArgumentException("Cannot instantiate ExecutionWrapper for " + className);
         }
     }
 

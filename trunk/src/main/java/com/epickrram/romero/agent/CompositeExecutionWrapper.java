@@ -14,12 +14,32 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.testing.agent;
+package com.epickrram.romero.agent;
 
-import com.epickrram.romero.agent.ExecutionContext;
-
-public interface TestCaseWrapper
+public final class CompositeExecutionWrapper implements ExecutionWrapper
 {
-    void beforeTestCase(final ExecutionContext executionContext);
-    void afterTestCase(final ExecutionContext executionContext);
+    private final ExecutionWrapper[] delegates;
+
+    public CompositeExecutionWrapper(final ExecutionWrapper... delegates)
+    {
+        this.delegates = delegates;
+    }
+
+    @Override
+    public void beforeExecution(final ExecutionContext executionContext)
+    {
+        for (ExecutionWrapper delegate : delegates)
+        {
+            delegate.beforeExecution(executionContext);
+        }
+    }
+
+    @Override
+    public void afterExecution(final ExecutionContext executionContext)
+    {
+        for (ExecutionWrapper delegate : delegates)
+        {
+            delegate.afterExecution(executionContext);
+        }
+    }
 }

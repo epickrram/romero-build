@@ -14,41 +14,40 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server;
+package com.epickrram.romero.testing.agent;
 
-import com.epickrram.romero.testing.common.TestExecutionResult;
-import com.epickrram.romero.testing.common.TestStatus;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
+import com.epickrram.romero.server.Server;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import static java.util.Arrays.asList;
+import static com.epickrram.romero.testing.server.StubTestResultBuilder.getTestCaseJobResult;
+import static org.mockito.Mockito.verify;
 
-public final class StubTestResultBuilder
+
+@RunWith(MockitoJUnitRunner.class)
+public final class TestCaseJobResultHandlerImplTest
 {
-    private static final String TEST_METHOD = "testMethod";
-    private static final TestStatus TEST_STATUS = TestStatus.SUCCESS;
-    private static final long DURATION_MILLIS = 1500L;
-    private static final String STDOUT = "STDOUT";
-    private static final String STDERR = "STDERR";
+    @Mock
+    private Server server;
+    private TestCaseJobResultHandlerImpl resultHandler;
+    private TestSuiteJobResult result;
 
-    public static TestExecutionResult getTestExecutionResult(final String testClass)
+    @Test
+    public void shouldNotifyServerOfTestCaseJobResult() throws Exception
     {
-        return getTestExecutionResultBuilder(testClass).
-                newInstance();
+        resultHandler.onTestCaseJobResult(result);
+
+        verify(server).onTestCaseJobResult(result);
     }
 
-    public static TestExecutionResult.Builder getTestExecutionResultBuilder(final String testClass)
+    @Before
+    public void setup() throws Exception
     {
-        return new TestExecutionResult.Builder().
-                testClass(testClass).
-                testMethod(TEST_METHOD).
-                testStatus(TEST_STATUS).
-                durationMillis(DURATION_MILLIS).
-                stdout(STDOUT).
-                stderr(STDERR);
-    }
-
-    public static TestSuiteJobResult getTestCaseJobResult(final String testClass)
-    {
-        return new TestSuiteJobResult(testClass, 1L, asList(getTestExecutionResult(testClass)));
+        resultHandler = new TestCaseJobResultHandlerImpl(server);
+        result = getTestCaseJobResult("test.class");
     }
 }

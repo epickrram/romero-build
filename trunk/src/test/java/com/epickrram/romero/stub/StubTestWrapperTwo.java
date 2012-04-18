@@ -16,22 +16,22 @@
 
 package com.epickrram.romero.stub;
 
-import com.epickrram.romero.testing.agent.TestCaseWrapper;
+import com.epickrram.romero.agent.ExecutionWrapper;
 import com.epickrram.romero.agent.ExecutionContext;
 
-public final class StubTestWrapperTwo implements TestCaseWrapper
+public final class StubTestWrapperTwo implements ExecutionWrapper
 {
     public static int beforeTestCaseInvocationCount = 0;
     public static int afterTestCaseInvocationCount = 0;
 
     @Override
-    public void beforeTestCase(final ExecutionContext executionContext)
+    public void beforeExecution(final ExecutionContext executionContext)
     {
         beforeTestCaseInvocationCount++;
     }
 
     @Override
-    public void afterTestCase(final ExecutionContext executionContext)
+    public void afterExecution(final ExecutionContext executionContext)
     {
         afterTestCaseInvocationCount++;
     }
