@@ -14,9 +14,9 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server;
+package com.epickrram.romero.testing.server;
 
-import com.epickrram.romero.common.TestSuiteIdentifier;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobDefinitionImpl;
 import com.epickrram.romero.core.JobDefinitionLoader;
@@ -31,7 +31,7 @@ import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
+import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
 
 public final class JarUrlTestCaseJobDefinitionLoader implements JobDefinitionLoader<TestSuiteIdentifier, Properties>
 {

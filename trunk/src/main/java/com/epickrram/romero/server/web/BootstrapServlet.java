@@ -16,15 +16,15 @@
 
 package com.epickrram.romero.server.web;
 
-import com.epickrram.romero.common.TestSuiteIdentifier;
-import com.epickrram.romero.common.TestSuiteJobResult;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.core.JobRepository;
 import com.epickrram.romero.core.JobRepositoryImpl;
 import com.epickrram.romero.core.LoggingJobEventListener;
-import com.epickrram.romero.server.JarUrlTestCaseJobDefinitionLoader;
+import com.epickrram.romero.testing.server.JarUrlTestCaseJobDefinitionLoader;
 import com.epickrram.romero.server.PropertiesServerConfig;
 import com.epickrram.romero.server.ServerImpl;
-import com.epickrram.romero.server.TestCaseJobFactory;
+import com.epickrram.romero.testing.server.TestCaseJobFactory;
 import com.epickrram.romero.util.UrlLoaderImpl;
 
 import javax.servlet.GenericServlet;
@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.epickrram.romero.server.JarUrlTestCaseJobDefinitionLoader.URL_PATTERN_PROPERTY;
+import static com.epickrram.romero.testing.server.JarUrlTestCaseJobDefinitionLoader.URL_PATTERN_PROPERTY;
 
 public final class BootstrapServlet extends GenericServlet
 {

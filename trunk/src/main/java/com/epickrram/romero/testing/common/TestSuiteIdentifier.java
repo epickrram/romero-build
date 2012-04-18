@@ -14,7 +14,7 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.common;
+package com.epickrram.romero.testing.common;
 
 import com.epickrram.freewheel.io.DecoderStream;
 import com.epickrram.freewheel.io.EncoderStream;

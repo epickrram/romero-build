@@ -16,10 +16,9 @@
 
 package com.epickrram.romero.server;
 
-import com.epickrram.romero.TestHelper;
 import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.common.TestSuiteIdentifier;
-import com.epickrram.romero.common.TestSuiteJobResult;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.core.Job;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobRepository;
@@ -33,7 +32,7 @@ import java.util.Properties;
 
 import static com.epickrram.romero.MatcherFactory.runningJobs;
 import static com.epickrram.romero.TestHelper.runningJob;
-import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
+import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
 import static com.epickrram.romero.server.StubTestResultBuilder.getTestCaseJobResult;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -81,7 +80,7 @@ public final class ServerImplTest
 
         server.startTestRun(IDENTIFIER);
 
-        assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_TESTS_TO_COMPLETE));
+        assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_JOBS_TO_COMPLETE));
     }
 
     @Test
@@ -161,7 +160,7 @@ public final class ServerImplTest
         server.startTestRun(IDENTIFIER);
 
         assertThat(server.getStatus(), is(BuildStatus.BUILDING));
-        assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_TESTS_TO_COMPLETE));
+        assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_JOBS_TO_COMPLETE));
         assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_NEXT_BUILD));
 
         server.startTestRun(IDENTIFIER);
@@ -195,7 +194,7 @@ public final class ServerImplTest
         assertThat(server.getStatus(), is(BuildStatus.BUILDING));
         assertThat(server.getCurrentBuildId(), is(IDENTIFIER));
 
-        assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_TESTS_TO_COMPLETE));
+        assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_JOBS_TO_COMPLETE));
         assertThat(server.getCurrentBuildId(), is(IDENTIFIER));
 
         assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_NEXT_BUILD));

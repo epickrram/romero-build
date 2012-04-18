@@ -14,35 +14,21 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent.junit;
+package com.epickrram.romero.testing.common;
 
-import com.epickrram.romero.agent.TestCaseJobResultHandler;
-import com.epickrram.romero.agent.TestExecutor;
-import org.junit.runner.JUnitCore;
+import com.epickrram.romero.core.AbstractJob;
+import com.epickrram.romero.core.JobState;
 
-import static com.epickrram.romero.agent.ClassLoaderUtil.loadClass;
-
-public final class JUnitTestExecutor implements TestExecutor
+public final class TestSuiteJob extends AbstractJob<TestSuiteIdentifier, TestSuiteJobResult>
 {
-    private final JUnitCore jUnitCore;
-    private final TestCaseJobResultHandler resultHandler;
-
-    public JUnitTestExecutor(final JUnitCore jUnitCore,
-                             final TestCaseJobResultHandler resultHandler)
+    public TestSuiteJob(final TestSuiteIdentifier key)
     {
-        this.jUnitCore = jUnitCore;
-        this.resultHandler = resultHandler;
+        super(key);
     }
 
     @Override
-    public void runTest(final String className)
+    protected JobState getNewJobState(final TestSuiteJobResult result)
     {
-        final TestExecutionResultRunListener listener = new TestExecutionResultRunListener();
-        jUnitCore.addListener(listener);
-        final Class<?> testClass = loadClass(className);
-        jUnitCore.run(testClass);
-
-        resultHandler.onTestCaseJobResult(listener.getTestSuiteJobResult());
+        return JobState.FINISHED;
     }
-
 }

@@ -17,15 +17,15 @@
 package com.epickrram.romero;
 
 import com.epickrram.romero.agent.Agent;
-import com.epickrram.romero.agent.TestCaseJobResultHandlerImpl;
-import com.epickrram.romero.agent.junit.JUnitTestExecutor;
-import com.epickrram.romero.common.TestSuiteIdentifier;
-import com.epickrram.romero.common.TestSuiteJobResult;
-import com.epickrram.romero.common.TestPropertyKeys;
+import com.epickrram.romero.testing.agent.TestCaseJobResultHandlerImpl;
+import com.epickrram.romero.testing.agent.junit.JUnitClassExecutor;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
+import com.epickrram.romero.testing.common.TestPropertyKeys;
 import com.epickrram.romero.core.*;
 import com.epickrram.romero.server.ServerImpl;
-import com.epickrram.romero.server.TestCaseJobFactory;
+import com.epickrram.romero.testing.server.TestCaseJobFactory;
 import com.epickrram.romero.stub.StubJUnitTestData;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -41,7 +41,7 @@ import java.util.Properties;
 import static com.epickrram.romero.MatcherFactory.testCaseJobsWithStates;
 import static com.epickrram.romero.agent.AgentTest.EXTERNAL_TEST_RESOURCE_PATH;
 import static com.epickrram.romero.agent.AgentTest.TEST_CLASS_FROM_EXTERNAL_JAR;
-import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
+import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -70,7 +70,7 @@ public final class IntegrationTest
         final TestCaseJobFactory jobFactory = new TestCaseJobFactory();
         jobRepository = new JobRepositoryImpl<>(jobDefinitionLoader, jobFactory, eventListener);
         server = new ServerImpl(jobRepository);
-        agent = new Agent(server, new JUnitTestExecutor(new JUnitCore(), new TestCaseJobResultHandlerImpl(server)),
+        agent = new Agent(server, new JUnitClassExecutor(new JUnitCore(), new TestCaseJobResultHandlerImpl(server)),
                 sleeper, AGENT_ID);
     }
 

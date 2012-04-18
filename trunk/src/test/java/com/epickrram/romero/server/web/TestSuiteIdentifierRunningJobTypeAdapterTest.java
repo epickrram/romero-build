@@ -17,14 +17,14 @@
 package com.epickrram.romero.server.web;
 
 import com.epickrram.romero.common.RunningJob;
-import com.epickrram.romero.common.TestSuiteIdentifier;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.junit.Test;
 
 import java.io.StringWriter;
 
-import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
+import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 

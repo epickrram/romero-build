@@ -17,8 +17,8 @@
 package com.epickrram.romero;
 
 import com.epickrram.romero.common.RunningJob;
-import com.epickrram.romero.common.TestSuiteIdentifier;
-import com.epickrram.romero.common.TestSuiteJob;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
+import com.epickrram.romero.testing.common.TestSuiteJob;
 import com.epickrram.romero.core.JobState;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

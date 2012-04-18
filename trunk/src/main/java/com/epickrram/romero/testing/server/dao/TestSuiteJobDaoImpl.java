@@ -14,21 +14,41 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.common;
+package com.epickrram.romero.testing.server.dao;
 
-import com.epickrram.romero.core.AbstractJob;
-import com.epickrram.romero.core.JobState;
+import com.epickrram.romero.server.dao.ConnectionHandler;
+import com.epickrram.romero.server.dao.JdbcExecutor;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 
-public final class TestSuiteJob extends AbstractJob<TestSuiteIdentifier, TestSuiteJobResult>
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+public final class TestSuiteJobDaoImpl implements TestSuiteJobDao
 {
-    public TestSuiteJob(final TestSuiteIdentifier key)
+    private final ConnectionHandler connectionHandler;
+
+    public TestSuiteJobDaoImpl(final ConnectionHandler connectionHandler)
     {
-        super(key);
+        this.connectionHandler = connectionHandler;
     }
 
     @Override
-    protected JobState getNewJobState(final TestSuiteJobResult result)
+    public void onTestJobComplete(final String jobIdentifier, final long startTimestamp, final long endTimestamp)
     {
-        return JobState.FINISHED;
+    }
+
+    @Override
+    public void onTestSuiteJobResult(final String jobIdentifier, final TestSuiteJobResult jobResult)
+    {
+        connectionHandler.execute(new JdbcExecutor()
+        {
+            @Override
+            public void withConnection(final Connection connection) throws SQLException
+            {
+                final PreparedStatement statement = connection.prepareStatement("");
+                statement.setString(1, jobIdentifier);
+            }
+        });
     }
 }

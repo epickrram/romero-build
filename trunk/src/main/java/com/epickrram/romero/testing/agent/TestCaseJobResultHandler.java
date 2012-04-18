@@ -14,10 +14,11 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+package com.epickrram.romero.testing.agent;
 
-public interface TestCaseWrapper
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
+
+public interface TestCaseJobResultHandler
 {
-    void beforeTestCase(final TestingContext testingContext);
-    void afterTestCase(final TestingContext testingContext);
+    void onTestCaseJobResult(final TestSuiteJobResult testSuiteJobResult);
 }

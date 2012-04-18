@@ -14,7 +14,7 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent.junit;
+package com.epickrram.romero.testing.agent.junit;
 
 public final class JUnitClassNameUtil
 {

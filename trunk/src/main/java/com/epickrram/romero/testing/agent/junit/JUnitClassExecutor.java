@@ -14,35 +14,35 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+package com.epickrram.romero.testing.agent.junit;
 
-import java.io.File;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import com.epickrram.romero.agent.ClassExecutor;
+import com.epickrram.romero.testing.agent.TestCaseJobResultHandler;
+import org.junit.runner.JUnitCore;
 
-public final class TestingContext
+import static com.epickrram.romero.agent.ClassLoaderUtil.loadClass;
+
+public final class JUnitClassExecutor implements ClassExecutor
 {
-    private final Map<String, Object> valueMap = new HashMap<>();
+    private final JUnitCore jUnitCore;
+    private final TestCaseJobResultHandler resultHandler;
 
-    @SuppressWarnings({"unchecked"})
-    public <T> T getValue(final String key)
+    public JUnitClassExecutor(final JUnitCore jUnitCore,
+                              final TestCaseJobResultHandler resultHandler)
     {
-        return (T) valueMap.get(key);
+        this.jUnitCore = jUnitCore;
+        this.resultHandler = resultHandler;
     }
 
-    public <T> void setValue(final String key, final T value)
+    @Override
+    public void execute(final String className)
     {
-        valueMap.put(key, value);
+        final TestExecutionResultRunListener listener = new TestExecutionResultRunListener();
+        jUnitCore.addListener(listener);
+        final Class<?> testClass = loadClass(className);
+        jUnitCore.run(testClass);
+
+        resultHandler.onTestCaseJobResult(listener.getTestSuiteJobResult());
     }
 
-    public void addClasspathElement(final URL url)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    public void addClasspathElement(final File file)
-    {
-        throw new UnsupportedOperationException();
-    }
 }

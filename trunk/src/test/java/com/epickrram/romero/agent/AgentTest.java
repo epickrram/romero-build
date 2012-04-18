@@ -16,9 +16,10 @@
 
 package com.epickrram.romero.agent;
 
-import com.epickrram.romero.agent.junit.JUnitTestExecutor;
-import com.epickrram.romero.common.TestSuiteIdentifier;
-import com.epickrram.romero.common.TestPropertyKeys;
+import com.epickrram.romero.testing.agent.TestCaseJobResultHandler;
+import com.epickrram.romero.testing.agent.junit.JUnitClassExecutor;
+import com.epickrram.romero.testing.common.TestPropertyKeys;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.core.JobDefinitionImpl;
 import com.epickrram.romero.server.Server;
 import com.epickrram.romero.stub.StubJUnitTestData;
@@ -34,8 +35,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Properties;
 
 import static com.epickrram.romero.common.BuildStatus.*;
-import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
-import static com.epickrram.romero.common.TestPropertyKeys.SYSTEM_PROPERTY_PREFIX;
+import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
+import static com.epickrram.romero.testing.common.TestPropertyKeys.SYSTEM_PROPERTY_PREFIX;
 import static com.epickrram.romero.stub.StubJUnitTestData.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -56,7 +57,7 @@ public final class AgentTest
     @Mock
     private Agent.Sleeper sleeper;
     @Mock
-    private TestExecutor testExecutor;
+    private ClassExecutor classExecutor;
     @Mock
     private TestCaseJobResultHandler resultHandler;
 
@@ -78,7 +79,7 @@ public final class AgentTest
     {
         expectTestToBeRun(TEST_CLASS, new Properties());
 
-        verify(testExecutor).runTest(TEST_CLASS);
+        verify(classExecutor).execute(TEST_CLASS);
 
         verify(server).getStatus();
         verifyZeroInteractions(sleeper);
@@ -87,7 +88,7 @@ public final class AgentTest
     @Test
     public void shouldSleepForDurationWhenServerStatusIsWaitingForTestFinish() throws Exception
     {
-        when(server.getStatus()).thenReturn(WAITING_FOR_TESTS_TO_COMPLETE);
+        when(server.getStatus()).thenReturn(WAITING_FOR_JOBS_TO_COMPLETE);
 
         agent.run();
 
@@ -103,7 +104,7 @@ public final class AgentTest
 
         agent.run();
 
-        verifyZeroInteractions(testExecutor);
+        verifyZeroInteractions(classExecutor);
         verify(server).getStatus();
         verify(sleeper).sleep(anyLong());
     }
@@ -115,7 +116,7 @@ public final class AgentTest
         properties.setProperty(SYSTEM_PROPERTY_PREFIX + PROP_KEY_1, "value1");
         properties.setProperty(SYSTEM_PROPERTY_PREFIX + PROP_KEY_2, "value2");
 
-        agent = new Agent(server, new JUnitTestExecutor(new JUnitCore(), resultHandler), sleeper, AGENT_ID);
+        agent = new Agent(server, new JUnitClassExecutor(new JUnitCore(), resultHandler), sleeper, AGENT_ID);
 
         expectTestToBeRun(StubJUnitTestData.class.getName(), properties);
 
@@ -149,7 +150,7 @@ public final class AgentTest
     @Before
     public void setup() throws Exception
     {
-        agent = new Agent(server, testExecutor, sleeper, AGENT_ID);
+        agent = new Agent(server, classExecutor, sleeper, AGENT_ID);
     }
 
     private void expectTestToBeRun(final String testClass, final Properties properties)

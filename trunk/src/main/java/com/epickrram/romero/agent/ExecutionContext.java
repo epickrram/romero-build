@@ -16,30 +16,33 @@
 
 package com.epickrram.romero.agent;
 
-public final class CompositeTestCaseWrapper implements TestCaseWrapper
+import java.io.File;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+public final class ExecutionContext
 {
-    private final TestCaseWrapper[] delegates;
+    private final Map<String, Object> valueMap = new HashMap<>();
 
-    public CompositeTestCaseWrapper(final TestCaseWrapper... delegates)
+    @SuppressWarnings({"unchecked"})
+    public <T> T getValue(final String key)
     {
-        this.delegates = delegates;
+        return (T) valueMap.get(key);
     }
 
-    @Override
-    public void beforeTestCase(final TestingContext testingContext)
+    public <T> void setValue(final String key, final T value)
     {
-        for (TestCaseWrapper delegate : delegates)
-        {
-            delegate.beforeTestCase(testingContext);
-        }
+        valueMap.put(key, value);
     }
 
-    @Override
-    public void afterTestCase(final TestingContext testingContext)
+    public void addClasspathElement(final URL url)
     {
-        for (TestCaseWrapper delegate : delegates)
-        {
-            delegate.afterTestCase(testingContext);
-        }
+        throw new UnsupportedOperationException();
+    }
+
+    public void addClasspathElement(final File file)
+    {
+        throw new UnsupportedOperationException();
     }
 }

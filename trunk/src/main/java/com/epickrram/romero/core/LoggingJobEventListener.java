@@ -16,8 +16,8 @@
 
 package com.epickrram.romero.core;
 
-import com.epickrram.romero.common.TestSuiteIdentifier;
-import com.epickrram.romero.common.TestSuiteJobResult;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 
 import java.util.logging.Logger;
 

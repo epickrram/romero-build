@@ -14,12 +14,12 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent.junit;
+package com.epickrram.romero.testing.agent.junit;
 
-import com.epickrram.romero.common.TestSuiteJobResult;
-import com.epickrram.romero.common.TestExecutionResult;
-import com.epickrram.romero.common.TestStatus;
+import com.epickrram.romero.testing.common.TestExecutionResult;
+import com.epickrram.romero.testing.common.TestStatus;
 import com.epickrram.romero.stub.StubJUnitTestData;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
@@ -29,7 +29,7 @@ import org.junit.runner.JUnitCore;
 
 import java.util.Collection;
 
-import static com.epickrram.romero.common.TestStatus.*;
+import static com.epickrram.romero.testing.common.TestStatus.*;
 import static java.lang.String.valueOf;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.CoreMatchers.is;

@@ -20,9 +20,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Logger;
 
 public final class ResourceRepository<T, K, D>
 {
+    private static final Logger LOGGER = Logger.getLogger(ResourceRepository.class.getSimpleName());
+    
     private final Map<K, Resource<T>> allocatedResourceMap = new ConcurrentHashMap<>();
     private final List<Resource<T>> resourceList = new CopyOnWriteArrayList<>();
 
@@ -35,6 +38,7 @@ public final class ResourceRepository<T, K, D>
     {
         if(allocatedResourceMap.containsKey(jobDefinition.getKey()))
         {
+            LOGGER.warning("job [" + jobDefinition.getKey() + "] is attempting to acquire more than one resource");
             return null;
         }
         for (Resource<T> resource : resourceList)

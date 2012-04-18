@@ -16,8 +16,9 @@
 
 package com.epickrram.romero.server;
 
-import com.epickrram.romero.common.TestSuiteIdentifier;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.core.JobDefinition;
+import com.epickrram.romero.testing.server.JarUrlTestCaseJobDefinitionLoader;
 import com.epickrram.romero.util.UrlLoader;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +30,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
-import static com.epickrram.romero.common.TestSuiteIdentifier.toMapKey;
+import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyBoolean;

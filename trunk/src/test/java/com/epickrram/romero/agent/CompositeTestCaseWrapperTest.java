@@ -16,6 +16,8 @@
 
 package com.epickrram.romero.agent;
 
+import com.epickrram.romero.testing.agent.CompositeTestCaseWrapper;
+import com.epickrram.romero.testing.agent.TestCaseWrapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +29,7 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public final class CompositeTestCaseWrapperTest
 {
-    private static final TestingContext TESTING_CONTEXT = new TestingContext();
+    private static final ExecutionContext EXECUTION_CONTEXT = new ExecutionContext();
     @Mock
     private TestCaseWrapper delegateOne;
     @Mock
@@ -37,19 +39,19 @@ public final class CompositeTestCaseWrapperTest
     @Test
     public void shouldDelegateBeforeTest() throws Exception
     {
-        composite.beforeTestCase(TESTING_CONTEXT);
+        composite.beforeTestCase(EXECUTION_CONTEXT);
 
-        verify(delegateOne).beforeTestCase(TESTING_CONTEXT);
-        verify(delegateTwo).beforeTestCase(TESTING_CONTEXT);
+        verify(delegateOne).beforeTestCase(EXECUTION_CONTEXT);
+        verify(delegateTwo).beforeTestCase(EXECUTION_CONTEXT);
     }
 
     @Test
     public void shouldDelegateAfterTest() throws Exception
     {
-        composite.afterTestCase(TESTING_CONTEXT);
+        composite.afterTestCase(EXECUTION_CONTEXT);
 
-        verify(delegateOne).afterTestCase(TESTING_CONTEXT);
-        verify(delegateTwo).afterTestCase(TESTING_CONTEXT);
+        verify(delegateOne).afterTestCase(EXECUTION_CONTEXT);
+        verify(delegateTwo).afterTestCase(EXECUTION_CONTEXT);
     }
 
     @Before

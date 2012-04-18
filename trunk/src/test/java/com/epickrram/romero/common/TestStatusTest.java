@@ -16,6 +16,7 @@
 
 package com.epickrram.romero.common;
 
+import com.epickrram.romero.testing.common.TestStatus;
 import org.junit.Test;
 
 import static com.epickrram.romero.TranslatorAssert.assertTranslation;

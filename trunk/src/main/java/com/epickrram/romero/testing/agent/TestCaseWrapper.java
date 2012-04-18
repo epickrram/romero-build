@@ -14,9 +14,12 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+package com.epickrram.romero.testing.agent;
 
-public interface TestExecutor
+import com.epickrram.romero.agent.ExecutionContext;
+
+public interface TestCaseWrapper
 {
-    void runTest(final String className);
+    void beforeTestCase(final ExecutionContext executionContext);
+    void afterTestCase(final ExecutionContext executionContext);
 }
