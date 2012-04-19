@@ -13,6 +13,7 @@
     <property name="main.resources.dir" value="src/main/resources"/>
     <property name="test.src.dir" value="src/test/java"/>
     <property name="test.resources.dir" value="src/test/resources"/>
+    <property name="test.web.dir" value="src/test/web"/>
     <property name="release.dir" value="build/release"/>
     <property name="majorVersion" value="0"/>
     <property name="minorVersion" value="1"/>
@@ -124,6 +125,22 @@
         </jar>
     </target>
 
+    <target name="start-test-agent" depends="compile-test">
+        <property file="${test.web.dir}/server.properties"/>
+        <echo message="./start-test-agent.sh"/>
+        <exec executable="sh" dir="./bin">
+            <arg value="./start-test-agent.sh"/>
+            <arg value="${server.application.listen.port}"/>
+        </exec>
+    </target>
+
+    <target name="stop-test-agent">
+        <exec executable="pkill" dir=".">
+            <arg value="-f"/>
+            <arg value="JUnitAgentRunner"/>
+        </exec>
+    </target>
+
     <target name="start-test-server" depends="compile-test">
         <property file="${test.resources.dir}/integration-test.properties"/>
         <exec executable="sh" dir="./bin">
@@ -139,6 +156,16 @@
             <arg value="WebAppRunner"/>
         </exec>
     </target>
+
+    <target name="start" depends="start-test-server, start-test-agent">
+
+    </target>
+
+    <target name="stop" depends="stop-test-agent, stop-test-server">
+
+    </target>
+
+    <target name="restart" depends="stop, start"/>
 
     <!--<target name="jar" depends="compile">-->
     <!--<jar destfile="${dist.dir}/romero-${majorVersion}.${minorVersion}.jar"-->

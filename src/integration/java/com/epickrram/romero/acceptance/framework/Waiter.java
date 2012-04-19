@@ -14,32 +14,37 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server.web;
+package com.epickrram.romero.acceptance.framework;
 
-import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.server.Server;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 
-import java.util.HashMap;
-import java.util.Map;
-
-final class BuildStatusRequestHandler extends VoidInputRequestHandler<Map<String, String>>
+public final class Waiter
 {
-    private final Server server;
+    private static final long DEFAULT_WAIT_TIMEOUT_SECONDS = 30L;
+    private static final long DEFAULT_WAIT_INTERVAL_SECONDS = 1L;
 
-    public BuildStatusRequestHandler(final Server server)
+    static void waitFor(final Condition condition)
     {
-        this.server = server;
+        final long timeoutAt = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(DEFAULT_WAIT_TIMEOUT_SECONDS);
+        while(System.currentTimeMillis() < timeoutAt)
+        {
+            if(!condition.isMet())
+            {
+                LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(DEFAULT_WAIT_INTERVAL_SECONDS));
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        throw new IllegalStateException("Condition was not met: " + condition.getFailureMessage());
     }
 
-    @Override
-    Map<String, String> handleRequest()
+    public interface Condition
     {
-        final BuildStatus status = server.getStatus();
-        final Map<String, String> map = new HashMap<>();
-        map.put("status", status.name());
-        map.put("jobRunIdentifier", server.getCurrentBuildId());
-        map.put("totalJobs", Integer.toString(server.getTotalJobs()));
-        map.put("remainingJobs", Integer.toString(server.getRemainingJobs()));
-        return map;
+        boolean isMet();
+        String getFailureMessage();
     }
 }
