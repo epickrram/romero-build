@@ -16,6 +16,8 @@
 
 package com.epickrram.romero.server.web;
 
+import com.epickrram.romero.util.LoggingUtil;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +27,7 @@ import java.util.logging.Logger;
 
 public final class StartBuildServlet extends HttpServlet
 {
-    private static final Logger LOGGER = Logger.getLogger(StartBuildServlet.class.getSimpleName());
+    private static final Logger LOGGER = LoggingUtil.getLogger(StartBuildServlet.class.getSimpleName());
     private static final String JOB_IDENTIFIER_KEY = "jobIdentifier";
 
     @Override

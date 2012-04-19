@@ -127,7 +127,6 @@
 
     <target name="start-test-agent" depends="compile-test">
         <property file="${test.web.dir}/server.properties"/>
-        <echo message="./start-test-agent.sh"/>
         <exec executable="sh" dir="./bin">
             <arg value="./start-test-agent.sh"/>
             <arg value="${server.application.listen.port}"/>

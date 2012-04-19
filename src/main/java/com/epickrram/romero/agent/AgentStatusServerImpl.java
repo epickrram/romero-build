@@ -16,6 +16,8 @@
 
 package com.epickrram.romero.agent;
 
+import com.epickrram.romero.util.LoggingUtil;
+
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
@@ -28,7 +30,7 @@ import java.util.logging.Logger;
 
 public final class AgentStatusServerImpl implements AgentStatusServer
 {
-    private static final Logger LOGGER = Logger.getLogger(AgentStatusServerImpl.class.getSimpleName());
+    private static final Logger LOGGER = LoggingUtil.getLogger(AgentStatusServerImpl.class.getSimpleName());
 
     private final int port;
     private final StatusProvider statusProvider;

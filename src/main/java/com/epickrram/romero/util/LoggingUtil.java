@@ -14,21 +14,19 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.core;
+package com.epickrram.romero.util;
 
-import com.epickrram.romero.testing.common.TestSuiteIdentifier;
-import com.epickrram.romero.testing.common.TestSuiteJobResult;
-import com.epickrram.romero.util.LoggingUtil;
-
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
 
-public final class LoggingJobEventListener implements JobEventListener<TestSuiteIdentifier, TestSuiteJobResult>
+public final class LoggingUtil
 {
-    private static final Logger LOGGER = LoggingUtil.getLogger(LoggingJobEventListener.class.getSimpleName());
+    private LoggingUtil() {}
 
-    @Override
-    public void onJobUpdate(final Job<TestSuiteIdentifier, TestSuiteJobResult> updatedJob)
+    public static Logger getLogger(final String loggerName)
     {
-        LOGGER.info(updatedJob.toString());
+        final Logger logger = Logger.getLogger(loggerName);
+        logger.addHandler(new ConsoleHandler());
+        return logger;
     }
 }

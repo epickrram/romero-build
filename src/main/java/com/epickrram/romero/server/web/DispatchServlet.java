@@ -17,6 +17,7 @@
 package com.epickrram.romero.server.web;
 
 import com.epickrram.romero.server.Server;
+import com.epickrram.romero.util.LoggingUtil;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -31,7 +32,7 @@ import java.util.logging.Logger;
 
 public final class DispatchServlet extends HttpServlet
 {
-    private static final Logger LOGGER = Logger.getLogger(DispatchServlet.class.getSimpleName());
+    private static final Logger LOGGER = LoggingUtil.getLogger(DispatchServlet.class.getSimpleName());
     private final Map<String, RequestHandler<?, ?>> requestHandlerMap = new ConcurrentHashMap<>();
 
     @Override
