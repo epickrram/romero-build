@@ -19,6 +19,7 @@ package com.epickrram.romero.agent;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.server.Server;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -38,12 +39,13 @@ public final class Agent implements Runnable
     private static final long WAIT_FOR_BUILDING_INTERVAL_SECONDS = 10L;
     private static final long WAIT_FOR_AVAILABLE_TEST_INTERVAL_SECONDS = 2L;
 
-    private final Server server;
+    private final Server<TestSuiteIdentifier, Properties, TestSuiteJobResult> server;
     private final ClassExecutor classExecutor;
     private final Sleeper sleeper;
     private final String agentId;
 
-    public Agent(final Server server, final ClassExecutor classExecutor,
+    public Agent(final Server<TestSuiteIdentifier, Properties, TestSuiteJobResult> server,
+                 final ClassExecutor classExecutor,
                  final Sleeper sleeper, final String agentId)
     {
         this.server = server;
@@ -84,13 +86,13 @@ public final class Agent implements Runnable
                 final List<String>testCaseWrappersClassNames = new ArrayList<>();
                 handleTestProperties(testDefinition.getData(), currentClassLoader, testCaseWrappersClassNames);
                 final List<ExecutionWrapper> executionWrappers = new ArrayList<>(testCaseWrappersClassNames.size());
-                instantiateTestCaseWrappers(testCaseWrappersClassNames, executionWrappers);
+                instantiateExecutionWrappers(testCaseWrappersClassNames, executionWrappers);
 
-                beforeTestCase(executionWrappers);
+                beforeExecute(executionWrappers);
 
                 classExecutor.execute(testDefinition.getKey().getTestClass());
 
-                afterTestCase(executionWrappers);
+                afterExecute(executionWrappers);
             }
             finally
             {
@@ -104,7 +106,7 @@ public final class Agent implements Runnable
         }
     }
 
-    private void afterTestCase(final List<ExecutionWrapper> executionWrappers)
+    private void afterExecute(final List<ExecutionWrapper> executionWrappers)
     {
         for (ExecutionWrapper executionWrapper : executionWrappers)
         {
@@ -112,7 +114,7 @@ public final class Agent implements Runnable
         }
     }
 
-    private void beforeTestCase(final List<ExecutionWrapper> executionWrappers)
+    private void beforeExecute(final List<ExecutionWrapper> executionWrappers)
     {
         for (ExecutionWrapper executionWrapper : executionWrappers)
         {
@@ -147,7 +149,7 @@ public final class Agent implements Runnable
         }
     }
 
-    private void instantiateTestCaseWrappers(final List<String> testCaseWrappersClassNames, final List<ExecutionWrapper> executionWrappers)
+    private void instantiateExecutionWrappers(final List<String> testCaseWrappersClassNames, final List<ExecutionWrapper> executionWrappers)
     {
         for (String className : testCaseWrappersClassNames)
         {

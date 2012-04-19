@@ -40,8 +40,10 @@ public final class JUnitAgentRunner
 
     public static void main(String[] args)
     {
-        final JUnitAgentRunner JUnitAgentRunner = new JUnitAgentRunner("localhost", 9001, "agent-1");
-        JUnitAgentRunner.start();
+        final String host = args[0];
+        final int port = Integer.parseInt(args[1]);
+        final JUnitAgentRunner agentRunner = new JUnitAgentRunner(host, port, "agent-1");
+        agentRunner.start();
     }
 
     private JUnitAgentRunner(final String serverHost, final int serverPort, final String agentId)
@@ -57,6 +59,6 @@ public final class JUnitAgentRunner
         final JobResultHandler<TestSuiteJobResult> resultHandler = new JobResultHandlerImpl<>(server);
         final Agent agent = new Agent(server, new JUnitClassExecutor(new JUnitCore(), resultHandler), new SleeperImpl(), agentId);
 
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(agent, 0, 1, TimeUnit.MILLISECONDS);
+        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(agent, 0, 10, TimeUnit.SECONDS);
     }
 }

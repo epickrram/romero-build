@@ -46,7 +46,8 @@ public final class ServerConnectionFactory
         codeBookRegistry.registerTranslatable(TestSuiteIdentifier.class);
         codeBookRegistry.registerTranslatable(TestSuiteJobResult.class);
         codeBookRegistry.registerTranslatable(BuildStatus.class);
-        final MessagingContext messagingContext = contextFactory.createPointToPointMessagingContext(endPointProvider);
+        final MessagingContext messagingContext =
+                contextFactory.createDirectBlockingPointToPointMessagingContext(endPointProvider);
         return messagingContext.createPublisher(Server.class);
     }
 }

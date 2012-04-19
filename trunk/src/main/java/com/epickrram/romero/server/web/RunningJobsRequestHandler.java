@@ -29,25 +29,20 @@ import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
 final class RunningJobsRequestHandler extends VoidInputRequestHandler<Collection<RunningJob>>
 {
     private final Server server;
-    private Collection<RunningJob> jobs;
-    //    private List<RunningJob<K>> runningJobs;
+//    private Collection<RunningJob> jobs;
 
     public RunningJobsRequestHandler(final Server server)
     {
         this.server = server;
-//        runningJobs = Arrays.asList(RunningJob.<TestSuiteIdentifier>create("agent-1", toMapKey("com.bar")),
-//                RunningJob.<TestSuiteIdentifier>create("agent-2", toMapKey("com.foo")));
-        jobs = new ArrayList<>();
-        jobs.add(RunningJob.<TestSuiteIdentifier>create("agent-1", toMapKey("com.bar")));
-        jobs.add(RunningJob.<TestSuiteIdentifier>create("agent-2", toMapKey("com.foo")));
+//        jobs = new ArrayList<>();
+//        jobs.add(RunningJob.<TestSuiteIdentifier>create("agent-1", toMapKey("com.bar")));
+//        jobs.add(RunningJob.<TestSuiteIdentifier>create("agent-2", toMapKey("com.foo")));
     }
 
     @Override
     Collection<RunningJob> handleRequest()
     {
-
-        return jobs;
-//        return runningJobs;
-//        return server.getRunningJobs();
+//        return jobs;
+        return server.getRunningJobs();
     }
 }

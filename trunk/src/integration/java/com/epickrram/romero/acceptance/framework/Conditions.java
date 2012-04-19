@@ -14,32 +14,37 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server.web;
+package com.epickrram.romero.acceptance.framework;
 
-import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.server.Server;
+import com.google.gson.Gson;
 
-import java.util.HashMap;
 import java.util.Map;
 
-final class BuildStatusRequestHandler extends VoidInputRequestHandler<Map<String, String>>
+import static com.epickrram.romero.acceptance.framework.HttpUtil.post;
+
+public final class Conditions
 {
-    private final Server server;
+    private Conditions() {}
 
-    public BuildStatusRequestHandler(final Server server)
+    static Waiter.Condition postRequestJsonResponseContainsCondition(final String url, final String key, final String expectedValue)
     {
-        this.server = server;
-    }
+        return new Waiter.Condition()
+        {
+            @SuppressWarnings({"unchecked"})
+            @Override
+            public boolean isMet()
+            {
+                final String response = post(url);
+                final Map<String, String> map = new Gson().fromJson(response, Map.class);
+                
+                return map.containsKey(key) && map.get(key).equals(expectedValue);
+            }
 
-    @Override
-    Map<String, String> handleRequest()
-    {
-        final BuildStatus status = server.getStatus();
-        final Map<String, String> map = new HashMap<>();
-        map.put("status", status.name());
-        map.put("jobRunIdentifier", server.getCurrentBuildId());
-        map.put("totalJobs", Integer.toString(server.getTotalJobs()));
-        map.put("remainingJobs", Integer.toString(server.getRemainingJobs()));
-        return map;
+            @Override
+            public String getFailureMessage()
+            {
+                return String.format("Response from [%s] did not contain text '%s'", url, expectedValue);
+            }
+        };
     }
 }

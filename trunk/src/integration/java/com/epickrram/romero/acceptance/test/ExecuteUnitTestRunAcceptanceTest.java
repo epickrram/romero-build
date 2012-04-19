@@ -14,32 +14,28 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server.web;
+package com.epickrram.romero.acceptance.test;
 
-import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.server.Server;
+import com.epickrram.romero.acceptance.framework.Romero;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
-final class BuildStatusRequestHandler extends VoidInputRequestHandler<Map<String, String>>
+public final class ExecuteUnitTestRunAcceptanceTest
 {
-    private final Server server;
+    private final Romero romero = new Romero("localhost", 8080);
 
-    public BuildStatusRequestHandler(final Server server)
+    @Before
+    public void beforeTest()
     {
-        this.server = server;
+        romero.waitForTestRunFinished();
     }
 
-    @Override
-    Map<String, String> handleRequest()
+    @Test
+    public void shouldExecuteTestRun() throws Exception
     {
-        final BuildStatus status = server.getStatus();
-        final Map<String, String> map = new HashMap<>();
-        map.put("status", status.name());
-        map.put("jobRunIdentifier", server.getCurrentBuildId());
-        map.put("totalJobs", Integer.toString(server.getTotalJobs()));
-        map.put("remainingJobs", Integer.toString(server.getRemainingJobs()));
-        return map;
+        romero.startTestRun("124");
+        romero.waitForTestRunStarted("124");
     }
+
+    
 }

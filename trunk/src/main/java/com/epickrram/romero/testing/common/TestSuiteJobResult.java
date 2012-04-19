@@ -55,7 +55,7 @@ public final class TestSuiteJobResult
         return testExecutionResults;
     }
 
-    private static final class Translator extends AbstractTranslator<TestSuiteJobResult>
+    public static final class Translator extends AbstractTranslator<TestSuiteJobResult>
     {
         @Override
         protected void doEncode(final TestSuiteJobResult encodable, final EncoderStream encoderStream) throws IOException

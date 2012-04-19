@@ -16,6 +16,15 @@
 
 package com.epickrram.romero.server.web;
 
+import com.epickrram.freewheel.messaging.MessagingContext;
+import com.epickrram.freewheel.messaging.MessagingContextFactory;
+import com.epickrram.freewheel.messaging.ptp.EndPoint;
+import com.epickrram.freewheel.messaging.ptp.EndPointProvider;
+import com.epickrram.freewheel.protocol.CodeBookRegistry;
+import com.epickrram.romero.common.BuildStatus;
+import com.epickrram.romero.server.Server;
+import com.epickrram.romero.testing.common.TestExecutionResult;
+import com.epickrram.romero.testing.common.TestStatus;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.core.JobRepository;
@@ -34,6 +43,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -75,7 +85,32 @@ public final class BootstrapServlet extends GenericServlet
                 new JobRepositoryImpl<>(definitionLoader, jobFactory, new LoggingJobEventListener());
         final ServerImpl<TestSuiteIdentifier, Properties, TestSuiteJobResult> server = new ServerImpl<>(jobRepository, new TestSuiteKeyFactory());
         final int serverAppPort = Integer.parseInt(serverConfig.getStringProperty("server.application.listen.port"));
+
+        startServerListener(serverAppPort, server);
+
         ServerReference.set(server);
+    }
+
+    private void startServerListener(final int serverAppPort, final ServerImpl<TestSuiteIdentifier, Properties, TestSuiteJobResult> server)
+    {
+        final MessagingContextFactory contextFactory = new MessagingContextFactory();
+        final CodeBookRegistry codeBookRegistry = contextFactory.getCodeBookRegistry();
+        codeBookRegistry.registerTranslatable(TestExecutionResult.class);
+        codeBookRegistry.registerTranslatable(TestStatus.class);
+        codeBookRegistry.registerTranslatable(TestSuiteIdentifier.class);
+        codeBookRegistry.registerTranslatable(TestSuiteJobResult.class);
+        codeBookRegistry.registerTranslatable(BuildStatus.class);
+        final MessagingContext messagingContext =
+                contextFactory.createDirectBlockingPointToPointMessagingContext(new EndPointProvider()
+                {
+                    @Override
+                    public EndPoint resolveEndPoint(final Class descriptor)
+                    {
+                        return new EndPoint(InetAddress.getLoopbackAddress(), serverAppPort);
+                    }
+                });
+        messagingContext.createSubscriber(Server.class, server);
+        messagingContext.start();
     }
 
     @Override
