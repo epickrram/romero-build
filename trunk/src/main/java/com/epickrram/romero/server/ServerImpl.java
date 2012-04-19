@@ -20,6 +20,7 @@ import com.epickrram.romero.common.BuildStatus;
 import com.epickrram.romero.common.RunningJob;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobRepository;
+import com.epickrram.romero.util.LoggingUtil;
 
 import java.util.Collection;
 import java.util.Map;
@@ -29,7 +30,7 @@ import java.util.logging.Logger;
 
 public final class ServerImpl<K, D, R> implements Server<K, D, R>
 {
-    private static final Logger LOGGER = Logger.getLogger(ServerImpl.class.getSimpleName());
+    private static final Logger LOGGER = LoggingUtil.getLogger(ServerImpl.class.getSimpleName());
 
     private final JobRepository<K, D, R> jobRepository;
     private final KeyFactory<K, R> keyFactory;

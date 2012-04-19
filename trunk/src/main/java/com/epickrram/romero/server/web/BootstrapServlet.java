@@ -22,26 +22,25 @@ import com.epickrram.freewheel.messaging.ptp.EndPoint;
 import com.epickrram.freewheel.messaging.ptp.EndPointProvider;
 import com.epickrram.freewheel.protocol.CodeBookRegistry;
 import com.epickrram.romero.common.BuildStatus;
+import com.epickrram.romero.common.proxy.PropertiesTranslator;
+import com.epickrram.romero.core.JobDefinitionImpl;
+import com.epickrram.romero.core.JobRepository;
+import com.epickrram.romero.core.JobRepositoryImpl;
+import com.epickrram.romero.core.LoggingJobEventListener;
+import com.epickrram.romero.server.PropertiesServerConfig;
 import com.epickrram.romero.server.Server;
+import com.epickrram.romero.server.ServerImpl;
 import com.epickrram.romero.testing.common.TestExecutionResult;
 import com.epickrram.romero.testing.common.TestStatus;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
-import com.epickrram.romero.core.JobRepository;
-import com.epickrram.romero.core.JobRepositoryImpl;
-import com.epickrram.romero.core.LoggingJobEventListener;
 import com.epickrram.romero.testing.server.JarUrlTestCaseJobDefinitionLoader;
-import com.epickrram.romero.server.PropertiesServerConfig;
-import com.epickrram.romero.server.ServerImpl;
 import com.epickrram.romero.testing.server.TestCaseJobFactory;
 import com.epickrram.romero.testing.server.TestSuiteKeyFactory;
+import com.epickrram.romero.util.LoggingUtil;
 import com.epickrram.romero.util.UrlLoaderImpl;
 
-import javax.servlet.GenericServlet;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Properties;
@@ -54,7 +53,7 @@ import static com.epickrram.romero.testing.server.JarUrlTestCaseJobDefinitionLoa
 
 public final class BootstrapServlet extends GenericServlet
 {
-    private static final Logger LOGGER = Logger.getLogger(BootstrapServlet.class.getSimpleName());
+    private static final Logger LOGGER = LoggingUtil.getLogger(BootstrapServlet.class.getSimpleName());
 
     private final ExecutorService executor = Executors.newFixedThreadPool(10);
 
@@ -100,6 +99,8 @@ public final class BootstrapServlet extends GenericServlet
         codeBookRegistry.registerTranslatable(TestSuiteIdentifier.class);
         codeBookRegistry.registerTranslatable(TestSuiteJobResult.class);
         codeBookRegistry.registerTranslatable(BuildStatus.class);
+        codeBookRegistry.registerTranslatable(JobDefinitionImpl.class);
+        codeBookRegistry.registerTranslator(6000, new PropertiesTranslator(), Properties.class);
         final MessagingContext messagingContext =
                 contextFactory.createDirectBlockingPointToPointMessagingContext(new EndPointProvider()
                 {

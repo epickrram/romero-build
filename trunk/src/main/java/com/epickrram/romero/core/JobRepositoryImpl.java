@@ -16,6 +16,8 @@
 
 package com.epickrram.romero.core;
 
+import com.epickrram.romero.util.LoggingUtil;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -23,7 +25,7 @@ import java.util.logging.Logger;
 
 public final class JobRepositoryImpl<K, D, R> implements JobRepository<K, D, R>
 {
-    private static final Logger LOGGER = Logger.getLogger(JobRepositoryImpl.class.getSimpleName());
+    private static final Logger LOGGER = LoggingUtil.getLogger(JobRepositoryImpl.class.getSimpleName());
     private final JobDefinitionLoader<K, D> jobDefinitionLoader;
     private final Map<K, Job<K, R>> jobMap;
     private final Map<K, JobDefinition<K, D>> jobDefinitionMap;

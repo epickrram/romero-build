@@ -21,11 +21,15 @@ import com.epickrram.freewheel.messaging.MessagingContextFactory;
 import com.epickrram.freewheel.messaging.ptp.EndPointProvider;
 import com.epickrram.freewheel.protocol.CodeBookRegistry;
 import com.epickrram.romero.common.BuildStatus;
+import com.epickrram.romero.common.proxy.PropertiesTranslator;
+import com.epickrram.romero.core.JobDefinitionImpl;
 import com.epickrram.romero.testing.common.TestExecutionResult;
 import com.epickrram.romero.testing.common.TestStatus;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.server.Server;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
+
+import java.util.Properties;
 
 public final class ServerConnectionFactory
 {
@@ -46,6 +50,8 @@ public final class ServerConnectionFactory
         codeBookRegistry.registerTranslatable(TestSuiteIdentifier.class);
         codeBookRegistry.registerTranslatable(TestSuiteJobResult.class);
         codeBookRegistry.registerTranslatable(BuildStatus.class);
+        codeBookRegistry.registerTranslatable(JobDefinitionImpl.class);
+        codeBookRegistry.registerTranslator(6000, new PropertiesTranslator(), Properties.class);
         final MessagingContext messagingContext =
                 contextFactory.createDirectBlockingPointToPointMessagingContext(endPointProvider);
         return messagingContext.createPublisher(Server.class);

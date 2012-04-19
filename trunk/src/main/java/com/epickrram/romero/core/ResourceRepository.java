@@ -16,6 +16,8 @@
 
 package com.epickrram.romero.core;
 
+import com.epickrram.romero.util.LoggingUtil;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +26,7 @@ import java.util.logging.Logger;
 
 public final class ResourceRepository<T, K, D>
 {
-    private static final Logger LOGGER = Logger.getLogger(ResourceRepository.class.getSimpleName());
+    private static final Logger LOGGER = LoggingUtil.getLogger(ResourceRepository.class.getSimpleName());
     
     private final Map<K, Resource<T>> allocatedResourceMap = new ConcurrentHashMap<>();
     private final List<Resource<T>> resourceList = new CopyOnWriteArrayList<>();

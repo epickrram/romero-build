@@ -11,6 +11,10 @@ function getBuildStatus()
                 {
                     displayRunningJobs();
                 }
+                else
+                {
+                    clearRunningJobs();
+                }
 			}
 		});
 }
@@ -40,8 +44,12 @@ function displayRunningJobs()
 		});
 }
 
+function clearRunningJobs()
+{
+    $('#running-jobs').html('');
+}
 
 function isCurrentlyBuilding(buildStatus)
 {
-    return 'BUILDING' == buildStatus || 'WAITING_FOR_TESTS_TO_COMPLETE' == buildStatus;
+    return 'BUILDING' == buildStatus || 'WAITING_FOR_JOBS_TO_COMPLETE' == buildStatus;
 }

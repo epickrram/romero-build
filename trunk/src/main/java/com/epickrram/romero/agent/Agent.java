@@ -16,10 +16,11 @@
 
 package com.epickrram.romero.agent;
 
-import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.server.Server;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
+import com.epickrram.romero.util.LoggingUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -35,7 +36,7 @@ import static com.epickrram.romero.testing.common.TestPropertyKeys.*;
 
 public final class Agent implements Runnable
 {
-    private static final Logger LOGGER = Logger.getLogger(Agent.class.getSimpleName());
+    private static final Logger LOGGER = LoggingUtil.getLogger(Agent.class.getSimpleName());
     private static final long WAIT_FOR_BUILDING_INTERVAL_SECONDS = 10L;
     private static final long WAIT_FOR_AVAILABLE_TEST_INTERVAL_SECONDS = 2L;
 
@@ -59,6 +60,7 @@ public final class Agent implements Runnable
     {
         try
         {
+            LOGGER.fine("Retrieving server status");
             if(server.getStatus() == BUILDING)
             {
                 handleBuildingStatus();
@@ -76,6 +78,7 @@ public final class Agent implements Runnable
 
     private void handleBuildingStatus()
     {
+        LOGGER.fine("Retrieving next job from server");
         final JobDefinition<TestSuiteIdentifier,Properties> testDefinition = server.getNextTestToRun(agentId);
         if(testDefinition != null)
         {
