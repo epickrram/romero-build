@@ -16,6 +16,7 @@
 
 package com.epickrram.romero.testing.server;
 
+import com.epickrram.romero.testing.common.TestPropertyKeys;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobDefinitionImpl;
@@ -36,14 +37,13 @@ import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
 public final class JarUrlTestCaseJobDefinitionLoader implements JobDefinitionLoader<TestSuiteIdentifier, Properties>
 {
     public static final String URL_PATTERN_PROPERTY = "server.loader.definition.jar.url.pattern";
-    private static final String JOB_IDENTIFIER_TOKEN = "\\$\\{jobIdentifier\\}";
 
-    private final String urlPattern;
     private final UrlLoader urlLoader;
+    private final JobIdentifierUrlBuilder urlBuilder;
 
-    public JarUrlTestCaseJobDefinitionLoader(final String urlPattern, final UrlLoader urlLoader)
+    public JarUrlTestCaseJobDefinitionLoader(final JobIdentifierUrlBuilder urlBuilder, final UrlLoader urlLoader)
     {
-        this.urlPattern = urlPattern;
+        this.urlBuilder = urlBuilder;
         this.urlLoader = urlLoader;
     }
 
@@ -51,7 +51,7 @@ public final class JarUrlTestCaseJobDefinitionLoader implements JobDefinitionLoa
     public List<JobDefinition<TestSuiteIdentifier, Properties>> loadJobDefinitions(final String identifier)
     {
         final List<JobDefinition<TestSuiteIdentifier, Properties>> definitionList = new ArrayList<>();
-        final String url = urlPattern.replaceAll(JOB_IDENTIFIER_TOKEN, identifier);
+        final String url = urlBuilder.getUrl(identifier);
         try
         {
             final File download = urlLoader.downloadUrl(url, true);
@@ -67,8 +67,10 @@ public final class JarUrlTestCaseJobDefinitionLoader implements JobDefinitionLoa
                 final String name = jarEntry.getName();
                 if(name.contains(".class"))
                 {
+                    final Properties properties = new Properties();
+                    properties.setProperty(TestPropertyKeys.CLASSPATH_URL_PREFIX + ".tests", url);
                     final JobDefinition<TestSuiteIdentifier, Properties> definition =
-                            new JobDefinitionImpl<>(toMapKey(toClassName(name)), new Properties());
+                            new JobDefinitionImpl<>(toMapKey(toClassName(name)), properties);
                     definitionList.add(definition);
                 }
             }

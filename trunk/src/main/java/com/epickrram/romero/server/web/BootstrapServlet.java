@@ -35,6 +35,7 @@ import com.epickrram.romero.testing.common.TestStatus;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.testing.server.JarUrlTestCaseJobDefinitionLoader;
+import com.epickrram.romero.testing.server.JobIdentifierUrlBuilder;
 import com.epickrram.romero.testing.server.TestCaseJobFactory;
 import com.epickrram.romero.testing.server.TestSuiteKeyFactory;
 import com.epickrram.romero.util.LoggingUtil;
@@ -78,7 +79,8 @@ public final class BootstrapServlet extends GenericServlet
             throw new ServletException("Unable to load configured properties", e);
         }
         final String loaderUrlPattern = serverConfig.getStringProperty(URL_PATTERN_PROPERTY);
-        final JarUrlTestCaseJobDefinitionLoader definitionLoader = new JarUrlTestCaseJobDefinitionLoader(loaderUrlPattern, urlLoader);
+        final JobIdentifierUrlBuilder urlBuilder = new JobIdentifierUrlBuilder(loaderUrlPattern);
+        final JarUrlTestCaseJobDefinitionLoader definitionLoader = new JarUrlTestCaseJobDefinitionLoader(urlBuilder, urlLoader);
         final TestCaseJobFactory jobFactory = new TestCaseJobFactory();
         final JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository =
                 new JobRepositoryImpl<>(definitionLoader, jobFactory, new LoggingJobEventListener());
