@@ -93,6 +93,12 @@ public final class ServerImpl<K, D, R> implements Server<K, D, R>
     }
 
     @Override
+    public void onJobFailure(final JobDefinition<K, D> testDefinition, final String stackTrace)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Collection<RunningJob<K>> getRunningJobs()
     {
         return runningJobMap.values();

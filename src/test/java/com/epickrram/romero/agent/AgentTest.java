@@ -16,28 +16,30 @@
 
 package com.epickrram.romero.agent;
 
-import com.epickrram.romero.testing.agent.junit.JUnitClassExecutor;
-import com.epickrram.romero.testing.common.TestPropertyKeys;
-import com.epickrram.romero.testing.common.TestSuiteIdentifier;
+import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobDefinitionImpl;
 import com.epickrram.romero.server.Server;
 import com.epickrram.romero.stub.StubJUnitTestData;
 import com.epickrram.romero.stub.StubTestWrapperOne;
 import com.epickrram.romero.stub.StubTestWrapperTwo;
+import com.epickrram.romero.testing.agent.junit.JUnitClassExecutor;
+import com.epickrram.romero.testing.common.TestPropertyKeys;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Properties;
 
 import static com.epickrram.romero.common.BuildStatus.*;
-import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
-import static com.epickrram.romero.testing.common.TestPropertyKeys.SYSTEM_PROPERTY_PREFIX;
 import static com.epickrram.romero.stub.StubJUnitTestData.*;
+import static com.epickrram.romero.testing.common.TestPropertyKeys.SYSTEM_PROPERTY_PREFIX;
+import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -83,6 +85,15 @@ public final class AgentTest
 
         verify(server).getStatus();
         verifyZeroInteractions(sleeper);
+    }
+
+    @Test
+    public void shouldSendFailureToServer() throws Exception
+    {
+        doThrow(new RuntimeException("BOOM!")).when(classExecutor).execute(TEST_CLASS);
+        expectTestToBeRun(TEST_CLASS, new Properties());
+
+        verify(server).onJobFailure(Matchers.<JobDefinition>any(), Matchers.<String>any());
     }
 
     @Test

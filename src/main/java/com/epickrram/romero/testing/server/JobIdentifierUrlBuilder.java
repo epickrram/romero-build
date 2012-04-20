@@ -14,29 +14,21 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server;
+package com.epickrram.romero.testing.server;
 
-import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.common.RunningJob;
-import com.epickrram.romero.testing.common.TestSuiteIdentifier;
-import com.epickrram.romero.testing.common.TestSuiteJobResult;
-import com.epickrram.romero.core.JobDefinition;
-
-import java.util.Collection;
-import java.util.Properties;
-
-public interface Server<K, D, R>
+public final class JobIdentifierUrlBuilder
 {
-    void startTestRun(final String identifier);
-    BuildStatus getStatus();
-    String getCurrentBuildId();
-    JobDefinition<K, D> getNextTestToRun(final String agentId);
+    private static final String JOB_IDENTIFIER_TOKEN = "\\$\\{jobIdentifier\\}";
 
-    void onJobResult(final R result);
-    void onJobFailure(final JobDefinition<K, D> testDefinition, String stackTrace);
+    private final String urlPattern;
 
-    Integer getTotalJobs();
-    Integer getRemainingJobs();
+    public JobIdentifierUrlBuilder(final String urlPattern)
+    {
+        this.urlPattern = urlPattern;
+    }
 
-    Collection<RunningJob<K>> getRunningJobs();
+    public String getUrl(final String jobIdentifier)
+    {
+        return urlPattern.replaceAll(JOB_IDENTIFIER_TOKEN, jobIdentifier);
+    }
 }

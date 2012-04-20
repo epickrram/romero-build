@@ -24,6 +24,7 @@ import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobRepository;
 import com.epickrram.romero.testing.server.TestSuiteKeyFactory;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -38,6 +39,7 @@ import static com.epickrram.romero.testing.server.StubTestResultBuilder.getTestC
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -119,6 +121,13 @@ public final class ServerImplTest
         server.onJobResult(getTestCaseJobResult(JOB_2));
 
         assertThat(server.getRunningJobs(), runningJobs());
+    }
+
+    @Ignore
+    @Test
+    public void shouldRemoveRunningJobOnFailure() throws Exception
+    {
+        fail();
     }
 
     @Test

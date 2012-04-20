@@ -22,6 +22,8 @@ import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.util.LoggingUtil;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -96,6 +98,12 @@ public final class Agent implements Runnable
                 classExecutor.execute(testDefinition.getKey().getTestClass());
 
                 afterExecute(executionWrappers);
+            }
+            catch(Throwable e)
+            {
+                final StringWriter writer = new StringWriter();
+                e.printStackTrace(new PrintWriter(writer));
+                server.onJobFailure(testDefinition, writer.toString());
             }
             finally
             {
