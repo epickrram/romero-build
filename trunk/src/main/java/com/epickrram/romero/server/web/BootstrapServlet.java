@@ -16,37 +16,20 @@
 
 package com.epickrram.romero.server.web;
 
-import com.epickrram.freewheel.messaging.MessagingContext;
-import com.epickrram.freewheel.messaging.MessagingContextFactory;
-import com.epickrram.freewheel.messaging.ptp.EndPoint;
-import com.epickrram.freewheel.messaging.ptp.EndPointProvider;
-import com.epickrram.freewheel.protocol.CodeBookRegistry;
-import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.common.proxy.PropertiesTranslator;
-import com.epickrram.romero.core.JobDefinitionImpl;
 import com.epickrram.romero.core.JobRepository;
 import com.epickrram.romero.core.JobRepositoryImpl;
 import com.epickrram.romero.core.LoggingJobEventListener;
 import com.epickrram.romero.server.PropertiesServerConfig;
-import com.epickrram.romero.server.Server;
 import com.epickrram.romero.server.ServerImpl;
-import com.epickrram.romero.testing.common.TestExecutionResult;
-import com.epickrram.romero.testing.common.TestStatus;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
-import com.epickrram.romero.testing.server.JarUrlTestCaseJobDefinitionLoader;
-import com.epickrram.romero.testing.server.JobIdentifierUrlBuilder;
-import com.epickrram.romero.testing.server.TestCaseJobFactory;
-import com.epickrram.romero.testing.server.TestSuiteKeyFactory;
+import com.epickrram.romero.testing.server.*;
 import com.epickrram.romero.util.LoggingUtil;
 import com.epickrram.romero.util.UrlLoaderImpl;
 
 import javax.servlet.*;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,7 +39,7 @@ public final class BootstrapServlet extends GenericServlet
 {
     private static final Logger LOGGER = LoggingUtil.getLogger(BootstrapServlet.class.getSimpleName());
 
-    private final ExecutorService executor = Executors.newFixedThreadPool(10);
+    private volatile TestingRomeroServerModule serverModule;
 
     @Override
     public void init(final ServletConfig config) throws ServletException
@@ -87,39 +70,16 @@ public final class BootstrapServlet extends GenericServlet
         final ServerImpl<TestSuiteIdentifier, Properties, TestSuiteJobResult> server = new ServerImpl<>(jobRepository, new TestSuiteKeyFactory());
         final int serverAppPort = Integer.parseInt(serverConfig.getStringProperty("server.application.listen.port"));
 
-        startServerListener(serverAppPort, server);
+        serverModule = new TestingRomeroServerModule(serverAppPort, server);
+        serverModule.initialise();
 
         ServerReference.set(server);
-    }
-
-    private void startServerListener(final int serverAppPort, final ServerImpl<TestSuiteIdentifier, Properties, TestSuiteJobResult> server)
-    {
-        final MessagingContextFactory contextFactory = new MessagingContextFactory();
-        final CodeBookRegistry codeBookRegistry = contextFactory.getCodeBookRegistry();
-        codeBookRegistry.registerTranslatable(TestExecutionResult.class);
-        codeBookRegistry.registerTranslatable(TestStatus.class);
-        codeBookRegistry.registerTranslatable(TestSuiteIdentifier.class);
-        codeBookRegistry.registerTranslatable(TestSuiteJobResult.class);
-        codeBookRegistry.registerTranslatable(BuildStatus.class);
-        codeBookRegistry.registerTranslatable(JobDefinitionImpl.class);
-        codeBookRegistry.registerTranslator(6000, new PropertiesTranslator(), Properties.class);
-        final MessagingContext messagingContext =
-                contextFactory.createDirectBlockingPointToPointMessagingContext(new EndPointProvider()
-                {
-                    @Override
-                    public EndPoint resolveEndPoint(final Class descriptor)
-                    {
-                        return new EndPoint(InetAddress.getLoopbackAddress(), serverAppPort);
-                    }
-                });
-        messagingContext.createSubscriber(Server.class, server);
-        messagingContext.start();
     }
 
     @Override
     public void destroy()
     {
-        executor.shutdown();
+        serverModule.shutdown();
     }
 
     @Override

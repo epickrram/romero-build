@@ -20,10 +20,8 @@ import com.epickrram.romero.agent.Agent;
 import com.epickrram.romero.agent.JobResultHandler;
 import com.epickrram.romero.agent.JobResultHandlerImpl;
 import com.epickrram.romero.agent.SleeperImpl;
-import com.epickrram.romero.testing.agent.junit.JUnitClassExecutor;
-import com.epickrram.romero.agent.remote.FixedEndPointProvider;
-import com.epickrram.romero.agent.remote.ServerConnectionFactory;
 import com.epickrram.romero.server.Server;
+import com.epickrram.romero.testing.agent.junit.JUnitClassExecutor;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import org.junit.runner.JUnitCore;
@@ -55,7 +53,9 @@ public final class JUnitAgentRunner
 
     private void start()
     {
-        final Server<TestSuiteIdentifier, Properties, TestSuiteJobResult> server = new ServerConnectionFactory(new FixedEndPointProvider(serverHost, serverPort)).getServer();
+        final TestingRomeroAgentModule agentModule = new TestingRomeroAgentModule(serverHost, serverPort);
+        agentModule.initialise();
+        final Server<TestSuiteIdentifier, Properties, TestSuiteJobResult> server = agentModule.getServer();
         final JobResultHandler<TestSuiteJobResult> resultHandler = new JobResultHandlerImpl<>(server);
         final Agent agent = new Agent(server, new JUnitClassExecutor(new JUnitCore(), resultHandler), new SleeperImpl(), agentId);
 
