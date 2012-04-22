@@ -66,7 +66,6 @@ public final class QueryUtil
         }
         finally
         {
-            //noinspection NullableProblems
             closeSafely(connection, statement, null);
         }
     }
