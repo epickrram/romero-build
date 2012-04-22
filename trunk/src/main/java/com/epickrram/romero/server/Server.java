@@ -36,7 +36,9 @@ public interface Server<K, D, R>
     void onJobFailure(final JobDefinition<K, D> testDefinition, String stackTrace);
 
     Integer getTotalJobs();
-    Integer getRemainingJobs();
+    Integer getJobsRemainingToBeRun();
 
     Collection<RunningJob<K>> getRunningJobs();
+
+    Integer getNumberOfRunningJobs();
 }

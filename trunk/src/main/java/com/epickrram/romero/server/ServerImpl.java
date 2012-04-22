@@ -95,7 +95,9 @@ public final class ServerImpl<K, D, R> implements Server<K, D, R>
     @Override
     public void onJobFailure(final JobDefinition<K, D> testDefinition, final String stackTrace)
     {
-        throw new UnsupportedOperationException();
+        final K key = testDefinition.getKey();
+        runningJobMap.remove(key);
+        jobRepository.onJobFailure(key, stackTrace);
     }
 
     @Override
@@ -105,15 +107,21 @@ public final class ServerImpl<K, D, R> implements Server<K, D, R>
     }
 
     @Override
-    public Integer getRemainingJobs()
+    public Integer getJobsRemainingToBeRun()
     {
-        return 0;
+        return jobRepository.getJobsRemainingToBeRun();
     }
 
     @Override
     public Integer getTotalJobs()
     {
         return jobRepository.size();
+    }
+
+    @Override
+    public Integer getNumberOfRunningJobs()
+    {
+        return runningJobMap.size();
     }
 
     private void recordRunningJob(final String agentId, final JobDefinition<K, D> job)

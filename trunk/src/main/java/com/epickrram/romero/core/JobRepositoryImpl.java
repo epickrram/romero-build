@@ -21,6 +21,7 @@ import com.epickrram.romero.util.LoggingUtil;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 public final class JobRepositoryImpl<K, D, R> implements JobRepository<K, D, R>
@@ -31,6 +32,7 @@ public final class JobRepositoryImpl<K, D, R> implements JobRepository<K, D, R>
     private final Map<K, JobDefinition<K, D>> jobDefinitionMap;
     private final JobFactory<K, D, R> jobFactory;
     private final JobEventListener<K, R> jobEventListener;
+    private final AtomicInteger numberOfJobsRemainingToBeRun = new AtomicInteger();
 
     public JobRepositoryImpl(final JobDefinitionLoader<K, D> jobDefinitionLoader,
                              final JobFactory<K, D, R> jobFactory,
@@ -54,6 +56,7 @@ public final class JobRepositoryImpl<K, D, R> implements JobRepository<K, D, R>
             jobDefinitionMap.put(jobDefinition.getKey(), jobDefinition);
             jobMap.put(jobDefinition.getKey(), jobFactory.createJob(jobDefinition));
         }
+        numberOfJobsRemainingToBeRun.set(jobMap.size());
     }
 
     @Override
@@ -64,6 +67,7 @@ public final class JobRepositoryImpl<K, D, R> implements JobRepository<K, D, R>
             if(job.transitionTo(JobState.RUNNING))
             {
                 jobEventListener.onJobUpdate(job);
+                numberOfJobsRemainingToBeRun.decrementAndGet();
                 return jobDefinitionMap.get(job.getKey());
             }
         }
@@ -117,8 +121,28 @@ public final class JobRepositoryImpl<K, D, R> implements JobRepository<K, D, R>
     }
 
     @Override
+    public void onJobFailure(final K key, final String stackTrace)
+    {
+        final Job<K, R> job = jobMap.get(key);
+        if(job != null)
+        {
+            job.setFailure(stackTrace, jobEventListener);
+        }
+        else
+        {
+            LOGGER.warning("Received failure for unknown job: " + key);
+        }
+    }
+
+    @Override
     public int size()
     {
         return jobMap.size();
+    }
+
+    @Override
+    public int getJobsRemainingToBeRun()
+    {
+        return numberOfJobsRemainingToBeRun.get();
     }
 }

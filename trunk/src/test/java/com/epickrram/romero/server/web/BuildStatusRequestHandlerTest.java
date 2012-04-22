@@ -54,7 +54,7 @@ public final class BuildStatusRequestHandlerTest
     {
         when(server.getStatus()).thenReturn(STATUS);
         when(server.getTotalJobs()).thenReturn(TOTAL_JOBS);
-        when(server.getRemainingJobs()).thenReturn(REMAINING_JOBS);
+        when(server.getJobsRemainingToBeRun()).thenReturn(REMAINING_JOBS);
         when(server.getRunningJobs()).thenReturn(
                 asList(runningJob(AGENT_1, toMapKey(TEST_1)), runningJob(AGENT_2, toMapKey(TEST_2))));
 

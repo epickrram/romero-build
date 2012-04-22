@@ -18,7 +18,6 @@ package com.epickrram.romero.testing.server;
 
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.core.JobDefinition;
-import com.epickrram.romero.testing.server.JarUrlTestCaseJobDefinitionLoader;
 import com.epickrram.romero.util.UrlLoader;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +38,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class JarUrlTestCaseJobDefinitionLoaderTest
+public final class JarUrlTestSuiteJobDefinitionLoaderTest
 {
     private static final String URL_PATTERN = "/path/${jobIdentifier}/resource";
     private static final String JOB_IDENTIFIER = "12345";
@@ -47,13 +46,13 @@ public final class JarUrlTestCaseJobDefinitionLoaderTest
 
     @Mock
     private UrlLoader urlLoader;
-    private JarUrlTestCaseJobDefinitionLoader jobDefinitionLoader;
+    private JarUrlTestSuiteJobDefinitionLoader jobDefinitionLoader;
 
     @Before
     public void setup() throws Exception
     {
         final JobIdentifierUrlBuilder urlBuilder = new JobIdentifierUrlBuilder(URL_PATTERN);
-        jobDefinitionLoader = new JarUrlTestCaseJobDefinitionLoader(urlBuilder, urlLoader);
+        jobDefinitionLoader = new JarUrlTestSuiteJobDefinitionLoader(urlBuilder, urlLoader);
     }
 
     @Test
