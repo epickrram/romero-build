@@ -8,6 +8,10 @@
         <servlet-name>BootstrapServlet</servlet-name>
         <servlet-class>com.epickrram.romero.server.web.BootstrapServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
+        <init-param>
+            <param-name>romero.server.config.url</param-name>
+            <param-value>http://localhost:8090/server.properties</param-value>
+        </init-param>
     </servlet>
 
     <servlet>

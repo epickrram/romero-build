@@ -26,6 +26,7 @@ import com.epickrram.romero.core.JobEventListener;
 import com.epickrram.romero.core.JobRepository;
 import com.epickrram.romero.core.JobRepositoryImpl;
 import com.epickrram.romero.core.JobState;
+import com.epickrram.romero.server.JobRunListener;
 import com.epickrram.romero.server.ServerImpl;
 import com.epickrram.romero.stub.StubJUnitTestData;
 import com.epickrram.romero.testing.agent.junit.JUnitClassExecutor;
@@ -68,6 +69,8 @@ public final class IntegrationTest
     private JobEventListener<TestSuiteIdentifier, TestSuiteJobResult> eventListener;
     @Mock
     private Agent.Sleeper sleeper;
+    @Mock
+    private JobRunListener jobRunListener;
     private ServerImpl<TestSuiteIdentifier, Properties, TestSuiteJobResult> server;
     private Agent agent;
     private JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository;
@@ -77,7 +80,7 @@ public final class IntegrationTest
     {
         final TestCaseJobFactory jobFactory = new TestCaseJobFactory();
         jobRepository = new JobRepositoryImpl<>(jobDefinitionLoader, jobFactory, eventListener);
-        server = new ServerImpl<>(jobRepository, new TestSuiteKeyFactory());
+        server = new ServerImpl<>(jobRepository, new TestSuiteKeyFactory(), jobRunListener);
         final JobResultHandler<TestSuiteJobResult> resultHandler = new JobResultHandlerImpl<>(server);
         agent = new Agent(server, new JUnitClassExecutor(new JUnitCore(), resultHandler),
                 sleeper, AGENT_ID);
@@ -88,7 +91,7 @@ public final class IntegrationTest
     {
         when(jobDefinitionLoader.loadJobDefinitions(TEST_RUN_IDENTIFIER)).thenReturn(createJobDefinitionList());
 
-        server.startTestRun(TEST_RUN_IDENTIFIER);
+        server.startJobRun(TEST_RUN_IDENTIFIER);
 
         agent.run();
 
@@ -110,7 +113,7 @@ public final class IntegrationTest
                 createJobDefinitionList(toMapKey(TEST_CLASS_FROM_EXTERNAL_JAR), properties);
         when(jobDefinitionLoader.loadJobDefinitions(TEST_RUN_IDENTIFIER)).thenReturn(definitionList);
 
-        server.startTestRun(TEST_RUN_IDENTIFIER);
+        server.startJobRun(TEST_RUN_IDENTIFIER);
 
         agent.run();
 

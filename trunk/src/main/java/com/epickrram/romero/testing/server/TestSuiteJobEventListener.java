@@ -14,39 +14,17 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server.web;
+package com.epickrram.romero.testing.server;
 
-import com.epickrram.romero.common.RunningJob;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.epickrram.romero.core.Job;
+import com.epickrram.romero.core.JobEventListener;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 
-import java.io.IOException;
-import java.io.Reader;
-
-public abstract class RequestHandler<I, O>
+public final class TestSuiteJobEventListener implements JobEventListener<TestSuiteIdentifier, TestSuiteJobResult>
 {
-    private final Class<I> inputTypeClass;
-    private final GsonBuilder gsonBuilder;
-
-    RequestHandler(final Class<I> inputTypeClass)
+    @Override
+    public void onJobUpdate(final Job<TestSuiteIdentifier, TestSuiteJobResult> updatedJob)
     {
-        this.inputTypeClass = inputTypeClass;
-        gsonBuilder = new GsonBuilder().registerTypeAdapter(RunningJob.class, new RunningJobTypeAdapter());
-    }
-
-    void handleRequest(final Reader reader, final Appendable appendable) throws IOException
-    {
-        final Gson gson = gsonBuilder.create();
-
-        final I input = isVoidInputType() ? null : gson.fromJson(reader, inputTypeClass);
-        final O output = handleRequest(input);
-        gson.toJson(output, appendable);
-    }
-
-    abstract O handleRequest(final I input);
-
-    private boolean isVoidInputType()
-    {
-        return inputTypeClass == Void.class;
     }
 }

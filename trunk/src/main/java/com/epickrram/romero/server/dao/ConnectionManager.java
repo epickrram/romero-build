@@ -17,21 +17,8 @@
 package com.epickrram.romero.server.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
-public final class ConnectionManager
+public interface ConnectionManager
 {
-    public static Connection getConnection()
-    {
-//        Class.forName("org.h2.Driver");
-        try
-        {
-            return DriverManager.getConnection("jdbc:h2:~/romero.test.db");
-        }
-        catch (SQLException e)
-        {
-            throw new IllegalStateException("Cannot connect to database");
-        }
-    }
+    Connection getConnection();
 }

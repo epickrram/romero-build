@@ -29,4 +29,9 @@ public final class LoggingUtil
         logger.addHandler(new ConsoleHandler());
         return logger;
     }
+
+    public static Logger getLogger(final Class<?> cls)
+    {
+        return getLogger(cls.getSimpleName());
+    }
 }

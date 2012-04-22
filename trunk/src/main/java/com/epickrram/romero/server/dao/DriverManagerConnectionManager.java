@@ -16,9 +16,37 @@
 
 package com.epickrram.romero.server.dao;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public interface ConnectionHandler
+public final class DriverManagerConnectionManager implements ConnectionManager
 {
-    void execute(final JdbcExecutor executor);
+    private final String databaseConnectionUrl;
+
+    public DriverManagerConnectionManager(final String driverClassname, final String databaseConnectionUrl)
+    {
+        this.databaseConnectionUrl = databaseConnectionUrl;
+        try
+        {
+            Class.forName(driverClassname);
+        }
+        catch (ClassNotFoundException e)
+        {
+            throw new IllegalStateException("Cannot load driver class " + driverClassname);
+        }
+    }
+
+    @Override
+    public Connection getConnection()
+    {
+        try
+        {
+            return DriverManager.getConnection(databaseConnectionUrl);
+        }
+        catch (SQLException e)
+        {
+            throw new IllegalStateException("Cannot connect to database", e);
+        }
+    }
 }

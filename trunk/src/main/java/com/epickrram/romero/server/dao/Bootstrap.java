@@ -14,45 +14,55 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.testing.server.dao;
+package com.epickrram.romero.server.dao;
 
-import com.epickrram.romero.server.dao.QueryUtil;
-import com.epickrram.romero.server.dao.UpdateOnlyQueryHandler;
-import com.epickrram.romero.testing.common.TestSuiteJobResult;
+import com.epickrram.romero.util.IoUtil;
 import com.epickrram.romero.util.LoggingUtil;
 
+import java.io.IOException;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class TestSuiteJobDaoImpl implements TestSuiteJobDao
+public final class Bootstrap
 {
-    private static final Logger LOGGER = LoggingUtil.getLogger(TestSuiteJobDaoImpl.class);
-    private final QueryUtil queryUtil;
+    private static final Logger LOGGER = LoggingUtil.getLogger(Bootstrap.class);
 
-    public TestSuiteJobDaoImpl(final QueryUtil queryUtil)
+    public static void setupDatabase(final QueryUtil queryUtil) throws SQLException, IOException
     {
-        this.queryUtil = queryUtil;
-    }
-
-    @Override
-    public void onTestSuiteJobResult(final String jobIdentifier, final TestSuiteJobResult jobResult)
-    {
-        try
+        final Boolean tablesExist = queryUtil.query(new QueryHandler<Boolean>("SHOW TABLES")
         {
-            queryUtil.update(new UpdateOnlyQueryHandler("")
+            @Override
+            public void prepareStatement(final PreparedStatement statement) throws SQLException
             {
-                @Override
-                public void prepareStatement(final PreparedStatement statement) throws SQLException
-                {
-                    statement.setString(1, jobIdentifier);
-                }
-            });
-        }
-        catch (SQLException e)
+            }
+
+            @Override
+            public Boolean handleResult(final ResultSet resultSet) throws SQLException
+            {
+                return resultSet.next();
+            }
+        });
+
+        LOGGER.info("Tables exist: " + tablesExist);
+
+        if(!tablesExist)
         {
-            LOGGER.log(Level.WARNING, "Failed to record job result for " + jobResult.getTestClass(), e);
+            final String createDatabaseSql = IoUtil.readClasspathResource("romero.schema.sql");
+            final String[] statements = createDatabaseSql.split(";");
+
+            for (final String statement : statements)
+            {
+                LOGGER.info("Executing: \n" + statement);
+                queryUtil.update(new UpdateOnlyQueryHandler(statement)
+                {
+                    @Override
+                    public void prepareStatement(final PreparedStatement statement) throws SQLException
+                    {
+                    }
+                });
+            }
         }
     }
 }

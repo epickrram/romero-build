@@ -20,14 +20,11 @@ import com.epickrram.freewheel.messaging.MessagingContext;
 import com.epickrram.freewheel.messaging.MessagingContextFactory;
 import com.epickrram.freewheel.messaging.ptp.EndPointProvider;
 import com.epickrram.freewheel.protocol.CodeBookRegistry;
-import com.epickrram.romero.common.proxy.PropertiesTranslator;
 import com.epickrram.romero.core.JobDefinitionImpl;
 import com.epickrram.romero.testing.common.TestExecutionResult;
 import com.epickrram.romero.testing.common.TestStatus;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
-
-import java.util.Properties;
 
 public abstract class AbstractRomeroModule
 {

@@ -14,45 +14,72 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.testing.server.dao;
+package com.epickrram.romero.server;
 
 import com.epickrram.romero.server.dao.QueryUtil;
 import com.epickrram.romero.server.dao.UpdateOnlyQueryHandler;
-import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.util.LoggingUtil;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public final class TestSuiteJobDaoImpl implements TestSuiteJobDao
+public final class StatsRecordingJobRunListener implements JobRunListener
 {
-    private static final Logger LOGGER = LoggingUtil.getLogger(TestSuiteJobDaoImpl.class);
+    private static final Logger LOGGER = LoggingUtil.getLogger(StatsRecordingJobRunListener.class);
+    private static final String INSERT_JOB_RUN_SQL = "INSERT INTO job_run " +
+            "(identifier, start_timestamp, end_timestamp) VALUES (?,?,?)";
+    private static final String UPDATE_JOB_RUN_SQL = "UPDATE job_run " +
+            "SET end_timestamp = ? WHERE identifier = ? AND end_timestamp = ?";
+
     private final QueryUtil queryUtil;
 
-    public TestSuiteJobDaoImpl(final QueryUtil queryUtil)
+    public StatsRecordingJobRunListener(final QueryUtil queryUtil)
     {
         this.queryUtil = queryUtil;
     }
 
     @Override
-    public void onTestSuiteJobResult(final String jobIdentifier, final TestSuiteJobResult jobResult)
+    public void jobRunStarted(final String jobIdentifier)
     {
         try
         {
-            queryUtil.update(new UpdateOnlyQueryHandler("")
+            queryUtil.update(new UpdateOnlyQueryHandler(INSERT_JOB_RUN_SQL)
             {
                 @Override
                 public void prepareStatement(final PreparedStatement statement) throws SQLException
                 {
                     statement.setString(1, jobIdentifier);
+                    statement.setLong(2, System.currentTimeMillis());
+                    statement.setLong(3, -1);
                 }
             });
         }
         catch (SQLException e)
         {
-            LOGGER.log(Level.WARNING, "Failed to record job result for " + jobResult.getTestClass(), e);
+            LOGGER.warning("Failed to record job run start: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void jobRunFinished(final String jobIdentifier)
+    {
+        try
+        {
+            queryUtil.update(new UpdateOnlyQueryHandler(UPDATE_JOB_RUN_SQL)
+            {
+                @Override
+                public void prepareStatement(final PreparedStatement statement) throws SQLException
+                {
+                    statement.setLong(1, System.currentTimeMillis());
+                    statement.setString(2, jobIdentifier);
+                    statement.setLong(3, -1);
+                }
+            });
+        }
+        catch (SQLException e)
+        {
+            LOGGER.warning("Failed to record job run start: " + e.getMessage());
         }
     }
 }

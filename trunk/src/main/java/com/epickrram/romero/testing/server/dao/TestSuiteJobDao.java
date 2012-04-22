@@ -20,6 +20,5 @@ import com.epickrram.romero.testing.common.TestSuiteJobResult;
 
 public interface TestSuiteJobDao
 {
-    void onTestJobComplete(final String jobIdentifier, final long startTimestamp, final long endTimestamp);
     void onTestSuiteJobResult(final String jobIdentifier, final TestSuiteJobResult jobResult);
 }

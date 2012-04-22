@@ -19,8 +19,13 @@ package com.epickrram.romero.server.web;
 import com.epickrram.romero.core.JobRepository;
 import com.epickrram.romero.core.JobRepositoryImpl;
 import com.epickrram.romero.core.LoggingJobEventListener;
+import com.epickrram.romero.server.JobRunListener;
 import com.epickrram.romero.server.PropertiesServerConfig;
 import com.epickrram.romero.server.ServerImpl;
+import com.epickrram.romero.server.StatsRecordingJobRunListener;
+import com.epickrram.romero.server.dao.Bootstrap;
+import com.epickrram.romero.server.dao.DriverManagerConnectionManager;
+import com.epickrram.romero.server.dao.QueryUtil;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.testing.server.JarUrlTestSuiteJobDefinitionLoader;
@@ -37,6 +42,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,18 +58,15 @@ public final class BootstrapServlet extends GenericServlet
     @Override
     public void init(final ServletConfig config) throws ServletException
     {
-        initialise();
+        final String serverConfigPropertiesUrl = config.getInitParameter("romero.server.config.url");
+        LOGGER.fine("Using server config from URL: " + serverConfigPropertiesUrl);
+        initialise(serverConfigPropertiesUrl);
     }
 
-    public BootstrapServlet()
-    {
-    }
-
-    private void initialise() throws ServletException
+    private void initialise(final String serverConfigPropertiesUrl) throws ServletException
     {
         final UrlLoaderImpl urlLoader = new UrlLoaderImpl();
-        final PropertiesServerConfig serverConfig =
-                new PropertiesServerConfig("http://localhost:8090/server.properties", urlLoader);
+        final PropertiesServerConfig serverConfig = new PropertiesServerConfig(serverConfigPropertiesUrl, urlLoader);
         try
         {
             serverConfig.init();
@@ -73,19 +76,29 @@ public final class BootstrapServlet extends GenericServlet
             LOGGER.log(Level.WARNING, "Loading config failed", e);
             throw new ServletException("Unable to load configured properties", e);
         }
+        final int serverAppPort = Integer.parseInt(serverConfig.getStringProperty("server.application.listen.port"));
+        final String databaseConnectionUrl = serverConfig.getStringProperty("server.database.url");
+        final String databaseDriverClass = serverConfig.getStringProperty("server.database.driver.class.name");
+
+        final DriverManagerConnectionManager connectionManager = new DriverManagerConnectionManager(databaseDriverClass, databaseConnectionUrl);
+        final QueryUtil queryUtil = new QueryUtil(connectionManager);
+        final JobRunListener jobRunListener = new StatsRecordingJobRunListener(queryUtil);
+
+        initialiseDatabase(queryUtil);
+
         final String loaderUrlPattern = serverConfig.getStringProperty(URL_PATTERN_PROPERTY);
         final JobIdentifierUrlBuilder urlBuilder = new JobIdentifierUrlBuilder(loaderUrlPattern);
         final JarUrlTestSuiteJobDefinitionLoader definitionLoader = new JarUrlTestSuiteJobDefinitionLoader(urlBuilder, urlLoader);
         final TestCaseJobFactory jobFactory = new TestCaseJobFactory();
         final JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository =
                 new JobRepositoryImpl<>(definitionLoader, jobFactory, new LoggingJobEventListener());
-        final ServerImpl<TestSuiteIdentifier, Properties, TestSuiteJobResult> server = new ServerImpl<>(jobRepository, new TestSuiteKeyFactory());
-        final int serverAppPort = Integer.parseInt(serverConfig.getStringProperty("server.application.listen.port"));
+        final ServerImpl<TestSuiteIdentifier, Properties, TestSuiteJobResult> server = new ServerImpl<>(jobRepository, new TestSuiteKeyFactory(), jobRunListener);
 
         serverModule = new TestingRomeroServerModule(serverAppPort, server);
         serverModule.initialise();
 
         ServerReference.set(server);
+        ServerReference.setQueryUtil(queryUtil);
     }
 
     @Override
@@ -98,5 +111,17 @@ public final class BootstrapServlet extends GenericServlet
     public void service(final ServletRequest servletRequest,
                         final ServletResponse servletResponse) throws ServletException, IOException
     {
+    }
+
+    private void initialiseDatabase(final QueryUtil queryUtil) throws ServletException
+    {
+        try
+        {
+            Bootstrap.setupDatabase(queryUtil);
+        }
+        catch (SQLException | IOException e)
+        {
+            throw new ServletException(e);
+        }
     }
 }

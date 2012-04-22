@@ -1,12 +1,18 @@
 function toTimeString(durationMillis)
 {
+    var timeElements = toTimeElements(durationMillis);
+    return [zeroPad(timeElements[0]), zeroPad(timeElements[1]), zeroPad(timeElements[2])].join(':');
+}
+
+function toTimeElements(durationMillis)
+{
     var millis = durationMillis % 1000;
     var totalSeconds = Math.floor(durationMillis / 1000);
     var seconds = totalSeconds % 60;
     var minutes = Math.floor((totalSeconds - seconds) / 60) % 60;
     var hours = Math.floor((totalSeconds - seconds - (60 * minutes))/3600);
 
-    return [zeroPad(hours), zeroPad(minutes), zeroPad(seconds)].join(':');
+    return [hours, minutes, seconds];
 }
 
 function zeroPad(value)

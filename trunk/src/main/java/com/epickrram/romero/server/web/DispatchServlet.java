@@ -17,6 +17,8 @@
 package com.epickrram.romero.server.web;
 
 import com.epickrram.romero.server.Server;
+import com.epickrram.romero.server.dao.JobRunDao;
+import com.epickrram.romero.server.dao.JobRunDaoImpl;
 import com.epickrram.romero.util.LoggingUtil;
 
 import javax.servlet.ServletConfig;
@@ -42,6 +44,8 @@ public final class DispatchServlet extends HttpServlet
         final Server server = ServerReference.get();
         requestHandlerMap.put("/build/status.json", new BuildStatusRequestHandler(server));
         requestHandlerMap.put("/build/runningJobs.json", new RunningJobsRequestHandler(server));
+        final JobRunDao jobRunDao = new JobRunDaoImpl(ServerReference.getQueryUtil());
+        requestHandlerMap.put("/build/history.json", new JobRunHistoryRequestHandler(jobRunDao));
     }
 
     @Override
