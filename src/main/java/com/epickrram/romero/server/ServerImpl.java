@@ -34,24 +34,28 @@ public final class ServerImpl<K, D, R> implements Server<K, D, R>
 
     private final JobRepository<K, D, R> jobRepository;
     private final KeyFactory<K, R> keyFactory;
+    private final JobRunListener jobRunListener;
     private final AtomicReference<BuildStatus> buildStatus = new AtomicReference<>(BuildStatus.WAITING_FOR_NEXT_BUILD);
     private final Map<K, RunningJob<K>> runningJobMap = new ConcurrentHashMap<>();
-    private volatile String currentBuildId;
+    private volatile String currentJobRunIdentifier;
 
-    public ServerImpl(final JobRepository<K, D, R> jobRepository, final KeyFactory<K, R> keyFactory)
+    public ServerImpl(final JobRepository<K, D, R> jobRepository, final KeyFactory<K, R> keyFactory,
+                      final JobRunListener jobRunListener)
     {
         this.jobRepository = jobRepository;
         this.keyFactory = keyFactory;
+        this.jobRunListener = jobRunListener;
     }
 
     @Override
-    public void startTestRun(final String identifier)
+    public void startJobRun(final String identifier)
     {
         if(buildStatus.compareAndSet(BuildStatus.WAITING_FOR_NEXT_BUILD, BuildStatus.BUILDING))
         {
             LOGGER.info("Starting build " + identifier);
             jobRepository.init(identifier);
-            currentBuildId = identifier;
+            jobRunListener.jobRunStarted(identifier);
+            currentJobRunIdentifier = identifier;
         }
     }
 
@@ -63,12 +67,12 @@ public final class ServerImpl<K, D, R> implements Server<K, D, R>
     }
 
     @Override
-    public String getCurrentBuildId()
+    public String getCurrentJobRunIdentifier()
     {
         final BuildStatus status = buildStatus.get();
         if(status == BuildStatus.BUILDING || status == BuildStatus.WAITING_FOR_JOBS_TO_COMPLETE)
         {
-            return currentBuildId;
+            return currentJobRunIdentifier;
         }
         return null;
     }
@@ -88,16 +92,16 @@ public final class ServerImpl<K, D, R> implements Server<K, D, R>
     public void onJobResult(final R result)
     {
         final K key = keyFactory.getKey(result);
-        runningJobMap.remove(key);
         jobRepository.onJobResult(key, result);
+        onJobComplete(key);
     }
 
     @Override
     public void onJobFailure(final JobDefinition<K, D> testDefinition, final String stackTrace)
     {
         final K key = testDefinition.getKey();
-        runningJobMap.remove(key);
         jobRepository.onJobFailure(key, stackTrace);
+        onJobComplete(key);
     }
 
     @Override
@@ -122,6 +126,15 @@ public final class ServerImpl<K, D, R> implements Server<K, D, R>
     public Integer getNumberOfRunningJobs()
     {
         return runningJobMap.size();
+    }
+
+    private void onJobComplete(final K key)
+    {
+        runningJobMap.remove(key);
+        if(jobRepository.areJobsComplete())
+        {
+            jobRunListener.jobRunFinished(currentJobRunIdentifier);
+        }
     }
 
     private void recordRunningJob(final String agentId, final JobDefinition<K, D> job)

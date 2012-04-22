@@ -17,12 +17,14 @@
 package com.epickrram.romero.server.web;
 
 import com.epickrram.romero.server.Server;
+import com.epickrram.romero.server.dao.QueryUtil;
 
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class ServerReference
 {
     private static final AtomicReference<Server> serverReference = new AtomicReference<>();
+    private static final AtomicReference<QueryUtil> queryUtil = new AtomicReference<>();
 
     private ServerReference() {}
 
@@ -34,5 +36,15 @@ public final class ServerReference
     public static Server get()
     {
         return serverReference.get();
+    }
+
+    static void setQueryUtil(final QueryUtil queryUtilInstance)
+    {
+        queryUtil.set(queryUtilInstance);
+    }
+
+    public static QueryUtil getQueryUtil()
+    {
+        return queryUtil.get();
     }
 }

@@ -47,7 +47,7 @@ public final class StartBuildServlet extends HttpServlet
         if(jobIdentifier != null)
         {
             LOGGER.info("Starting build for jobIdentifier: " + jobIdentifier);
-            ServerReference.get().startTestRun(jobIdentifier);
+            ServerReference.get().startJobRun(jobIdentifier);
             return;
         }
 

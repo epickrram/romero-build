@@ -14,39 +14,53 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server.web;
+package com.epickrram.romero.util;
 
-import com.epickrram.romero.common.RunningJob;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
+import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
-public abstract class RequestHandler<I, O>
+public final class IoUtil
 {
-    private final Class<I> inputTypeClass;
-    private final GsonBuilder gsonBuilder;
-
-    RequestHandler(final Class<I> inputTypeClass)
+    public static String readClasspathResource(final String resource) throws IOException
     {
-        this.inputTypeClass = inputTypeClass;
-        gsonBuilder = new GsonBuilder().registerTypeAdapter(RunningJob.class, new RunningJobTypeAdapter());
+        final InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
+        if(inputStream == null)
+        {
+            throw new IllegalArgumentException("Cannot find classpath resource: " + resource);
+        }
+
+        final StringBuilder buffer = new StringBuilder();
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        try
+        {
+            String line;
+            while((line = reader.readLine()) != null)
+            {
+                buffer.append(line).append('\n');
+            }
+        }
+        finally
+        {
+            close(reader);
+        }
+        return buffer.toString();
     }
 
-    void handleRequest(final Reader reader, final Appendable appendable) throws IOException
+    public static void close(final Closeable closeable)
     {
-        final Gson gson = gsonBuilder.create();
-
-        final I input = isVoidInputType() ? null : gson.fromJson(reader, inputTypeClass);
-        final O output = handleRequest(input);
-        gson.toJson(output, appendable);
-    }
-
-    abstract O handleRequest(final I input);
-
-    private boolean isVoidInputType()
-    {
-        return inputTypeClass == Void.class;
+        if(closeable != null)
+        {
+            try
+            {
+                closeable.close();
+            }
+            catch (IOException e)
+            {
+                // ignore
+            }
+        }
     }
 }

@@ -14,39 +14,40 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server.web;
+package com.epickrram.romero.server;
 
-import com.epickrram.romero.common.RunningJob;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import java.io.IOException;
-import java.io.Reader;
-
-public abstract class RequestHandler<I, O>
+public final class JobRun
 {
-    private final Class<I> inputTypeClass;
-    private final GsonBuilder gsonBuilder;
+    private final int id;
+    private final String identifier;
+    private final long startTimestamp;
+    private final long endTimestamp;
 
-    RequestHandler(final Class<I> inputTypeClass)
+    public JobRun(final int id, final String identifier, final long startTimestamp, final long endTimestamp)
     {
-        this.inputTypeClass = inputTypeClass;
-        gsonBuilder = new GsonBuilder().registerTypeAdapter(RunningJob.class, new RunningJobTypeAdapter());
+        this.id = id;
+        this.identifier = identifier;
+        this.startTimestamp = startTimestamp;
+        this.endTimestamp = endTimestamp;
     }
 
-    void handleRequest(final Reader reader, final Appendable appendable) throws IOException
+    public int getId()
     {
-        final Gson gson = gsonBuilder.create();
-
-        final I input = isVoidInputType() ? null : gson.fromJson(reader, inputTypeClass);
-        final O output = handleRequest(input);
-        gson.toJson(output, appendable);
+        return id;
     }
 
-    abstract O handleRequest(final I input);
-
-    private boolean isVoidInputType()
+    public String getIdentifier()
     {
-        return inputTypeClass == Void.class;
+        return identifier;
+    }
+
+    public long getStartTimestamp()
+    {
+        return startTimestamp;
+    }
+
+    public long getEndTimestamp()
+    {
+        return endTimestamp;
     }
 }

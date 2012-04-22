@@ -25,9 +25,9 @@ import com.epickrram.freewheel.protocol.CodeBookRegistry;
 import com.epickrram.freewheel.protocol.Translator;
 import com.epickrram.romero.agent.remote.FixedEndPointProvider;
 import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobDefinitionImpl;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import org.junit.After;
 import org.junit.Before;
@@ -45,9 +45,7 @@ import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class ServerImplProxyIntegrationTest
@@ -105,23 +103,23 @@ public final class ServerImplProxyIntegrationTest
                 latch.countDown();
                 return null;
             }
-        }).when(server).startTestRun(IDENTIFIER);
+        }).when(server).startJobRun(IDENTIFIER);
         
-        serverProxy.startTestRun(IDENTIFIER);
+        serverProxy.startJobRun(IDENTIFIER);
 
         latch.await();
 
-        verify(server).startTestRun(IDENTIFIER);
+        verify(server).startJobRun(IDENTIFIER);
     }
 
     @Test
     public void shouldGetCurrentBuildId() throws Exception
     {
-        when(server.getCurrentBuildId()).thenReturn(IDENTIFIER);
+        when(server.getCurrentJobRunIdentifier()).thenReturn(IDENTIFIER);
 
-        assertThat(serverProxy.getCurrentBuildId(), is(IDENTIFIER));
+        assertThat(serverProxy.getCurrentJobRunIdentifier(), is(IDENTIFIER));
 
-        verify(server).getCurrentBuildId();
+        verify(server).getCurrentJobRunIdentifier();
     }
 
     @Test

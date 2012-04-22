@@ -16,37 +16,24 @@
 
 package com.epickrram.romero.server.web;
 
-import com.epickrram.romero.common.RunningJob;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.epickrram.romero.server.JobRun;
+import com.epickrram.romero.server.dao.JobRunDao;
 
-import java.io.IOException;
-import java.io.Reader;
+import java.util.List;
 
-public abstract class RequestHandler<I, O>
+public final class JobRunHistoryRequestHandler extends VoidInputRequestHandler<List<JobRun>>
 {
-    private final Class<I> inputTypeClass;
-    private final GsonBuilder gsonBuilder;
+    private static final int MAX_RESULTS = 20;
+    private final JobRunDao jobRunDao;
 
-    RequestHandler(final Class<I> inputTypeClass)
+    public JobRunHistoryRequestHandler(final JobRunDao jobRunDao)
     {
-        this.inputTypeClass = inputTypeClass;
-        gsonBuilder = new GsonBuilder().registerTypeAdapter(RunningJob.class, new RunningJobTypeAdapter());
+        this.jobRunDao = jobRunDao;
     }
 
-    void handleRequest(final Reader reader, final Appendable appendable) throws IOException
+    @Override
+    List<JobRun> handleRequest()
     {
-        final Gson gson = gsonBuilder.create();
-
-        final I input = isVoidInputType() ? null : gson.fromJson(reader, inputTypeClass);
-        final O output = handleRequest(input);
-        gson.toJson(output, appendable);
-    }
-
-    abstract O handleRequest(final I input);
-
-    private boolean isVoidInputType()
-    {
-        return inputTypeClass == Void.class;
+        return jobRunDao.getHistory(MAX_RESULTS);
     }
 }

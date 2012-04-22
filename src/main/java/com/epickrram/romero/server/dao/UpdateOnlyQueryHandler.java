@@ -14,39 +14,21 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server.web;
+package com.epickrram.romero.server.dao;
 
-import com.epickrram.romero.common.RunningJob;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import java.io.IOException;
-import java.io.Reader;
-
-public abstract class RequestHandler<I, O>
+public abstract class UpdateOnlyQueryHandler extends QueryHandler<Void>
 {
-    private final Class<I> inputTypeClass;
-    private final GsonBuilder gsonBuilder;
-
-    RequestHandler(final Class<I> inputTypeClass)
+    public UpdateOnlyQueryHandler(final String query)
     {
-        this.inputTypeClass = inputTypeClass;
-        gsonBuilder = new GsonBuilder().registerTypeAdapter(RunningJob.class, new RunningJobTypeAdapter());
+        super(query);
     }
 
-    void handleRequest(final Reader reader, final Appendable appendable) throws IOException
+    @Override
+    public Void handleResult(final ResultSet resultSet) throws SQLException
     {
-        final Gson gson = gsonBuilder.create();
-
-        final I input = isVoidInputType() ? null : gson.fromJson(reader, inputTypeClass);
-        final O output = handleRequest(input);
-        gson.toJson(output, appendable);
-    }
-
-    abstract O handleRequest(final I input);
-
-    private boolean isVoidInputType()
-    {
-        return inputTypeClass == Void.class;
+        throw new UnsupportedOperationException("Use a QueryHandler to handle query results");
     }
 }

@@ -14,12 +14,10 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server.dao;
+package com.epickrram.romero.server;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-public interface JdbcExecutor
+public interface JobRunListener
 {
-    void withConnection(final Connection connection) throws SQLException;
+    void jobRunStarted(final String jobIdentifier);
+    void jobRunFinished(final String jobIdentifier);
 }

@@ -18,22 +18,19 @@ package com.epickrram.romero.server;
 
 import com.epickrram.romero.common.BuildStatus;
 import com.epickrram.romero.common.RunningJob;
-import com.epickrram.romero.testing.common.TestSuiteIdentifier;
-import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.core.JobDefinition;
 
 import java.util.Collection;
-import java.util.Properties;
 
 public interface Server<K, D, R>
 {
-    void startTestRun(final String identifier);
+    void startJobRun(final String identifier);
     BuildStatus getStatus();
-    String getCurrentBuildId();
+    String getCurrentJobRunIdentifier();
     JobDefinition<K, D> getNextTestToRun(final String agentId);
 
     void onJobResult(final R result);
-    void onJobFailure(final JobDefinition<K, D> testDefinition, String stackTrace);
+    void onJobFailure(final JobDefinition<K, D> testDefinition, final String stackTrace);
 
     Integer getTotalJobs();
     Integer getJobsRemainingToBeRun();

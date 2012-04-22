@@ -38,7 +38,6 @@ import static com.epickrram.romero.testing.server.StubTestResultBuilder.getTestC
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -59,6 +58,8 @@ public final class ServerImplTest
     private Job<String, TestSuiteJobResult> job;
     @Mock
     private JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository;
+    @Mock
+    private JobRunListener jobRunListener;
 
     private ServerImpl<TestSuiteIdentifier, Properties, TestSuiteJobResult> server;
 
@@ -68,7 +69,7 @@ public final class ServerImplTest
         when(jobRepository.isJobAvailable()).thenReturn(true);
         assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_NEXT_BUILD));
 
-        server.startTestRun(IDENTIFIER);
+        server.startJobRun(IDENTIFIER);
 
         assertThat(server.getStatus(), is(BuildStatus.BUILDING));
 
@@ -80,7 +81,7 @@ public final class ServerImplTest
     {
         when(jobRepository.isJobAvailable()).thenReturn(false);
 
-        server.startTestRun(IDENTIFIER);
+        server.startJobRun(IDENTIFIER);
 
         assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_JOBS_TO_COMPLETE));
     }
@@ -199,11 +200,11 @@ public final class ServerImplTest
 
         assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_NEXT_BUILD));
 
-        server.startTestRun(IDENTIFIER);
+        server.startJobRun(IDENTIFIER);
 
         assertThat(server.getStatus(), is(BuildStatus.BUILDING));
 
-        server.startTestRun(IDENTIFIER);
+        server.startJobRun(IDENTIFIER);
 
         verify(jobRepository).init(IDENTIFIER);
         verify(jobRepository, times(2)).isJobAvailable();
@@ -217,13 +218,13 @@ public final class ServerImplTest
         when(jobRepository.isJobAvailable()).thenReturn(true, false, false);
         when(jobRepository.areJobsComplete()).thenReturn(true);
         
-        server.startTestRun(IDENTIFIER);
+        server.startJobRun(IDENTIFIER);
 
         assertThat(server.getStatus(), is(BuildStatus.BUILDING));
         assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_JOBS_TO_COMPLETE));
         assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_NEXT_BUILD));
 
-        server.startTestRun(IDENTIFIER);
+        server.startJobRun(IDENTIFIER);
 
         verify(jobRepository, times(2)).init(IDENTIFIER);
     }
@@ -231,7 +232,7 @@ public final class ServerImplTest
     @Test
     public void shouldUpdateRepositoryJobOnTestExecutionResult() throws Exception
     {
-        server.startTestRun(IDENTIFIER);
+        server.startJobRun(IDENTIFIER);
         server.getNextTestToRun(AGENT_ID);
 
         final TestSuiteJobResult result = getTestCaseJobResult(JOB_1);
@@ -247,18 +248,18 @@ public final class ServerImplTest
         when(jobRepository.isJobAvailable()).thenReturn(true, false, false);
         when(jobRepository.areJobsComplete()).thenReturn(true);
 
-        assertThat(server.getCurrentBuildId(), is(nullValue()));
+        assertThat(server.getCurrentJobRunIdentifier(), is(nullValue()));
 
-        server.startTestRun(IDENTIFIER);
+        server.startJobRun(IDENTIFIER);
 
         assertThat(server.getStatus(), is(BuildStatus.BUILDING));
-        assertThat(server.getCurrentBuildId(), is(IDENTIFIER));
+        assertThat(server.getCurrentJobRunIdentifier(), is(IDENTIFIER));
 
         assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_JOBS_TO_COMPLETE));
-        assertThat(server.getCurrentBuildId(), is(IDENTIFIER));
+        assertThat(server.getCurrentJobRunIdentifier(), is(IDENTIFIER));
 
         assertThat(server.getStatus(), is(BuildStatus.WAITING_FOR_NEXT_BUILD));
-        assertThat(server.getCurrentBuildId(), is(nullValue()));
+        assertThat(server.getCurrentJobRunIdentifier(), is(nullValue()));
     }
 
     @Before
@@ -267,7 +268,7 @@ public final class ServerImplTest
         when(jobDefinition.getKey()).thenReturn(JOB_1_ID);
         when(jobDefinition2.getKey()).thenReturn(JOB_2_ID);
 
-        server = new ServerImpl<>(jobRepository, new TestSuiteKeyFactory());
+        server = new ServerImpl<>(jobRepository, new TestSuiteKeyFactory(), jobRunListener);
     }
 
 }
