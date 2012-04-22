@@ -23,17 +23,25 @@ import com.epickrram.romero.server.PropertiesServerConfig;
 import com.epickrram.romero.server.ServerImpl;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
-import com.epickrram.romero.testing.server.*;
+import com.epickrram.romero.testing.server.JarUrlTestSuiteJobDefinitionLoader;
+import com.epickrram.romero.testing.server.JobIdentifierUrlBuilder;
+import com.epickrram.romero.testing.server.TestCaseJobFactory;
+import com.epickrram.romero.testing.server.TestSuiteKeyFactory;
+import com.epickrram.romero.testing.server.TestingRomeroServerModule;
 import com.epickrram.romero.util.LoggingUtil;
 import com.epickrram.romero.util.UrlLoaderImpl;
 
-import javax.servlet.*;
+import javax.servlet.GenericServlet;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.epickrram.romero.testing.server.JarUrlTestCaseJobDefinitionLoader.URL_PATTERN_PROPERTY;
+import static com.epickrram.romero.testing.server.JarUrlTestSuiteJobDefinitionLoader.URL_PATTERN_PROPERTY;
 
 public final class BootstrapServlet extends GenericServlet
 {
@@ -45,6 +53,10 @@ public final class BootstrapServlet extends GenericServlet
     public void init(final ServletConfig config) throws ServletException
     {
         initialise();
+    }
+
+    public BootstrapServlet()
+    {
     }
 
     private void initialise() throws ServletException
@@ -63,7 +75,7 @@ public final class BootstrapServlet extends GenericServlet
         }
         final String loaderUrlPattern = serverConfig.getStringProperty(URL_PATTERN_PROPERTY);
         final JobIdentifierUrlBuilder urlBuilder = new JobIdentifierUrlBuilder(loaderUrlPattern);
-        final JarUrlTestCaseJobDefinitionLoader definitionLoader = new JarUrlTestCaseJobDefinitionLoader(urlBuilder, urlLoader);
+        final JarUrlTestSuiteJobDefinitionLoader definitionLoader = new JarUrlTestSuiteJobDefinitionLoader(urlBuilder, urlLoader);
         final TestCaseJobFactory jobFactory = new TestCaseJobFactory();
         final JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository =
                 new JobRepositoryImpl<>(definitionLoader, jobFactory, new LoggingJobEventListener());

@@ -23,6 +23,7 @@ public abstract class AbstractJob<K, R> implements Job<K, R>
     private final AtomicReference<JobState> jobState = new AtomicReference<>(JobState.PENDING);
     private final K key;
     private volatile R result;
+    private volatile boolean failedToComplete;
 
     public AbstractJob(final K key)
     {
@@ -49,6 +50,12 @@ public abstract class AbstractJob<K, R> implements Job<K, R>
     }
 
     @Override
+    public K getKey()
+    {
+        return key;
+    }
+
+    @Override
     public void setResult(final R result, final JobEventListener<K, R> jobEventListener)
     {
         this.result = result;
@@ -61,9 +68,17 @@ public abstract class AbstractJob<K, R> implements Job<K, R>
     }
 
     @Override
-    public K getKey()
+    public void setFailure(final String stackTrace, final JobEventListener<K, R> jobEventListener)
     {
-        return key;
+        failedToComplete = true;
+        jobState.set(JobState.FINISHED);
+        jobEventListener.onJobUpdate(this);
+    }
+
+    @Override
+    public boolean failedToComplete()
+    {
+        return failedToComplete;
     }
 
     protected abstract JobState getNewJobState(final R result);

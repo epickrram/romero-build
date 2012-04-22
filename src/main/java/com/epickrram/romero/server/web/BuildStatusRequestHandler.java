@@ -39,7 +39,7 @@ final class BuildStatusRequestHandler extends VoidInputRequestHandler<Map<String
         map.put("status", status.name());
         map.put("jobRunIdentifier", server.getCurrentBuildId());
         map.put("totalJobs", Integer.toString(server.getTotalJobs()));
-        map.put("remainingJobs", Integer.toString(server.getRemainingJobs()));
+        map.put("remainingJobs", Integer.toString(server.getJobsRemainingToBeRun()));
         return map;
     }
 }

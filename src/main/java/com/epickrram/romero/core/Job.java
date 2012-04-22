@@ -21,6 +21,8 @@ public interface Job<K, R>
     JobState getState();
     boolean transitionTo(final JobState newState);
     R getResult();
-    void setResult(final R result, final JobEventListener<K, R> jobEventListener);
     K getKey();
+    boolean failedToComplete();
+    void setResult(final R result, final JobEventListener<K, R> jobEventListener);
+    void setFailure(final String stackTrace, final JobEventListener<K, R> jobEventListener);
 }

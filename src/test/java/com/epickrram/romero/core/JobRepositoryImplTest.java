@@ -36,6 +36,7 @@ public final class JobRepositoryImplTest
     private static final String RESULT = "RESULT";
     private static final String JOB_1 = "JOB-1";
     private static final String JOB_2 = "JOB-2";
+    private static final String STACK_TRACE = "BOOM!";
 
     @Mock
     private JobDefinitionLoader<String, String> jobDefinitionLoader;
@@ -97,6 +98,36 @@ public final class JobRepositoryImplTest
         jobRepository.onJobResult(JOB_1, RESULT);
 
         verify(jobOne).setResult(RESULT, jobEventListener);
+    }
+
+    @Test
+    public void shouldUpdateJobWithFailure() throws Exception
+    {
+        jobRepository.init(IDENTIFIER);
+
+        jobRepository.onJobFailure(JOB_1, STACK_TRACE);
+
+        verify(jobOne).setFailure(STACK_TRACE, jobEventListener);
+    }
+
+    @Test
+    public void shouldTrackNumberOfJobsRemainingToBeRun() throws Exception
+    {
+        when(jobOne.transitionTo(JobState.RUNNING)).thenReturn(true, false);
+        when(jobTwo.transitionTo(JobState.RUNNING)).thenReturn(true, false);
+        
+        jobRepository.init(IDENTIFIER);
+
+        assertThat(jobRepository.size(), is(2));
+        assertThat(jobRepository.getJobsRemainingToBeRun(), is(2));
+
+        jobRepository.getJobToRun();
+
+        assertThat(jobRepository.getJobsRemainingToBeRun(), is(1));
+
+        jobRepository.getJobToRun();
+
+        assertThat(jobRepository.getJobsRemainingToBeRun(), is(0));
     }
 
     @Test

@@ -34,14 +34,14 @@ import java.util.jar.JarFile;
 
 import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
 
-public final class JarUrlTestCaseJobDefinitionLoader implements JobDefinitionLoader<TestSuiteIdentifier, Properties>
+public final class JarUrlTestSuiteJobDefinitionLoader implements JobDefinitionLoader<TestSuiteIdentifier, Properties>
 {
     public static final String URL_PATTERN_PROPERTY = "server.loader.definition.jar.url.pattern";
 
     private final UrlLoader urlLoader;
     private final JobIdentifierUrlBuilder urlBuilder;
 
-    public JarUrlTestCaseJobDefinitionLoader(final JobIdentifierUrlBuilder urlBuilder, final UrlLoader urlLoader)
+    public JarUrlTestSuiteJobDefinitionLoader(final JobIdentifierUrlBuilder urlBuilder, final UrlLoader urlLoader)
     {
         this.urlBuilder = urlBuilder;
         this.urlLoader = urlLoader;

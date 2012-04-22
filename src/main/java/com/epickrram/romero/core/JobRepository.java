@@ -21,8 +21,10 @@ public interface JobRepository<K, D, R>
     JobDefinition<K, D> getJobToRun();
     Job<K, R> getJob(final K key);
     void onJobResult(final K key, final R result);
+    void onJobFailure(final K key, final String stackTrace);
     boolean isJobAvailable();
     boolean areJobsComplete();
     void init(final String identifier);
     int size();
+    int getJobsRemainingToBeRun();
 }

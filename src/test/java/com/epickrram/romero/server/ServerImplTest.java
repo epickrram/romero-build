@@ -17,14 +17,13 @@
 package com.epickrram.romero.server;
 
 import com.epickrram.romero.common.BuildStatus;
-import com.epickrram.romero.testing.common.TestSuiteIdentifier;
-import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.core.Job;
 import com.epickrram.romero.core.JobDefinition;
 import com.epickrram.romero.core.JobRepository;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.testing.server.TestSuiteKeyFactory;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -123,11 +122,62 @@ public final class ServerImplTest
         assertThat(server.getRunningJobs(), runningJobs());
     }
 
-    @Ignore
+    @SuppressWarnings({"unchecked"})
     @Test
     public void shouldRemoveRunningJobOnFailure() throws Exception
     {
-        fail();
+        when(jobRepository.isJobAvailable()).thenReturn(true, true, false);
+        when(jobRepository.getJobToRun()).thenReturn(jobDefinition, jobDefinition2);
+
+        server.getNextTestToRun(AGENT_ID);
+
+        assertThat(server.getRunningJobs(), runningJobs(runningJob(AGENT_ID, JOB_1_ID)));
+
+        final String stackTrace = "BOOM!";
+        server.onJobFailure(jobDefinition, stackTrace);
+
+        assertThat(server.getRunningJobs(), runningJobs());
+
+        verify(jobRepository).onJobFailure(jobDefinition.getKey(), stackTrace);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    @Test
+    public void shouldReturnJobStats() throws Exception
+    {
+        when(jobRepository.isJobAvailable()).thenReturn(true, true, false);
+        when(jobRepository.getJobToRun()).thenReturn(jobDefinition, jobDefinition2);
+        when(jobRepository.getJobsRemainingToBeRun()).thenReturn(2, 1, 0, 0, 0);
+        when(jobRepository.size()).thenReturn(2);
+
+        assertThat(server.getTotalJobs(), is(2));
+        assertThat(server.getJobsRemainingToBeRun(), is(2));
+        assertThat(server.getNumberOfRunningJobs(), is(0));
+
+        server.getNextTestToRun(AGENT_ID);
+
+        assertThat(server.getTotalJobs(), is(2));
+        assertThat(server.getJobsRemainingToBeRun(), is(1));
+        assertThat(server.getNumberOfRunningJobs(), is(1));
+
+        final String agentTwoId = "agent-2";
+        server.getNextTestToRun(agentTwoId);
+
+        assertThat(server.getTotalJobs(), is(2));
+        assertThat(server.getJobsRemainingToBeRun(), is(0));
+        assertThat(server.getNumberOfRunningJobs(), is(2));
+
+        server.onJobResult(getTestCaseJobResult(JOB_1));
+
+        assertThat(server.getTotalJobs(), is(2));
+        assertThat(server.getJobsRemainingToBeRun(), is(0));
+        assertThat(server.getNumberOfRunningJobs(), is(1));
+
+        server.onJobFailure(jobDefinition2, "BOOM!");
+
+        assertThat(server.getTotalJobs(), is(2));
+        assertThat(server.getJobsRemainingToBeRun(), is(0));
+        assertThat(server.getNumberOfRunningJobs(), is(0));
     }
 
     @Test
