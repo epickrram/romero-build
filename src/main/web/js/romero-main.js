@@ -41,21 +41,61 @@ function displayHistory()
 		{
 			if(data)
 			{
+			    var graphData = [];
+			    var jobRunTimes = [];
 			    var html = [];
 			    for(var i = 0, n = data.length; i < n; i++)
 			    {
-			        html.push('<div class=\'history-entry\'>');
-			        html.push(data[i].identifier);
-			        html.push(': <span class=\'history-entry-date\'>');
-			        html.push(new Date(data[i].startTimestamp).format('HH:MM dd mmm'))
-			        html.push(' (');
-			        var durationElements = toTimeElements(data[i].endTimestamp - data[i].startTimestamp);
+			        var startTimestamp = data[i].startTimestamp;
+			        var durationMillis = data[i].endTimestamp - startTimestamp;
+			        var durationElements = toTimeElements(durationMillis);
 			        var totalMinutes = (durationElements[0] * 60) + durationElements[1];
-			        html.push(totalMinutes)
-			        html.push(totalMinutes > 1 ? ' mins' : ' min');
-			        html.push(')</span></div>')
+			        graphData.push([startTimestamp, totalMinutes]);
+			        jobRunTimes.push([data[i].identifier, new Date(startTimestamp).format('HH:MM dd mmm'), totalMinutes, totalMinutes != 1 ? 'mins' : 'min'].join(' '));
 			    }
-                $('#history').html(html.join(''));
+			    $.plot($("#history-graph"), [graphData], {
+			            xaxis: { mode: 'time', show: false },
+			            yaxis: { show: true, tickDecimals: 0 },
+                        series: {
+                            lines: { show: true },
+                            points: { show: true }
+                        },
+                        grid: { hoverable: true, clickable: false }
+			    });
+
+			    function showTooltip(x, y, contents) {
+                    $('<div id="tooltip">' + contents + '</div>').css( {
+                        position: 'absolute',
+                        display: 'none',
+                        top: y + 5,
+                        left: x + 5,
+                        border: '1px solid #fdd',
+                        padding: '2px',
+                        'background-color': '#fee',
+                        opacity: 0.80
+                    }).appendTo("body").fadeIn(200);
+                }
+
+                var previousPoint = null;
+
+                $("#history-graph").bind("plothover", function (event, pos, item) {
+                    if (item) {
+                        if (previousPoint != item.dataIndex) {
+                            previousPoint = item.dataIndex;
+
+                            $("#tooltip").remove();
+                            var x = item.datapoint[0].toFixed(2),
+                                y = item.datapoint[1].toFixed(2);
+
+                            showTooltip(item.pageX, item.pageY,
+                                        jobRunTimes[item.dataIndex]);
+                        }
+                    }
+                    else {
+                        $("#tooltip").remove();
+                        previousPoint = null;
+                    }
+                });
 			}
 		});
 }

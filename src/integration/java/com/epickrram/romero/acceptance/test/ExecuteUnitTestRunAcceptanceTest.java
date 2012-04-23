@@ -36,6 +36,4 @@ public final class ExecuteUnitTestRunAcceptanceTest
         romero.startTestRun("124");
         romero.waitForTestRunStarted("124");
     }
-
-    
 }

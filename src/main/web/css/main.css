@@ -1,0 +1,16 @@
+#history-graph
+{
+    width: 300px;
+    height: 120px;
+}
+
+#history
+{
+    float: right;
+}
+
+DIV, SPAN
+{
+    font-family: monospace;
+    font-size: 12px;
+}
