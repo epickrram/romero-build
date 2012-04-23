@@ -32,6 +32,7 @@ public final class TestExecutionResultRunListener extends RunListener
     private TestExecutionResult.Builder testMethodResultBuilder;
     private TestSuiteJobResult.Builder testCaseResultBuilder;
     private TestSuiteJobResult testSuiteJobResult;
+    private long testCaseStartTimestamp = 0L;
 
     @Override
     public void testRunStarted(final Description description) throws Exception
@@ -51,6 +52,7 @@ public final class TestExecutionResultRunListener extends RunListener
     public void testStarted(final Description description) throws Exception
     {
         initialiseWithStatus(description, SUCCESS);
+        testCaseStartTimestamp = System.currentTimeMillis();
     }
 
     @Override
@@ -90,6 +92,7 @@ public final class TestExecutionResultRunListener extends RunListener
 
     private void onResult()
     {
+        testMethodResultBuilder.durationMillis(System.currentTimeMillis() - testCaseStartTimestamp);
         testCaseResultBuilder.testExecutionResult(testMethodResultBuilder.newInstance());
     }
 

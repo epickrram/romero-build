@@ -18,6 +18,7 @@ package com.epickrram.romero.testing.server.dao;
 
 import com.epickrram.romero.server.dao.QueryUtil;
 import com.epickrram.romero.server.dao.UpdateOnlyQueryHandler;
+import com.epickrram.romero.testing.common.TestExecutionResult;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.util.LoggingUtil;
 
@@ -29,6 +30,11 @@ import java.util.logging.Logger;
 public final class TestSuiteJobDaoImpl implements TestSuiteJobDao
 {
     private static final Logger LOGGER = LoggingUtil.getLogger(TestSuiteJobDaoImpl.class);
+    private static final String INSERT_SQL = "\n" +
+            "INSERT INTO test_case_result (job_run_identifier, start_timestamp, \n" +
+            "duration_millis, test_suite, test_case, status, stdout, stderr, stack_trace) \n" +
+            "VALUES (?,?,?,?,?,?,?,?,?)";
+
     private final QueryUtil queryUtil;
 
     public TestSuiteJobDaoImpl(final QueryUtil queryUtil)
@@ -39,20 +45,32 @@ public final class TestSuiteJobDaoImpl implements TestSuiteJobDao
     @Override
     public void onTestSuiteJobResult(final String jobIdentifier, final TestSuiteJobResult jobResult)
     {
-        try
+        final long getFromServer = System.currentTimeMillis();
+        for (final TestExecutionResult testExecutionResult : jobResult.getTestExecutionResults())
         {
-            queryUtil.update(new UpdateOnlyQueryHandler("")
+            try
             {
-                @Override
-                public void prepareStatement(final PreparedStatement statement) throws SQLException
+                queryUtil.update(new UpdateOnlyQueryHandler(INSERT_SQL)
                 {
-                    statement.setString(1, jobIdentifier);
-                }
-            });
-        }
-        catch (SQLException e)
-        {
-            LOGGER.log(Level.WARNING, "Failed to record job result for " + jobResult.getTestClass(), e);
+                    @Override
+                    public void prepareStatement(final PreparedStatement statement) throws SQLException
+                    {
+                        statement.setString(1, jobIdentifier);
+                        statement.setLong(2, getFromServer);
+                        statement.setInt(3, (int) testExecutionResult.getDurationMillis());
+                        statement.setString(4, testExecutionResult.getTestClass());
+                        statement.setString(5, testExecutionResult.getTestMethod());
+                        statement.setString(6, testExecutionResult.getTestStatus().name());
+                        statement.setString(7, testExecutionResult.getStdout());
+                        statement.setString(8, testExecutionResult.getStderr());
+                        statement.setString(9, testExecutionResult.getThrowable());
+                    }
+                });
+            }
+            catch (SQLException e)
+            {
+                LOGGER.log(Level.WARNING, "Failed to record job result for " + jobResult.getTestClass(), e);
+            }
         }
     }
 }
