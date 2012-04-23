@@ -28,11 +28,12 @@ final class BuildStatusRequestHandler extends VoidInputRequestHandler<Map<String
 
     public BuildStatusRequestHandler(final Server server)
     {
+        super("/build/status.json");
         this.server = server;
     }
 
     @Override
-    Map<String, String> handleRequest()
+    public Map<String, String> handleRequest()
     {
         final BuildStatus status = server.getStatus();
         final Map<String, String> map = new HashMap<>();

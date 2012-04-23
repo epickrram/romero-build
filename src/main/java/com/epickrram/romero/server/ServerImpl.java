@@ -45,6 +45,9 @@ public final class ServerImpl<K, D, R> implements Server<K, D, R>
         this.jobRepository = jobRepository;
         this.keyFactory = keyFactory;
         this.jobRunListener = jobRunListener;
+
+        // TODO race condition - can transition straight to waiting for jobs to complete
+
     }
 
     @Override
@@ -54,7 +57,7 @@ public final class ServerImpl<K, D, R> implements Server<K, D, R>
         {
             LOGGER.info("Starting build " + identifier);
             jobRepository.init(identifier);
-            jobRunListener.jobRunStarted(identifier);
+            jobRunListener.jobRunStarted(identifier, System.currentTimeMillis());
             currentJobRunIdentifier = identifier;
         }
     }

@@ -29,7 +29,7 @@ public final class Bootstrap
 {
     private static final Logger LOGGER = LoggingUtil.getLogger(Bootstrap.class);
 
-    public static void setupDatabase(final QueryUtil queryUtil) throws SQLException, IOException
+    public static void setupDatabase(final QueryUtil queryUtil, final String schemaDefinitionResource) throws SQLException, IOException
     {
         final Boolean tablesExist = queryUtil.query(new QueryHandler<Boolean>("SHOW TABLES")
         {
@@ -49,7 +49,7 @@ public final class Bootstrap
 
         if(!tablesExist)
         {
-            final String createDatabaseSql = IoUtil.readClasspathResource("romero.schema.sql");
+            final String createDatabaseSql = IoUtil.readClasspathResource(schemaDefinitionResource);
             final String[] statements = createDatabaseSql.split(";");
 
             for (final String statement : statements)

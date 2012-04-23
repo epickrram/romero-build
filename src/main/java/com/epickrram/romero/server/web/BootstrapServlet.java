@@ -16,13 +16,11 @@
 
 package com.epickrram.romero.server.web;
 
+import com.epickrram.romero.core.CompositeJobEventListener;
 import com.epickrram.romero.core.JobRepository;
 import com.epickrram.romero.core.JobRepositoryImpl;
 import com.epickrram.romero.core.LoggingJobEventListener;
-import com.epickrram.romero.server.JobRunListener;
-import com.epickrram.romero.server.PropertiesServerConfig;
-import com.epickrram.romero.server.ServerImpl;
-import com.epickrram.romero.server.StatsRecordingJobRunListener;
+import com.epickrram.romero.server.*;
 import com.epickrram.romero.server.dao.Bootstrap;
 import com.epickrram.romero.server.dao.DriverManagerConnectionManager;
 import com.epickrram.romero.server.dao.QueryUtil;
@@ -82,7 +80,11 @@ public final class BootstrapServlet extends GenericServlet
 
         final DriverManagerConnectionManager connectionManager = new DriverManagerConnectionManager(databaseDriverClass, databaseConnectionUrl);
         final QueryUtil queryUtil = new QueryUtil(connectionManager);
-        final JobRunListener jobRunListener = new StatsRecordingJobRunListener(queryUtil);
+        final CompositeJobRunListener jobRunListener = new CompositeJobRunListener();
+        jobRunListener.addDelegate(new StatsRecordingJobRunListener(queryUtil));
+        final CompositeJobEventListener<TestSuiteIdentifier, TestSuiteJobResult> jobEventListener =
+                new CompositeJobEventListener<>();
+        jobEventListener.addDelegate(new LoggingJobEventListener());
 
         initialiseDatabase(queryUtil);
 
@@ -91,11 +93,14 @@ public final class BootstrapServlet extends GenericServlet
         final JarUrlTestSuiteJobDefinitionLoader definitionLoader = new JarUrlTestSuiteJobDefinitionLoader(urlBuilder, urlLoader);
         final TestCaseJobFactory jobFactory = new TestCaseJobFactory();
         final JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository =
-                new JobRepositoryImpl<>(definitionLoader, jobFactory, new LoggingJobEventListener());
+                new JobRepositoryImpl<>(definitionLoader, jobFactory, jobEventListener);
         final ServerImpl<TestSuiteIdentifier, Properties, TestSuiteJobResult> server = new ServerImpl<>(jobRepository, new TestSuiteKeyFactory(), jobRunListener);
 
         serverModule = new TestingRomeroServerModule(serverAppPort, server);
         serverModule.initialise();
+        serverModule.initialise(serverConfig);
+        jobEventListener.addDelegate(serverModule.<TestSuiteIdentifier, TestSuiteJobResult>getJobEventListener());
+        jobRunListener.addDelegate(serverModule.getJobRunListener());
 
         ServerReference.set(server);
         ServerReference.setQueryUtil(queryUtil);
@@ -117,7 +122,7 @@ public final class BootstrapServlet extends GenericServlet
     {
         try
         {
-            Bootstrap.setupDatabase(queryUtil);
+            Bootstrap.setupDatabase(queryUtil, "romero.schema.sql");
         }
         catch (SQLException | IOException e)
         {

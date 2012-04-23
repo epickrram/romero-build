@@ -18,31 +18,22 @@ package com.epickrram.romero.server.web;
 
 import com.epickrram.romero.common.RunningJob;
 import com.epickrram.romero.server.Server;
-import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-
-import static com.epickrram.romero.testing.common.TestSuiteIdentifier.toMapKey;
 
 final class RunningJobsRequestHandler extends VoidInputRequestHandler<Collection<RunningJob>>
 {
     private final Server server;
-//    private Collection<RunningJob> jobs;
 
     public RunningJobsRequestHandler(final Server server)
     {
+        super("/build/runningJobs.json");
         this.server = server;
-//        jobs = new ArrayList<>();
-//        jobs.add(RunningJob.<TestSuiteIdentifier>create("agent-1", toMapKey("com.bar")));
-//        jobs.add(RunningJob.<TestSuiteIdentifier>create("agent-2", toMapKey("com.foo")));
     }
 
     @Override
-    Collection<RunningJob> handleRequest()
+    public Collection<RunningJob> handleRequest()
     {
-//        return jobs;
         return server.getRunningJobs();
     }
 }

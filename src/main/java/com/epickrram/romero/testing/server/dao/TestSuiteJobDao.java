@@ -16,9 +16,12 @@
 
 package com.epickrram.romero.testing.server.dao;
 
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
 
 public interface TestSuiteJobDao
 {
     void onTestSuiteJobResult(final String jobIdentifier, final TestSuiteJobResult jobResult);
+
+    void onTestSuiteFailureToComplete(final String currentJobRun, final TestSuiteIdentifier testSuiteIdentifier);
 }

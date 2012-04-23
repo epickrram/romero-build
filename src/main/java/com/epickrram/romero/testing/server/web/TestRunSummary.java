@@ -14,27 +14,30 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server.web;
+package com.epickrram.romero.testing.server.web;
 
-import com.epickrram.romero.server.JobRun;
-import com.epickrram.romero.server.dao.JobRunDao;
+import com.epickrram.romero.testing.common.TestStatus;
 
-import java.util.List;
+import java.util.Map;
 
-public final class JobRunHistoryRequestHandler extends VoidInputRequestHandler<List<JobRun>>
+public final class TestRunSummary
 {
-    private static final int MAX_RESULTS = 20;
-    private final JobRunDao jobRunDao;
+    private final String jobRunIdentifier;
+    private final long startTimestamp;
+    private final long durationMillis;
+    private final int testSuiteCount;
+    private final int testCaseCount;
+    private final Map<TestStatus, Integer> statusCountMap;
 
-    public JobRunHistoryRequestHandler(final JobRunDao jobRunDao)
+    public TestRunSummary(final String jobRunIdentifier, final long startTimestamp,
+                          final long durationMillis, final int testSuiteCount,
+                          final int testCaseCount, final Map<TestStatus, Integer> statusCountMap)
     {
-        super("/build/history.json");
-        this.jobRunDao = jobRunDao;
-    }
-
-    @Override
-    public List<JobRun> handleRequest()
-    {
-        return jobRunDao.getHistory(MAX_RESULTS);
+        this.jobRunIdentifier = jobRunIdentifier;
+        this.startTimestamp = startTimestamp;
+        this.durationMillis = durationMillis;
+        this.testSuiteCount = testSuiteCount;
+        this.testCaseCount = testCaseCount;
+        this.statusCountMap = statusCountMap;
     }
 }

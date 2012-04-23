@@ -25,9 +25,7 @@ public final class LoggingUtil
 
     public static Logger getLogger(final String loggerName)
     {
-        final Logger logger = Logger.getLogger(loggerName);
-        logger.addHandler(new ConsoleHandler());
-        return logger;
+        return Logger.getLogger(loggerName);
     }
 
     public static Logger getLogger(final Class<?> cls)

@@ -18,9 +18,9 @@ package com.epickrram.romero.server.web;
 
 public abstract class VoidInputRequestHandler<O> extends RequestHandler<Void, O>
 {
-    public VoidInputRequestHandler()
+    public VoidInputRequestHandler(final String uri)
     {
-        super(Void.class);
+        super(Void.class, uri);
     }
 
     @Override
@@ -29,5 +29,5 @@ public abstract class VoidInputRequestHandler<O> extends RequestHandler<Void, O>
         return handleRequest();
     }
 
-    abstract O handleRequest();
+    public abstract O handleRequest();
 }
