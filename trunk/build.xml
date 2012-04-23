@@ -5,6 +5,7 @@
     <property name="build.dir" value="build"/>
     <property name="main.classes.dir" value="build/main/classes"/>
     <property name="dist.dir" value="build/dist"/>
+    <property name="dist.lib.dir" value="lib/dist"/>
     <property name="test-classes.dir" value="build/test/classes"/>
     <property name="test-output.dir" value="build/test/output"/>
     <property name="test.report.dir" value="${test-output.dir}/report/junit"/>
@@ -19,7 +20,7 @@
     <property name="minorVersion" value="1"/>
 
     <path id="dist.class.path">
-        <fileset dir="lib/dist">
+        <fileset dir="${dist.lib.dir}">
             <include name="*.jar"/>
         </fileset>
     </path>
@@ -140,6 +141,20 @@
         </exec>
     </target>
 
+    <target name="start-db-server">
+        <java fork="true" jar="${dist.lib.dir}/h2-1.3.165.jar" spawn="yes">
+            <arg value="-tcp"/>
+            <arg value="-pg"/>
+        </java>
+    </target>
+
+    <target name="stop-db-server">
+        <exec executable="pkill" dir=".">
+            <arg value="-f"/>
+            <arg value="h2"/>
+        </exec>
+    </target>
+
     <target name="start-test-server" depends="compile-test">
         <property file="${test.resources.dir}/integration-test.properties"/>
         <exec executable="sh" dir="./bin">
@@ -156,12 +171,10 @@
         </exec>
     </target>
 
-    <target name="start" depends="start-test-server, start-test-agent">
-
+    <target name="start" depends="start-db-server, start-test-server, start-test-agent">
     </target>
 
-    <target name="stop" depends="stop-test-agent, stop-test-server">
-
+    <target name="stop" depends="stop-test-agent, stop-test-server, stop-db-server">
     </target>
 
     <target name="restart" depends="stop, start"/>
