@@ -8,8 +8,5 @@ CREATE TABLE test_case_result (
     stdout TEXT,
     stderr TEXT,
     stack_trace TEXT,
-    primary key (job_run_identifier, start_timestamp)
+    primary key (job_run_identifier, start_timestamp, test_suite, test_case)
 );
-
-CREATE INDEX idx_test_suite_name ON test_case_result(test_suite);
-CREATE INDEX idx_test_case_name ON test_case_result(test_case);

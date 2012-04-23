@@ -26,11 +26,13 @@ import java.io.Reader;
 public abstract class RequestHandler<I, O>
 {
     private final Class<I> inputTypeClass;
+    private final String uri;
     private final GsonBuilder gsonBuilder;
 
-    RequestHandler(final Class<I> inputTypeClass)
+    RequestHandler(final Class<I> inputTypeClass, final String uri)
     {
         this.inputTypeClass = inputTypeClass;
+        this.uri = uri;
         gsonBuilder = new GsonBuilder().registerTypeAdapter(RunningJob.class, new RunningJobTypeAdapter());
     }
 
@@ -44,6 +46,11 @@ public abstract class RequestHandler<I, O>
     }
 
     abstract O handleRequest(final I input);
+
+    public String getUri()
+    {
+        return uri;
+    }
 
     private boolean isVoidInputType()
     {

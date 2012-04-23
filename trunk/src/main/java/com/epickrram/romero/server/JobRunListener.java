@@ -18,6 +18,6 @@ package com.epickrram.romero.server;
 
 public interface JobRunListener
 {
-    void jobRunStarted(final String jobIdentifier);
+    void jobRunStarted(final String jobIdentifier, final long startTimestamp);
     void jobRunFinished(final String jobIdentifier);
 }

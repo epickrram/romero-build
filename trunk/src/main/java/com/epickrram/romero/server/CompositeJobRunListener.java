@@ -16,40 +16,53 @@
 
 package com.epickrram.romero.server;
 
-import com.epickrram.freewheel.messaging.ptp.EndPoint;
-import com.epickrram.freewheel.messaging.ptp.EndPointProvider;
-import com.epickrram.romero.common.AbstractRomeroModule;
-import com.epickrram.romero.core.JobEventListener;
-import com.epickrram.romero.server.web.RequestHandler;
+import com.epickrram.romero.util.LoggingUtil;
 
-import java.net.InetAddress;
 import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public abstract class AbstractRomeroServerModule extends AbstractRomeroModule
+public final class CompositeJobRunListener implements JobRunListener
 {
-    public AbstractRomeroServerModule(final int serverAppPort)
+    private static final Logger LOGGER = LoggingUtil.getLogger(CompositeJobRunListener.class);
+
+    private final Collection<JobRunListener> delegates = new CopyOnWriteArrayList<>();
+
+    @Override
+    public void jobRunStarted(final String jobIdentifier, final long startTimestamp)
     {
-        super(new LocalEndPointProvider(serverAppPort));
+        for (JobRunListener delegate : delegates)
+        {
+            try
+            {
+                delegate.jobRunStarted(jobIdentifier, startTimestamp);
+            }
+            catch(RuntimeException e)
+            {
+                LOGGER.log(Level.WARNING, "Failed to invoke delegate", e);
+            }
+        }
     }
 
-    private static class LocalEndPointProvider implements EndPointProvider
+    @Override
+    public void jobRunFinished(final String jobIdentifier)
     {
-        private final int serverAppPort;
-
-        public LocalEndPointProvider(final int serverAppPort)
+        for (JobRunListener delegate : delegates)
         {
-            this.serverAppPort = serverAppPort;
-        }
-
-        @Override
-        public EndPoint resolveEndPoint(final Class descriptor)
-        {
-            return new EndPoint(InetAddress.getLoopbackAddress(), serverAppPort);
+            try
+            {
+                delegate.jobRunFinished(jobIdentifier);
+            }
+            catch(RuntimeException e)
+            {
+                LOGGER.log(Level.WARNING, "Failed to invoke delegate", e);
+            }
         }
     }
 
-    public abstract void initialise(final ServerConfig serverConfig);
-    public abstract <K, R> JobEventListener<K, R> getJobEventListener();
-    public abstract JobRunListener getJobRunListener();
-    public abstract Collection<RequestHandler<?, ?>> getRequestHandlers();
+    public void addDelegate(final JobRunListener jobRunListener)
+    {
+        delegates.add(jobRunListener);
+    }
 }

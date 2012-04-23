@@ -19,6 +19,7 @@ package com.epickrram.romero.testing.server.dao;
 import com.epickrram.romero.server.dao.QueryUtil;
 import com.epickrram.romero.server.dao.UpdateOnlyQueryHandler;
 import com.epickrram.romero.testing.common.TestExecutionResult;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.util.LoggingUtil;
 
@@ -72,5 +73,10 @@ public final class TestSuiteJobDaoImpl implements TestSuiteJobDao
                 LOGGER.log(Level.WARNING, "Failed to record job result for " + jobResult.getTestClass(), e);
             }
         }
+    }
+
+    @Override
+    public void onTestSuiteFailureToComplete(final String currentJobRun, final TestSuiteIdentifier testSuiteIdentifier)
+    {
     }
 }

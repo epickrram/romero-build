@@ -40,7 +40,7 @@ public final class StatsRecordingJobRunListener implements JobRunListener
     }
 
     @Override
-    public void jobRunStarted(final String jobIdentifier)
+    public void jobRunStarted(final String jobIdentifier, final long startTimestamp)
     {
         try
         {
@@ -50,7 +50,7 @@ public final class StatsRecordingJobRunListener implements JobRunListener
                 public void prepareStatement(final PreparedStatement statement) throws SQLException
                 {
                     statement.setString(1, jobIdentifier);
-                    statement.setLong(2, System.currentTimeMillis());
+                    statement.setLong(2, startTimestamp);
                     statement.setLong(3, -1);
                 }
             });

@@ -42,10 +42,10 @@ public final class DispatchServlet extends HttpServlet
     {
         super.init(config);
         final Server server = ServerReference.get();
-        requestHandlerMap.put("/build/status.json", new BuildStatusRequestHandler(server));
-        requestHandlerMap.put("/build/runningJobs.json", new RunningJobsRequestHandler(server));
+        registerRequestHandler(new BuildStatusRequestHandler(server));
+        registerRequestHandler(new RunningJobsRequestHandler(server));
         final JobRunDao jobRunDao = new JobRunDaoImpl(ServerReference.getQueryUtil());
-        requestHandlerMap.put("/build/history.json", new JobRunHistoryRequestHandler(jobRunDao));
+        registerRequestHandler(new JobRunHistoryRequestHandler(jobRunDao));
     }
 
     @Override
@@ -70,4 +70,13 @@ public final class DispatchServlet extends HttpServlet
         }
     }
 
+    private void registerRequestHandler(final RequestHandler<?, ?> requestHandler)
+    {
+        final String uri = requestHandler.getUri();
+        if(requestHandlerMap.containsKey(uri))
+        {
+            throw new IllegalArgumentException("RequestHandler already registered for " + uri);
+        }
+        requestHandlerMap.put(uri, requestHandler);
+    }
 }

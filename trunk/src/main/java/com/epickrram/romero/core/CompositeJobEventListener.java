@@ -14,27 +14,39 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server.web;
+package com.epickrram.romero.core;
 
-import com.epickrram.romero.server.JobRun;
-import com.epickrram.romero.server.dao.JobRunDao;
+import com.epickrram.romero.util.LoggingUtil;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public final class JobRunHistoryRequestHandler extends VoidInputRequestHandler<List<JobRun>>
+public final class CompositeJobEventListener<K, R> implements JobEventListener<K, R>
 {
-    private static final int MAX_RESULTS = 20;
-    private final JobRunDao jobRunDao;
-
-    public JobRunHistoryRequestHandler(final JobRunDao jobRunDao)
-    {
-        super("/build/history.json");
-        this.jobRunDao = jobRunDao;
-    }
+    private static final Logger LOGGER = LoggingUtil.getLogger(CompositeJobEventListener.class);
+    
+    private final Collection<JobEventListener<K, R>> delegates = new CopyOnWriteArrayList<>();
 
     @Override
-    public List<JobRun> handleRequest()
+    public void onJobUpdate(final Job<K, R> updatedJob)
     {
-        return jobRunDao.getHistory(MAX_RESULTS);
+        for (JobEventListener<K, R> delegate : delegates)
+        {
+            try
+            {
+                delegate.onJobUpdate(updatedJob);
+            }
+            catch(RuntimeException e)
+            {
+                LOGGER.log(Level.WARNING, "Failed to invoke delegate", e);
+            }
+        }
+    }
+
+    public void addDelegate(final JobEventListener<K, R> delegate)
+    {
+        delegates.add(delegate);
     }
 }

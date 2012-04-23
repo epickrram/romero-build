@@ -14,27 +14,28 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server.web;
+package com.epickrram.romero.testing.server;
 
-import com.epickrram.romero.server.JobRun;
-import com.epickrram.romero.server.dao.JobRunDao;
+import com.epickrram.romero.server.web.VoidInputRequestHandler;
+import com.epickrram.romero.testing.server.dao.TestRunSummaryDao;
+import com.epickrram.romero.testing.server.web.TestRunSummary;
 
-import java.util.List;
+import java.util.Collection;
 
-public final class JobRunHistoryRequestHandler extends VoidInputRequestHandler<List<JobRun>>
+public final class TestRunHistorySummaryRequestHandler extends VoidInputRequestHandler<Collection<TestRunSummary>>
 {
-    private static final int MAX_RESULTS = 20;
-    private final JobRunDao jobRunDao;
+    private static final int HISTORY_LIMIT = 20;
+    
+    private final TestRunSummaryDao testRunSummaryDao;
 
-    public JobRunHistoryRequestHandler(final JobRunDao jobRunDao)
+    public TestRunHistorySummaryRequestHandler(final TestRunSummaryDao testRunSummaryDao)
     {
-        super("/build/history.json");
-        this.jobRunDao = jobRunDao;
+        super("/testing/summary.json");
+        this.testRunSummaryDao = testRunSummaryDao;
     }
-
     @Override
-    public List<JobRun> handleRequest()
+    public Collection<TestRunSummary> handleRequest()
     {
-        return jobRunDao.getHistory(MAX_RESULTS);
+        return testRunSummaryDao.getTestRunHistory(HISTORY_LIMIT);
     }
 }
