@@ -40,4 +40,9 @@ public final class TestRunSummary
         this.testCaseCount = testCaseCount;
         this.statusCountMap = statusCountMap;
     }
+
+    public long getStartTimestamp()
+    {
+        return startTimestamp;
+    }
 }

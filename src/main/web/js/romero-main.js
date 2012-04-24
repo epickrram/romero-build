@@ -1,5 +1,10 @@
 var lastBuildStatus = '';
 
+function getModule()
+{
+    return 'testing';
+}
+
 function getBuildStatus()
 {
     invoke('build/status.json', function(data)
@@ -50,8 +55,8 @@ function displayHistory()
 			        var durationMillis = data[i].endTimestamp - startTimestamp;
 			        var durationElements = toTimeElements(durationMillis);
 			        var totalMinutes = (durationElements[0] * 60) + durationElements[1];
-			        graphData.push([startTimestamp, totalMinutes]);
-			        jobRunTimes.push([data[i].identifier, new Date(startTimestamp).format('HH:MM dd mmm'), totalMinutes, totalMinutes != 1 ? 'mins' : 'min'].join(' '));
+			        graphData.push([i, totalMinutes]);
+			        jobRunTimes.push([data[i].identifier, formatBuildTimestamp(startTimestamp), totalMinutes, totalMinutes != 1 ? 'mins' : 'min'].join(' '));
 			        drawGraph(graphData, jobRunTimes);
 			    }
 
@@ -62,7 +67,7 @@ function displayHistory()
 function drawGraph(graphData, jobRunTimes)
 {
     $.plot($("#history-graph"), [graphData], {
-            xaxis: { mode: 'time', show: false },
+            xaxis: { show: false },
             yaxis: { show: true, tickDecimals: 0 },
             series: {
                 lines: { show: true },

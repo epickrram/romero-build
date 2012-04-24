@@ -25,13 +25,22 @@ import com.epickrram.romero.util.LoggingUtil;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public final class TestRunSummaryDaoImpl implements TestRunSummaryDao
 {
     private static final Logger LOGGER = LoggingUtil.getLogger(TestRunSummaryDaoImpl.class);
-    private static final String SELECT_SQL = "";
+    private static final String SELECT_SQL = "SELECT * FROM test_case_result";
+    private static final TestRunSummaryComparator TIMESTAMP_DESCENDING_COMPARATOR = new TestRunSummaryComparator();
 
     private final QueryUtil queryUtil;
 
@@ -55,7 +64,7 @@ public final class TestRunSummaryDaoImpl implements TestRunSummaryDao
                 @Override
                 public Collection<TestRunSummary> handleResult(final ResultSet resultSet) throws SQLException
                 {
-                    final Collection<TestRunSummary> summaryList = new ArrayList<>();
+                    final List<TestRunSummary> summaryList = new ArrayList<>();
                     TestRunSummaryBuilder builder = new TestRunSummaryBuilder();
                     while(resultSet.next())
                     {
@@ -63,7 +72,7 @@ public final class TestRunSummaryDaoImpl implements TestRunSummaryDao
                         final String jobIdentifier = resultSet.getString("job_run_identifier");
 
                         if(builder.startTimestamp != 0 && builder.jobRunIdentifier != null &&
-                           startTimestamp != builder.startTimestamp && !jobIdentifier.equals(builder.jobRunIdentifier))
+                           (startTimestamp != builder.startTimestamp || !jobIdentifier.equals(builder.jobRunIdentifier)))
                         {
                             summaryList.add(builder.create());
                             builder = new TestRunSummaryBuilder();
@@ -75,6 +84,7 @@ public final class TestRunSummaryDaoImpl implements TestRunSummaryDao
                                 testSuite(resultSet.getString("test_suite")).
                                 testCase(TestStatus.valueOf(resultSet.getString("status")));
                     }
+                    Collections.sort(summaryList, TIMESTAMP_DESCENDING_COMPARATOR);
                     return summaryList;
                 }
             });
@@ -136,6 +146,15 @@ public final class TestRunSummaryDaoImpl implements TestRunSummaryDao
         {
             this.startTimestamp = startTimestamp;
             return this;
+        }
+    }
+
+    private static class TestRunSummaryComparator implements Comparator<TestRunSummary>
+    {
+        @Override
+        public int compare(final TestRunSummary o1, final TestRunSummary o2)
+        {
+            return Long.compare(o2.getStartTimestamp(), o1.getStartTimestamp());
         }
     }
 }

@@ -28,3 +28,8 @@ function invoke(postUrl, successHandler)
 		success: successHandler
 	});
 }
+
+function formatBuildTimestamp(timestamp)
+{
+    return new Date(timestamp).format('HH:MM dd mmm');
+}

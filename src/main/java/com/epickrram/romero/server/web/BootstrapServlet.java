@@ -104,6 +104,7 @@ public final class BootstrapServlet extends GenericServlet
 
         ServerReference.set(server);
         ServerReference.setQueryUtil(queryUtil);
+        ServerReference.setModule(serverModule);
     }
 
     @Override
