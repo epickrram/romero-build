@@ -46,6 +46,10 @@ public final class DispatchServlet extends HttpServlet
         registerRequestHandler(new RunningJobsRequestHandler(server));
         final JobRunDao jobRunDao = new JobRunDaoImpl(ServerReference.getQueryUtil());
         registerRequestHandler(new JobRunHistoryRequestHandler(jobRunDao));
+        for(RequestHandler<?, ?> requestHandler : ServerReference.getModule().getRequestHandlers())
+        {
+            registerRequestHandler(requestHandler);
+        }
     }
 
     @Override

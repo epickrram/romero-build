@@ -16,6 +16,7 @@
 
 package com.epickrram.romero.server.web;
 
+import com.epickrram.romero.server.AbstractRomeroServerModule;
 import com.epickrram.romero.server.Server;
 import com.epickrram.romero.server.dao.QueryUtil;
 
@@ -25,6 +26,7 @@ public final class ServerReference
 {
     private static final AtomicReference<Server> serverReference = new AtomicReference<>();
     private static final AtomicReference<QueryUtil> queryUtil = new AtomicReference<>();
+    private static final AtomicReference<AbstractRomeroServerModule> module = new AtomicReference<>();
 
     private ServerReference() {}
 
@@ -46,5 +48,15 @@ public final class ServerReference
     public static QueryUtil getQueryUtil()
     {
         return queryUtil.get();
+    }
+
+    static void setModule(final AbstractRomeroServerModule serverModule)
+    {
+        module.set(serverModule);
+    }
+
+    public static AbstractRomeroServerModule getModule()
+    {
+        return module.get();
     }
 }

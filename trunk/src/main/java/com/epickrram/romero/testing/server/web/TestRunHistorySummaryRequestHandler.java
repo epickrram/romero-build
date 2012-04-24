@@ -14,7 +14,7 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.testing.server;
+package com.epickrram.romero.testing.server.web;
 
 import com.epickrram.romero.server.web.VoidInputRequestHandler;
 import com.epickrram.romero.testing.server.dao.TestRunSummaryDao;

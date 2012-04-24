@@ -1,0 +1,26 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Romero Server</title>
+    <script type="text/javascript" src="../js/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="../js/dateFormat.js"></script>
+    <script type="text/javascript" src="../js/jquery.flot.js"></script>
+    <script type="text/javascript" src="../js/romero-functions.js"></script>
+    <script type="text/javascript" src="../js/romero-main.js"></script>
+    <script type="text/javascript" src="js/romero-testing.js"></script>
+    <link href="../css/main.css" rel="stylesheet"/>
+</head>
+<body>
+<div id="test-run-history">
+</div>
+
+<script language="javascript" type="text/javascript">
+$(document).ready(function()
+{
+    getTestRunHistory();
+    var interval = setInterval('getTestRunHistory()', 10000)
+});
+</script>
+</body>
+</html>
