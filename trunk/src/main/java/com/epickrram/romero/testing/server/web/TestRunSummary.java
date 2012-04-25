@@ -45,4 +45,42 @@ public final class TestRunSummary
     {
         return startTimestamp;
     }
+
+    public String getJobRunIdentifier()
+    {
+        return jobRunIdentifier;
+    }
+
+    public long getDurationMillis()
+    {
+        return durationMillis;
+    }
+
+    public int getTestSuiteCount()
+    {
+        return testSuiteCount;
+    }
+
+    public int getTestCaseCount()
+    {
+        return testCaseCount;
+    }
+
+    public Map<TestStatus, Integer> getStatusCountMap()
+    {
+        return statusCountMap;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "TestRunSummary{" +
+                "jobRunIdentifier='" + jobRunIdentifier + '\'' +
+                ", startTimestamp=" + startTimestamp +
+                ", durationMillis=" + durationMillis +
+                ", testSuiteCount=" + testSuiteCount +
+                ", testCaseCount=" + testCaseCount +
+                ", statusCountMap=" + statusCountMap +
+                '}';
+    }
 }

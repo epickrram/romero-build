@@ -17,9 +17,10 @@
 package com.epickrram.romero;
 
 import com.epickrram.romero.common.RunningJob;
+import com.epickrram.romero.core.JobState;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJob;
-import com.epickrram.romero.core.JobState;
+import com.epickrram.romero.testing.server.web.TestRunSummary;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.internal.matchers.TypeSafeMatcher;
@@ -94,6 +95,26 @@ public final class MatcherFactory
             public void describeTo(final Description description)
             {
                 description.appendText("running jobs matching:\n" + Arrays.toString(expected));
+            }
+        };
+    }
+
+    public static Matcher<TestRunSummary> summary(final String jobId, final long startTimestamp)
+    {
+        return new TypeSafeMatcher<TestRunSummary>()
+        {
+            @Override
+            public boolean matchesSafely(final TestRunSummary testRunSummary)
+            {
+                return jobId.equals(testRunSummary.getJobRunIdentifier()) &&
+                       startTimestamp == testRunSummary.getStartTimestamp();
+            }
+
+            @Override
+            public void describeTo(final Description description)
+            {
+                description.appendText("jobId = ").appendText(jobId).
+                        appendText(", startTimestamp = ").appendText(Long.toString(startTimestamp));
             }
         };
     }
