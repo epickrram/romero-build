@@ -23,6 +23,7 @@ import com.epickrram.romero.core.JobRepository;
 import com.epickrram.romero.util.LoggingUtil;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -55,9 +56,10 @@ public final class ServerImpl<K, D, R> implements Server<K, D, R>
     {
         if(buildStatus.compareAndSet(BuildStatus.WAITING_FOR_NEXT_BUILD, BuildStatus.BUILDING))
         {
-            LOGGER.info("Starting build " + identifier);
+            final long startTimestamp = System.currentTimeMillis();
+            LOGGER.info("Starting build " + identifier + " at " + new Date(startTimestamp));
             jobRepository.init(identifier);
-            jobRunListener.jobRunStarted(identifier, System.currentTimeMillis());
+            jobRunListener.jobRunStarted(identifier, startTimestamp);
             currentJobRunIdentifier = identifier;
         }
     }

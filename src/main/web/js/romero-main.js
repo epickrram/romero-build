@@ -55,8 +55,9 @@ function displayHistory()
 			        var durationMillis = data[i].endTimestamp - startTimestamp;
 			        var durationElements = toTimeElements(durationMillis);
 			        var totalMinutes = (durationElements[0] * 60) + durationElements[1];
-			        graphData.push([i, totalMinutes]);
-			        jobRunTimes.push([data[i].identifier, formatBuildTimestamp(startTimestamp), totalMinutes, totalMinutes != 1 ? 'mins' : 'min'].join(' '));
+			        var totalSeconds = (durationElements[0] * 3060) + durationElements[1] * 60 + durationElements[2];
+			        graphData.push([i, totalSeconds]);
+			        jobRunTimes.push([data[i].identifier, new Date(startTimestamp).format('HH:MM dd mmm'), totalMinutes, totalMinutes != 1 ? 'mins' : 'min'].join(' '));
 			        drawGraph(graphData, jobRunTimes);
 			    }
 
@@ -68,7 +69,7 @@ function drawGraph(graphData, jobRunTimes)
 {
     $.plot($("#history-graph"), [graphData], {
             xaxis: { show: false },
-            yaxis: { show: true, tickDecimals: 0 },
+            yaxis: { show: false, tickDecimals: 0 },
             series: {
                 lines: { show: true },
                 points: { show: true }

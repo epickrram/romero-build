@@ -9,6 +9,11 @@
     float: right;
 }
 
+#main-container
+{
+    float: left;
+}
+
 DIV, SPAN
 {
     font-family: monospace;

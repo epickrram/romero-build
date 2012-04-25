@@ -45,11 +45,11 @@ public final class TestSuiteJobEventListener implements
         {
             if(updatedJob.failedToComplete())
             {
-                testSuiteJobDao.onTestSuiteFailureToComplete(currentJobRun, updatedJob.getKey());
+                testSuiteJobDao.onTestSuiteFailureToComplete(currentJobRun, startTimestamp, updatedJob.getKey());
             }
             else
             {
-                testSuiteJobDao.onTestSuiteJobResult(currentJobRun, updatedJob.getResult());
+                testSuiteJobDao.onTestSuiteJobResult(currentJobRun, startTimestamp, updatedJob.getResult());
             }
         }
     }

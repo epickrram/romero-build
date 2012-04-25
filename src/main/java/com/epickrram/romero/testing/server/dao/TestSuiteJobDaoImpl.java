@@ -44,9 +44,8 @@ public final class TestSuiteJobDaoImpl implements TestSuiteJobDao
     }
 
     @Override
-    public void onTestSuiteJobResult(final String jobIdentifier, final TestSuiteJobResult jobResult)
+    public void onTestSuiteJobResult(final String jobIdentifier, final long startTimestamp, final TestSuiteJobResult jobResult)
     {
-        final long getFromServer = System.currentTimeMillis();
         for (final TestExecutionResult testExecutionResult : jobResult.getTestExecutionResults())
         {
             try
@@ -57,7 +56,7 @@ public final class TestSuiteJobDaoImpl implements TestSuiteJobDao
                     public void prepareStatement(final PreparedStatement statement) throws SQLException
                     {
                         statement.setString(1, jobIdentifier);
-                        statement.setLong(2, getFromServer);
+                        statement.setLong(2, startTimestamp);
                         statement.setInt(3, (int) testExecutionResult.getDurationMillis());
                         statement.setString(4, testExecutionResult.getTestClass());
                         statement.setString(5, testExecutionResult.getTestMethod());
@@ -76,7 +75,7 @@ public final class TestSuiteJobDaoImpl implements TestSuiteJobDao
     }
 
     @Override
-    public void onTestSuiteFailureToComplete(final String currentJobRun, final TestSuiteIdentifier testSuiteIdentifier)
+    public void onTestSuiteFailureToComplete(final String currentJobRun, final long startTimestamp, final TestSuiteIdentifier testSuiteIdentifier)
     {
     }
 }
