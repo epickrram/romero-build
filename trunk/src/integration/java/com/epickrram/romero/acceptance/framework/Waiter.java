@@ -16,6 +16,7 @@
 
 package com.epickrram.romero.acceptance.framework;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
@@ -26,7 +27,12 @@ public final class Waiter
 
     static void waitFor(final Condition condition)
     {
-        final long timeoutAt = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(DEFAULT_WAIT_TIMEOUT_SECONDS);
+        waitFor(condition, DEFAULT_WAIT_TIMEOUT_SECONDS);
+    }
+
+    static void waitFor(final Condition condition, final long timeoutSeconds)
+    {
+        final long timeoutAt = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(timeoutSeconds);
         while(System.currentTimeMillis() < timeoutAt)
         {
             if(!condition.isMet())
@@ -40,6 +46,11 @@ public final class Waiter
         }
 
         throw new IllegalStateException("Condition was not met: " + condition.getFailureMessage());
+    }
+
+    static int parseIntFromGsonParsedIntValue(final Map<String, ?> map, final String mapKey)
+    {
+        return Double.valueOf(String.valueOf(map.get(mapKey))).intValue();
     }
 
     public interface Condition

@@ -35,5 +35,10 @@ public final class ExecuteUnitTestRunAcceptanceTest
     {
         romero.startTestRun("124");
         romero.waitForTestRunStarted("124");
+        romero.waitForTestRunFinished();
+
+        romero.waitForTestRunHistoryLatest("124");
+
+        romero.waitForTestCaseResultSummary("124", 7, 4, 1, 1, 1);
     }
 }

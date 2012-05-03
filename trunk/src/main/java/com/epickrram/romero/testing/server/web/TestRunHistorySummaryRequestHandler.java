@@ -18,7 +18,6 @@ package com.epickrram.romero.testing.server.web;
 
 import com.epickrram.romero.server.web.VoidInputRequestHandler;
 import com.epickrram.romero.testing.server.dao.TestRunSummaryDao;
-import com.epickrram.romero.testing.server.web.TestRunSummary;
 
 import java.util.Collection;
 

@@ -18,15 +18,21 @@ package com.epickrram.romero.acceptance.framework;
 
 import com.google.gson.Gson;
 
+import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.epickrram.romero.acceptance.framework.HttpUtil.post;
 
 public final class Conditions
 {
+    private static final Logger LOGGER = Logger.getLogger(Conditions.class.getSimpleName());
+
     private Conditions() {}
 
-    static Waiter.Condition postRequestJsonResponseContainsCondition(final String url, final String key, final String expectedValue)
+    static Waiter.Condition postRequestJsonResponseContainsCondition(final String url, final int arrayIndex,
+                                                                     final String key, final String expectedValue)
     {
         return new Waiter.Condition()
         {
@@ -35,6 +41,36 @@ public final class Conditions
             public boolean isMet()
             {
                 final String response = post(url);
+                LOGGER.log(Level.WARNING, response);
+                final List<Map<String, String>> array = new Gson().fromJson(response, List.class);
+                if(arrayIndex < array.size())
+                {
+                    final Map<String, String> map = array.get(arrayIndex);
+                    return map.containsKey(key) && map.get(key).equals(expectedValue);
+                }
+                return false;
+            }
+
+            @Override
+            public String getFailureMessage()
+            {
+                return String.format("Response from [%s] did not contain text '%s' at array index %d",
+                        url, expectedValue, arrayIndex);
+            }
+        };
+    }
+
+    static Waiter.Condition postRequestJsonResponseContainsCondition(final String url, final String key,
+                                                                     final String expectedValue)
+    {
+        return new Waiter.Condition()
+        {
+            @SuppressWarnings({"unchecked"})
+            @Override
+            public boolean isMet()
+            {
+                final String response = post(url);
+                LOGGER.log(Level.WARNING, response);
                 final Map<String, String> map = new Gson().fromJson(response, Map.class);
                 
                 return map.containsKey(key) && map.get(key).equals(expectedValue);
