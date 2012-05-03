@@ -12,7 +12,7 @@ function getBuildStatus()
 			if(data)
 			{
                 var buildStatus = data.status;
-				$('#build-status').text(data.status)
+				$('#build-status').text("Status: " + data.status)
 
 				if(buildStatus != lastBuildStatus)
                 {

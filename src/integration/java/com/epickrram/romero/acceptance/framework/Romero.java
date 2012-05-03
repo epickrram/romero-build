@@ -16,8 +16,15 @@
 
 package com.epickrram.romero.acceptance.framework;
 
+import com.google.gson.Gson;
+
+import java.util.List;
+import java.util.Map;
+
 import static com.epickrram.romero.acceptance.framework.Conditions.postRequestJsonResponseContainsCondition;
 import static com.epickrram.romero.acceptance.framework.HttpUtil.getIgnoringResponse;
+import static com.epickrram.romero.acceptance.framework.HttpUtil.post;
+import static com.epickrram.romero.acceptance.framework.Waiter.parseIntFromGsonParsedIntValue;
 import static com.epickrram.romero.acceptance.framework.Waiter.waitFor;
 
 public final class Romero
@@ -47,7 +54,54 @@ public final class Romero
     public void waitForTestRunFinished()
     {
         waitFor(postRequestJsonResponseContainsCondition(toRomeroUrl("/build/status.json"),
-                "status", "WAITING_FOR_NEXT_BUILD"));
+                "status", "WAITING_FOR_NEXT_BUILD"), 70L);
+    }
+
+    public void waitForTestRunHistoryLatest(final String testRunIdentifier)
+    {
+        waitFor(postRequestJsonResponseContainsCondition(toRomeroUrl("/testing/summary.json"),
+                0, "jobRunIdentifier", testRunIdentifier));
+    }
+
+    public void waitForTestCaseResultSummary(final String testRunIdentifier,
+                                             final int expectedTestCaseCount, final int expectedPassCount,
+                                             final int expectedFailedCount, final int expectedIgnoredCount,
+                                             final int expectedErrorCount)
+    {
+        waitFor(new Waiter.Condition()
+        {
+            @SuppressWarnings({"unchecked"})
+            @Override
+            public boolean isMet()
+            {
+                final String response = post(toRomeroUrl("/testing/summary.json"));
+                final List<Map<String, Object>> array = new Gson().fromJson(response, List.class);
+                final Map<String, Object> map = array.get(0);
+                final int testCaseCount = parseIntFromGsonParsedIntValue(map, "testCaseCount");
+                final Map<String, String> resultCountMap = (Map<String, String>) map.get("statusCountMap");
+                final int passCount = getResultCount(resultCountMap, "SUCCESS");
+                final int failedCount = getResultCount(resultCountMap, "FAILURE");
+                final int ignoredCount = getResultCount(resultCountMap, "IGNORED");
+                final int errorCount = getResultCount(resultCountMap, "ERROR");
+
+                return expectedTestCaseCount == testCaseCount &&
+                       expectedPassCount == passCount &&
+                       expectedFailedCount == failedCount &&
+                       expectedIgnoredCount == ignoredCount &&
+                       expectedErrorCount == errorCount;
+            }
+
+            @Override
+            public String getFailureMessage()
+            {
+                return String.format("Did not find expected test run summary for test run %s", testRunIdentifier);
+            }
+        });
+    }
+
+    private int getResultCount(final Map<String, String> resultCountMap, final String summaryKey)
+    {
+        return parseIntFromGsonParsedIntValue(resultCountMap, summaryKey);
     }
 
     private String toRomeroUrl(final String uri)
