@@ -38,6 +38,18 @@ function invoke(postUrl, successHandler)
 	});
 }
 
+function invokeWithData(postUrl, postData, successHandler)
+{
+    $.ajax({
+        url: postUrl,
+        type: 'POST',
+        data: JSON.stringify(postData),
+        processData: false,
+        contentType: 'application/json',
+		success: successHandler
+    });
+}
+
 function formatBuildTimestamp(timestamp)
 {
     return new Date(timestamp).format('HH:MM dd mmm');

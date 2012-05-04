@@ -16,14 +16,12 @@
 
 package com.epickrram.romero.testing.server.dao;
 
-import com.epickrram.romero.MatcherFactory;
 import com.epickrram.romero.ResultSetMocker;
 import com.epickrram.romero.server.CompletedJobRunIdentifier;
 import com.epickrram.romero.testing.common.TestExecutionResult;
 import com.epickrram.romero.testing.common.TestStatus;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -31,6 +29,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.PreparedStatement;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.epickrram.romero.MatcherFactory.testExecutionResult;
@@ -65,7 +64,6 @@ public final class TestSuiteResultListQueryHandlerTest
         verify(preparedStatement).setLong(2, START_TIMESTAMP);
     }
 
-    @Ignore
     @Test
     public void shouldReturnSingleResult() throws Exception
     {
@@ -94,13 +92,64 @@ public final class TestSuiteResultListQueryHandlerTest
     @Test
     public void shouldReturnMultipleTestCaseResultsInTheSameTestSuite() throws Exception
     {
+        for(int i = 0; i < 3; i++)
+        {
+            addResultSetRow(i, 0, TestStatus.FAILURE);
+        }
 
+        resultSetMocker.prepareForReading();
+
+        final List<TestSuiteJobResult> resultList = queryHandler.handleResult(resultSetMocker);
+
+        assertThat(resultList.size(), is(1));
+
+        final TestSuiteJobResult testSuiteJobResult = resultList.get(0);
+        final Collection<TestExecutionResult> testExecutionResults = testSuiteJobResult.getTestExecutionResults();
+
+        assertThat(testExecutionResults.size(), is(3));
+
+        final Iterator<TestExecutionResult> iterator = testExecutionResults.iterator();
+        final TestExecutionResult first = iterator.next();
+        assertThat(first, is(testExecutionResult(0, 0, TestStatus.FAILURE)));
+
+        final TestExecutionResult second = iterator.next();
+        assertThat(second, is(testExecutionResult(1, 0, TestStatus.FAILURE)));
+
+        final TestExecutionResult third = iterator.next();
+        assertThat(third, is(testExecutionResult(2, 0, TestStatus.FAILURE)));
     }
 
     @Test
     public void shouldReturnMultipleTestSuiteResults() throws Exception
     {
-        
+        for(int j = 0; j < 2; j++)
+        {
+            for(int i = 0; i < 3; i++)
+            {
+                addResultSetRow(i, j, TestStatus.ERROR);
+            }
+        }
+
+        resultSetMocker.prepareForReading();
+
+        final List<TestSuiteJobResult> resultList = queryHandler.handleResult(resultSetMocker);
+
+        assertThat(resultList.size(), is(2));
+
+        final TestSuiteJobResult testSuiteJobResult = resultList.get(1);
+        final Collection<TestExecutionResult> testExecutionResults = testSuiteJobResult.getTestExecutionResults();
+
+        assertThat(testExecutionResults.size(), is(3));
+
+        final Iterator<TestExecutionResult> iterator = testExecutionResults.iterator();
+        final TestExecutionResult first = iterator.next();
+        assertThat(first, is(testExecutionResult(0, 1, TestStatus.ERROR)));
+
+        final TestExecutionResult second = iterator.next();
+        assertThat(second, is(testExecutionResult(1, 1, TestStatus.ERROR)));
+
+        final TestExecutionResult third = iterator.next();
+        assertThat(third, is(testExecutionResult(2, 1, TestStatus.ERROR)));
     }
 
     private void addResultSetRow(final int uniqueTestCase, final int uniqueTestSuite, final TestStatus status)

@@ -14,6 +14,16 @@
     float: left;
 }
 
+.hidden
+{
+    display: none;
+}
+
+.block
+{
+    display: block;
+}
+
 DIV, SPAN
 {
     font-family: monospace;
