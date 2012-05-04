@@ -19,9 +19,9 @@ package com.epickrram.romero.acceptance.framework;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.Buffer;
 
 import static java.lang.String.format;
 
@@ -40,7 +40,12 @@ public final class HttpUtil
 
     public static String post(final String url)
     {
-        return executePostRequest(url, OK_GET_REQUEST_HANDLER);
+        return executePostRequest(url, null, OK_GET_REQUEST_HANDLER);
+    }
+
+    public static String post(final String url, final String data)
+    {
+        return executePostRequest(url, data, OK_GET_REQUEST_HANDLER);
     }
 
     private static final class ExpectOkGetRequestConnectionHandler implements ConnectionHandler
@@ -67,15 +72,15 @@ public final class HttpUtil
 
     private static String executeGetRequest(final String url, final ConnectionHandler connectionHandler)
     {
-        return executeRequest(url, connectionHandler, "GET");
+        return executeRequest(url, null, connectionHandler, "GET");
     }
 
-    private static String executePostRequest(final String url, final ConnectionHandler connectionHandler)
+    private static String executePostRequest(final String url, final String data, final ConnectionHandler connectionHandler)
     {
-        return executeRequest(url, connectionHandler, "POST");
+        return executeRequest(url, data, connectionHandler, "POST");
     }
 
-    private static String executeRequest(final String url, final ConnectionHandler connectionHandler, final String requestType)
+    private static String executeRequest(final String url, final String data, final ConnectionHandler connectionHandler, final String requestType)
     {
         final String response;
         HttpURLConnection connection = null;
@@ -83,7 +88,16 @@ public final class HttpUtil
         {
             connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod(requestType);
+            if(data != null)
+            {
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setDoOutput(true);
+            }
             connection.connect();
+            if(data != null)
+            {
+                sendJsonData(connection, data);
+            }
             response = connectionHandler.withConnection(connection);
         }
         catch (IOException e)
@@ -98,6 +112,11 @@ public final class HttpUtil
             }
         }
         return response;
+    }
+
+    private static void sendJsonData(final HttpURLConnection connection, final String data) throws IOException
+    {
+        new OutputStreamWriter(connection.getOutputStream()).append(data).flush();
     }
 
     interface ConnectionHandler

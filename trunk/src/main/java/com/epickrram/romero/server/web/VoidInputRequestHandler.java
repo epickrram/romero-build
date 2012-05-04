@@ -24,7 +24,7 @@ public abstract class VoidInputRequestHandler<O> extends RequestHandler<Void, O>
     }
 
     @Override
-    O handleRequest(final Void input)
+    public O handleRequest(final Void input)
     {
         return handleRequest();
     }

@@ -18,17 +18,20 @@ package com.epickrram.romero.acceptance.framework;
 
 import com.google.gson.Gson;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static com.epickrram.romero.acceptance.framework.Conditions.postRequestJsonResponseContainsCondition;
 import static com.epickrram.romero.acceptance.framework.HttpUtil.getIgnoringResponse;
 import static com.epickrram.romero.acceptance.framework.HttpUtil.post;
-import static com.epickrram.romero.acceptance.framework.Waiter.parseIntFromGsonParsedIntValue;
-import static com.epickrram.romero.acceptance.framework.Waiter.waitFor;
+import static com.epickrram.romero.acceptance.framework.Waiter.*;
 
 public final class Romero
 {
+    private static final Logger LOGGER = Logger.getLogger(Romero.class.getSimpleName());
+    
     private final String host;
     private final int port;
 
@@ -61,6 +64,39 @@ public final class Romero
     {
         waitFor(postRequestJsonResponseContainsCondition(toRomeroUrl("/testing/summary.json"),
                 0, "jobRunIdentifier", testRunIdentifier));
+    }
+
+    public void waitForTestCaseResult(final String testSuite, final String testCase, final String status)
+    {
+        waitFor(new Waiter.Condition()
+        {
+            @SuppressWarnings({"unchecked"})
+            @Override
+            public boolean isMet()
+            {
+                final String testRunHistory = post(toRomeroUrl("/testing/summary.json"));
+                final Gson gson = new Gson();
+                final List<Map<String, Object>> array = gson.fromJson(testRunHistory, List.class);
+                final Map<String, Object> map = array.get(0);
+                final long testRunStartTimestamp = parseLongFromGsonParsedIntValue(map, "startTimestamp");
+                final String testRunJob = getStringFromGsonParsedValue(map, "jobRunIdentifier");
+
+                final Map<String, String> postData = new HashMap<>();
+                postData.put("startTimestamp", Long.toString(testRunStartTimestamp));
+                postData.put("jobRunIdentifier", testRunJob);
+                final String testResults = post(toRomeroUrl("/testing/testResults.json"), gson.toJson(postData));
+                final List<Map<String, Object>> testResultList = gson.fromJson(testResults, List.class);
+                LOGGER.warning(testResults);
+
+                return false;
+            }
+
+            @Override
+            public String getFailureMessage()
+            {
+                return String.format("Did not find expected test result for test %s.%s", testSuite, testCase);
+            }
+        });
     }
 
     public void waitForTestCaseResultSummary(final String testRunIdentifier,

@@ -14,33 +14,33 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server.web;
+package com.epickrram.romero.testing.server.web;
 
-import com.epickrram.romero.common.RunningJob;
-import com.epickrram.romero.server.Server;
+import com.epickrram.romero.server.CompletedJobRunIdentifier;
+import com.epickrram.romero.server.web.RequestHandler;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.google.gson.GsonBuilder;
 
-import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
-final class RunningJobsRequestHandler extends VoidInputRequestHandler<Collection<RunningJob>>
+public final class TestSuiteJobResultListHandler extends RequestHandler<CompletedJobRunIdentifier, List<TestSuiteJobResult>>
 {
-    private final Server server;
-
-    public RunningJobsRequestHandler(final Server server)
+    public TestSuiteJobResultListHandler()
     {
-        super("/build/runningJobs.json");
-        this.server = server;
+        super(CompletedJobRunIdentifier.class, "/testing/testResults.json");
     }
 
     @Override
-    public Collection<RunningJob> handleRequest()
+    public List<TestSuiteJobResult> handleRequest(final CompletedJobRunIdentifier input)
     {
-        return server.getRunningJobs();
+        return Collections.emptyList();
     }
 
     @Override
     protected void registerTypeAdapters(final GsonBuilder gsonBuilder)
     {
-        gsonBuilder.registerTypeAdapter(RunningJob.class, new RunningJobTypeAdapter());
+        gsonBuilder.registerTypeAdapter(CompletedJobRunIdentifier.class, new CompletedJobRunIdentifierTypeAdapter());
     }
+
 }

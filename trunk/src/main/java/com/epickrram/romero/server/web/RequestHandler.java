@@ -29,11 +29,12 @@ public abstract class RequestHandler<I, O>
     private final String uri;
     private final GsonBuilder gsonBuilder;
 
-    RequestHandler(final Class<I> inputTypeClass, final String uri)
+    protected RequestHandler(final Class<I> inputTypeClass, final String uri)
     {
         this.inputTypeClass = inputTypeClass;
         this.uri = uri;
-        gsonBuilder = new GsonBuilder().registerTypeAdapter(RunningJob.class, new RunningJobTypeAdapter());
+        gsonBuilder = new GsonBuilder();
+        registerTypeAdapters(gsonBuilder);
     }
 
     void handleRequest(final Reader reader, final Appendable appendable) throws IOException
@@ -45,7 +46,11 @@ public abstract class RequestHandler<I, O>
         gson.toJson(output, appendable);
     }
 
-    abstract O handleRequest(final I input);
+    public abstract O handleRequest(final I input);
+
+    protected void registerTypeAdapters(final GsonBuilder gsonBuilder)
+    {
+    }
 
     public String getUri()
     {

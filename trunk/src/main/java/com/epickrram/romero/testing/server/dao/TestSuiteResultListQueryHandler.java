@@ -14,33 +14,41 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.server.web;
+package com.epickrram.romero.testing.server.dao;
 
-import com.epickrram.romero.common.RunningJob;
-import com.epickrram.romero.server.Server;
-import com.google.gson.GsonBuilder;
+import com.epickrram.romero.server.CompletedJobRunIdentifier;
+import com.epickrram.romero.server.dao.QueryHandler;
+import com.epickrram.romero.testing.common.TestSuiteJobResult;
 
-import java.util.Collection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
 
-final class RunningJobsRequestHandler extends VoidInputRequestHandler<Collection<RunningJob>>
+class TestSuiteResultListQueryHandler extends QueryHandler<List<TestSuiteJobResult>>
 {
-    private final Server server;
+    private static final String SELECT_RESULTS_SQL = "\n" +
+        "SELECT * FROM test_case_result WHERE job_run_identifier = ? AND start_timestamp = ?";
 
-    public RunningJobsRequestHandler(final Server server)
+    private final CompletedJobRunIdentifier completedJobId;
+
+    public TestSuiteResultListQueryHandler(final CompletedJobRunIdentifier completedJobId)
     {
-        super("/build/runningJobs.json");
-        this.server = server;
+        super(SELECT_RESULTS_SQL);
+        this.completedJobId = completedJobId;
     }
 
     @Override
-    public Collection<RunningJob> handleRequest()
+    public void prepareStatement(final PreparedStatement statement) throws SQLException
     {
-        return server.getRunningJobs();
+        statement.setString(1, completedJobId.getJobRunIdentifier());
+        statement.setLong(2, completedJobId.getStartTimestamp());
     }
 
     @Override
-    protected void registerTypeAdapters(final GsonBuilder gsonBuilder)
+    public List<TestSuiteJobResult> handleResult(final ResultSet resultSet) throws SQLException
     {
-        gsonBuilder.registerTypeAdapter(RunningJob.class, new RunningJobTypeAdapter());
+        return Collections.emptyList();
     }
 }

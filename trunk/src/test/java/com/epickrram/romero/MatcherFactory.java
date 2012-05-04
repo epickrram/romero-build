@@ -18,6 +18,8 @@ package com.epickrram.romero;
 
 import com.epickrram.romero.common.RunningJob;
 import com.epickrram.romero.core.JobState;
+import com.epickrram.romero.testing.common.TestExecutionResult;
+import com.epickrram.romero.testing.common.TestStatus;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJob;
 import com.epickrram.romero.testing.server.web.TestRunSummary;
@@ -115,6 +117,33 @@ public final class MatcherFactory
             {
                 description.appendText("jobId = ").appendText(jobId).
                         appendText(", startTimestamp = ").appendText(Long.toString(startTimestamp));
+            }
+        };
+    }
+
+    public static Matcher<TestExecutionResult> testExecutionResult(final int uniqueTestCase,
+                                                                   final int uniqueTestSuite,
+                                                                   final TestStatus status)
+    {
+        return new TypeSafeMatcher<TestExecutionResult>()
+        {
+            @Override
+            public boolean matchesSafely(final TestExecutionResult testExecutionResult)
+            {
+                return testExecutionResult.getTestClass().equals("test_suite" + uniqueTestSuite) &&
+                       testExecutionResult.getTestMethod().equals("test_case" + uniqueTestCase) &&
+                       testExecutionResult.getTestStatus() == status &&
+                       testExecutionResult.getStdout().equals("stdout" + uniqueTestCase) &&
+                       testExecutionResult.getStderr().equals("stderr" + uniqueTestCase) &&
+                       testExecutionResult.getThrowable().equals("stack_trace" + uniqueTestCase);
+            }
+
+            @Override
+            public void describeTo(final Description description)
+            {
+                description.appendText("testSuite = ").appendText("test_suite" + uniqueTestSuite).
+                        appendText(", testCase = ").appendText("test_case" + uniqueTestCase).
+                        appendText(", status = ").appendText(status.name());
             }
         };
     }
