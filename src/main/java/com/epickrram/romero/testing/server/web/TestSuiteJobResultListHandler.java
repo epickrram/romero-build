@@ -19,6 +19,7 @@ package com.epickrram.romero.testing.server.web;
 import com.epickrram.romero.server.CompletedJobRunIdentifier;
 import com.epickrram.romero.server.web.RequestHandler;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
+import com.epickrram.romero.testing.server.dao.TestSuiteJobDaoImpl;
 import com.google.gson.GsonBuilder;
 
 import java.util.Collections;
@@ -26,15 +27,18 @@ import java.util.List;
 
 public final class TestSuiteJobResultListHandler extends RequestHandler<CompletedJobRunIdentifier, List<TestSuiteJobResult>>
 {
-    public TestSuiteJobResultListHandler()
+    private final TestSuiteJobDaoImpl testSuiteJobDao;
+
+    public TestSuiteJobResultListHandler(final TestSuiteJobDaoImpl testSuiteJobDao)
     {
         super(CompletedJobRunIdentifier.class, "/testing/testResults.json");
+        this.testSuiteJobDao = testSuiteJobDao;
     }
 
     @Override
     public List<TestSuiteJobResult> handleRequest(final CompletedJobRunIdentifier input)
     {
-        return Collections.emptyList();
+        return testSuiteJobDao.getTestSuiteJobResultList(input);
     }
 
     @Override
@@ -42,5 +46,4 @@ public final class TestSuiteJobResultListHandler extends RequestHandler<Complete
     {
         gsonBuilder.registerTypeAdapter(CompletedJobRunIdentifier.class, new CompletedJobRunIdentifierTypeAdapter());
     }
-
 }

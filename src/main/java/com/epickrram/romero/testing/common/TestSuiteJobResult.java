@@ -112,5 +112,10 @@ public final class TestSuiteJobResult
         {
             return new TestSuiteJobResult(testClass, testRunFinish - testRunStart, testExecutionResults);
         }
+
+        public String getTestClass()
+        {
+            return testClass;
+        }
     }
 }

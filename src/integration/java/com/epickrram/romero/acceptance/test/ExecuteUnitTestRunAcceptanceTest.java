@@ -17,6 +17,7 @@
 package com.epickrram.romero.acceptance.test;
 
 import com.epickrram.romero.acceptance.framework.Romero;
+import com.epickrram.romero.testing.common.TestStatus;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,11 +42,11 @@ public final class ExecuteUnitTestRunAcceptanceTest
 
         romero.waitForTestCaseResultSummary("124", 7, 4, 1, 1, 1);
 
-        romero.waitForTestCaseResult("MultipleTestMethodTestSuite", "shouldPassInFiveSeconds", "success");
-        romero.waitForTestCaseResult("MultipleTestMethodTestSuite", "shouldFailAssertion", "failure");
-        romero.waitForTestCaseResult("MultipleTestMethodTestSuite", "shouldThrowException", "error");
-        romero.waitForTestCaseResult("MultipleTestMethodTestSuite", "shouldBeIgnored", "ignored");
-        romero.waitForTestCaseResult("SingleTestMethodTestSuite", "shouldPassInFiveSeconds", "success");
-        romero.waitForTestCaseResult("VersionedTestSuite", "shouldBeVersioned", "success");
+        romero.waitForTestCaseResult("MultipleTestMethodTestSuite", "shouldPassInFiveSeconds", TestStatus.SUCCESS);
+        romero.waitForTestCaseResult("MultipleTestMethodTestSuite", "shouldFailAssertion", TestStatus.FAILURE);
+        romero.waitForTestCaseResult("MultipleTestMethodTestSuite", "shouldThrowException", TestStatus.ERROR);
+        romero.waitForTestCaseResult("MultipleTestMethodTestSuite", "shouldBeIgnored", TestStatus.IGNORED);
+        romero.waitForTestCaseResult("SingleTestMethodTestSuite", "shouldPassInFileSeconds", TestStatus.SUCCESS);
+        romero.waitForTestCaseResult("VersionedTestSuite", "shouldBeVersioned", TestStatus.SUCCESS);
     }
 }

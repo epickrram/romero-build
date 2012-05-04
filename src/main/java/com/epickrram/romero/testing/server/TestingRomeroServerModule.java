@@ -33,6 +33,7 @@ import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import com.epickrram.romero.testing.server.dao.TestRunSummaryDaoImpl;
 import com.epickrram.romero.testing.server.dao.TestSuiteJobDaoImpl;
 import com.epickrram.romero.testing.server.web.TestRunHistorySummaryRequestHandler;
+import com.epickrram.romero.testing.server.web.TestSuiteJobResultListHandler;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -85,6 +86,7 @@ public final class TestingRomeroServerModule extends AbstractRomeroServerModule
         final TestSuiteJobDaoImpl testSuiteJobDao = new TestSuiteJobDaoImpl(queryUtil);
         eventListener = new TestSuiteJobEventListener(testSuiteJobDao);
         requestHandlers.add(new TestRunHistorySummaryRequestHandler(new TestRunSummaryDaoImpl(queryUtil)));
+        requestHandlers.add(new TestSuiteJobResultListHandler(testSuiteJobDao));
     }
 
     @SuppressWarnings({"unchecked"})

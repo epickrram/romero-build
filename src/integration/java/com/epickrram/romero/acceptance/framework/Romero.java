@@ -16,6 +16,7 @@
 
 package com.epickrram.romero.acceptance.framework;
 
+import com.epickrram.romero.testing.common.TestStatus;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
@@ -66,7 +67,7 @@ public final class Romero
                 0, "jobRunIdentifier", testRunIdentifier));
     }
 
-    public void waitForTestCaseResult(final String testSuite, final String testCase, final String status)
+    public void waitForTestCaseResult(final String testSuite, final String testCase, final TestStatus status)
     {
         waitFor(new Waiter.Condition()
         {
@@ -86,8 +87,23 @@ public final class Romero
                 postData.put("jobRunIdentifier", testRunJob);
                 final String testResults = post(toRomeroUrl("/testing/testResults.json"), gson.toJson(postData));
                 final List<Map<String, Object>> testResultList = gson.fromJson(testResults, List.class);
-                LOGGER.warning(testResults);
 
+                for (Map<String, Object> testResult : testResultList)
+                {
+                    final String testClassName = getStringFromGsonParsedValue(testResult, "testClass");
+                    if(testClassName.contains(testSuite))
+                    {
+                        final List<Map<String, Object>> testCaseResults = (List<Map<String, Object>>) testResult.get("testExecutionResults");
+                        for (Map<String, Object> testCaseResult : testCaseResults)
+                        {
+                            final String testCaseName = getStringFromGsonParsedValue(testCaseResult, "testMethod");
+                            if(testCaseName.equals(testCase))
+                            {
+                                return status == TestStatus.valueOf(getStringFromGsonParsedValue(testCaseResult, "testStatus"));
+                            }
+                        }
+                    }
+                }
                 return false;
             }
 

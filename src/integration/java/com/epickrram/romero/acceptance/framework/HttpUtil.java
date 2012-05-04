@@ -22,11 +22,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.logging.Logger;
 
 import static java.lang.String.format;
 
 public final class HttpUtil
 {
+    private static final Logger LOGGER = Logger.getLogger(HttpUtil.class.getName());
     private static final ConnectionHandler OK_GET_REQUEST_HANDLER = new ExpectOkGetRequestConnectionHandler();
 
     private HttpUtil()
@@ -93,12 +95,15 @@ public final class HttpUtil
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.setDoOutput(true);
             }
+            LOGGER.fine(String.format("Connecting using %s to %s", requestType, url));
             connection.connect();
             if(data != null)
             {
+                LOGGER.fine(String.format("Sending data '%s'", data));
                 sendJsonData(connection, data);
             }
             response = connectionHandler.withConnection(connection);
+            LOGGER.fine(String.format("Received response: %s", response));
         }
         catch (IOException e)
         {

@@ -1,17 +1,3 @@
-/*
-durationMillis: 60055
-jobRunIdentifier: "125"
-startTimestamp: 1335335275572
-statusCountMap: Object
-ERROR: 1
-FAILURE: 1
-IGNORED: 1
-SUCCESS: 4
-__proto__: Object
-testCaseCount: 7
-testSuiteCount: 3
-*/
-
 function buildSummary(datum)
 {
     var html = [];
@@ -19,7 +5,7 @@ function buildSummary(datum)
     html.push(datum.startTimestamp);
     html.push('-');
     html.push(datum.jobRunIdentifier);
-    html.push('\' style=\'test-run-summary\'>Took ');
+    html.push('\' class=\'test-run-summary hidden\'>Took ');
     html.push(toTimeString(datum.durationMillis));
     html.push('<br/>');
     html.push(datum.statusCountMap.ERROR);
@@ -28,9 +14,20 @@ function buildSummary(datum)
     html.push(datum.statusCountMap.FAILURE);
     html.push(' failures<br/>Total test cases: ');
     html.push(datum.testCaseCount);
-    html.push();
     html.push('</div>');
     return html.join('');
+}
+
+function getTestRunResults(jobId, timestamp)
+{
+    var postData = { jobRunIdentifier: jobId, startTimestamp: timestamp };
+    invokeWithData('/testing/testResults.json', postData, function(responseData)
+    {
+        if(responseData)
+        {
+            
+        }
+    });
 }
 
 function getTestRunHistory()
@@ -42,10 +39,15 @@ function getTestRunHistory()
 			    var html = ['<ul>'];
 			    for(var i = 0, n = data.length; i < n; i++)
 			    {
+
 			        var datum = data[i];
                     var jobId = datum.jobRunIdentifier;
                     var jobDate = formatBuildTimestamp(datum.startTimestamp);
-                    html.push('<li>');
+                    html.push('<li onclick=\'getTestRunResults(\"');
+                    html.push(datum.jobRunIdentifier);
+                    html.push('\", ');
+                    html.push(datum.startTimestamp);
+                    html.push(');\'>')
                     html.push(jobId);
                     html.push(' ');
                     html.push(jobDate);

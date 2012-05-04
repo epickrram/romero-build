@@ -41,7 +41,6 @@ public final class Conditions
             public boolean isMet()
             {
                 final String response = post(url);
-                LOGGER.log(Level.WARNING, response);
                 final List<Map<String, String>> array = new Gson().fromJson(response, List.class);
                 if(arrayIndex < array.size())
                 {
@@ -70,7 +69,6 @@ public final class Conditions
             public boolean isMet()
             {
                 final String response = post(url);
-                LOGGER.log(Level.WARNING, response);
                 final Map<String, String> map = new Gson().fromJson(response, Map.class);
                 
                 return map.containsKey(key) && map.get(key).equals(expectedValue);
