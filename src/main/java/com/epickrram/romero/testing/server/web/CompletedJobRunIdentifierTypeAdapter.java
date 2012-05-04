@@ -14,19 +14,42 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.testing.server.dao;
+package com.epickrram.romero.testing.server.web;
 
 import com.epickrram.romero.server.CompletedJobRunIdentifier;
-import com.epickrram.romero.testing.common.TestSuiteIdentifier;
-import com.epickrram.romero.testing.common.TestSuiteJobResult;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
-import java.util.List;
+import java.io.IOException;
 
-public interface TestSuiteJobDao
+final class CompletedJobRunIdentifierTypeAdapter extends TypeAdapter<CompletedJobRunIdentifier>
 {
-    void onTestSuiteJobResult(final String jobIdentifier, final long startTimestamp, final TestSuiteJobResult jobResult);
+    @Override
+    public void write(final JsonWriter jsonWriter,
+                      final CompletedJobRunIdentifier completedJobRunIdentifier) throws IOException
+    {
+        throw new IllegalStateException("This TypeAdapter cannot be used for writing " + completedJobRunIdentifier);
+    }
 
-    void onTestSuiteFailureToComplete(final String jobIdentifier, final long startTimestamp, final TestSuiteIdentifier testSuiteIdentifier);
-
-    List<TestSuiteJobResult> getTestSuiteJobResultList(final CompletedJobRunIdentifier jobRunIdentifier);
+    @Override
+    public CompletedJobRunIdentifier read(final JsonReader jsonReader) throws IOException
+    {
+        jsonReader.beginObject();
+        final CompletedJobRunIdentifier.Builder builder = new CompletedJobRunIdentifier.Builder();
+        while(jsonReader.hasNext())
+        {
+            final String name = jsonReader.nextName();
+            if("jobRunIdentifier".equals(name))
+            {
+                builder.jobRunIdentifier(jsonReader.nextString());
+            }
+            else if("startTimestamp".equals(name))
+            {
+                builder.startTimestamp(jsonReader.nextLong());
+            }
+        }
+        jsonReader.endObject();
+        return builder.create();
+    }
 }

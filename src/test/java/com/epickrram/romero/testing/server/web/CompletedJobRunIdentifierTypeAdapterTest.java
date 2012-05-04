@@ -14,38 +14,49 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.acceptance.test;
+package com.epickrram.romero.testing.server.web;
 
-import com.epickrram.romero.acceptance.framework.Romero;
+import com.epickrram.romero.server.CompletedJobRunIdentifier;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 import org.junit.Before;
 import org.junit.Test;
 
-public final class ExecuteUnitTestRunAcceptanceTest
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+public final class CompletedJobRunIdentifierTypeAdapterTest
 {
-    private final Romero romero = new Romero("localhost", 8080);
+    private static final String JOB_RUN_ID = "job-run-id";
+    private static final long START_TIMESTAMP = 12987398345234L;
+    private CompletedJobRunIdentifierTypeAdapter typeAdapter;
 
     @Before
-    public void beforeTest()
+    public void setUp() throws Exception
     {
-        romero.waitForTestRunFinished();
+        typeAdapter = new CompletedJobRunIdentifierTypeAdapter();
     }
 
     @Test
-    public void shouldExecuteTestRun() throws Exception
+    public void shouldDeserialise() throws Exception
     {
-        romero.startTestRun("124");
-        romero.waitForTestRunStarted("124");
-        romero.waitForTestRunFinished();
+        final Map<String, String> map = new HashMap<>();
+        map.put("jobRunIdentifier", JOB_RUN_ID);
+        map.put("startTimestamp", Long.toString(START_TIMESTAMP));
+        final String json = new Gson().toJson(map);
 
-        romero.waitForTestRunHistoryLatest("124");
+        final CompletedJobRunIdentifier identifier = typeAdapter.read(getReader(json));
 
-        romero.waitForTestCaseResultSummary("124", 7, 4, 1, 1, 1);
+        assertThat(identifier.getJobRunIdentifier(), is(JOB_RUN_ID));
+        assertThat(identifier.getStartTimestamp(), is(START_TIMESTAMP));
+    }
 
-        romero.waitForTestCaseResult("MultipleTestMethodTestSuite", "shouldPassInFiveSeconds", "success");
-        romero.waitForTestCaseResult("MultipleTestMethodTestSuite", "shouldFailAssertion", "failure");
-        romero.waitForTestCaseResult("MultipleTestMethodTestSuite", "shouldThrowException", "error");
-        romero.waitForTestCaseResult("MultipleTestMethodTestSuite", "shouldBeIgnored", "ignored");
-        romero.waitForTestCaseResult("SingleTestMethodTestSuite", "shouldPassInFiveSeconds", "success");
-        romero.waitForTestCaseResult("VersionedTestSuite", "shouldBeVersioned", "success");
+    private JsonReader getReader(final String json)
+    {
+        return new JsonReader(new StringReader(json));
     }
 }

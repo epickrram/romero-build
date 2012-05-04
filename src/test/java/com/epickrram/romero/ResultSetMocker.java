@@ -47,6 +47,12 @@ public final class ResultSetMocker implements ResultSet
         return this;
     }
 
+    public ResultSetMocker addInt(final String columnName, final Integer value)
+    {
+        rowData.get(rowIndex).put(columnName, value);
+        return this;
+    }
+
     public ResultSetMocker commitRow()
     {
         rowData.add(new HashMap<String, Object>());
@@ -209,7 +215,7 @@ public final class ResultSetMocker implements ResultSet
     @Override
     public int getInt(String columnLabel) throws SQLException
     {
-        return 0;  
+        return (Integer) rowData.get(rowIndex).get(columnLabel);
     }
 
     @Override

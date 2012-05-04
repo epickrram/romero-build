@@ -53,6 +53,16 @@ public final class Waiter
         return Double.valueOf(String.valueOf(map.get(mapKey))).intValue();
     }
 
+    static long parseLongFromGsonParsedIntValue(final Map<String, ?> map, final String mapKey)
+    {
+        return Double.valueOf(String.valueOf(map.get(mapKey))).longValue();
+    }
+
+    static String getStringFromGsonParsedValue(final Map<String, ?> map, final String mapKey)
+    {
+        return String.valueOf(map.get(mapKey));
+    }
+
     public interface Condition
     {
         boolean isMet();

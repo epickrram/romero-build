@@ -16,6 +16,7 @@
 
 package com.epickrram.romero.testing.server.dao;
 
+import com.epickrram.romero.server.CompletedJobRunIdentifier;
 import com.epickrram.romero.server.dao.QueryUtil;
 import com.epickrram.romero.server.dao.UpdateOnlyQueryHandler;
 import com.epickrram.romero.testing.common.TestExecutionResult;
@@ -25,6 +26,8 @@ import com.epickrram.romero.util.LoggingUtil;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -75,7 +78,24 @@ public final class TestSuiteJobDaoImpl implements TestSuiteJobDao
     }
 
     @Override
-    public void onTestSuiteFailureToComplete(final String currentJobRun, final long startTimestamp, final TestSuiteIdentifier testSuiteIdentifier)
+    public void onTestSuiteFailureToComplete(final String jobIdentifier, final long startTimestamp, final TestSuiteIdentifier testSuiteIdentifier)
     {
     }
+
+    @Override
+    public List<TestSuiteJobResult> getTestSuiteJobResultList(final CompletedJobRunIdentifier completedJobId)
+    {
+        try
+        {
+            return queryUtil.query(new TestSuiteResultListQueryHandler(completedJobId));
+        }
+        catch (SQLException e)
+        {
+            LOGGER.log(Level.WARNING, "Failed to retrieve test suite results for " + completedJobId, e);
+        }
+
+        return Collections.emptyList();
+    }
+
+
 }
