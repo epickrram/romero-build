@@ -1,0 +1,59 @@
+#test-run-history
+{
+    float: left;
+}
+
+#test-results
+{
+    float: left;
+    margin-left: 100px;
+}
+
+.test-results-table
+{
+    border: 0px;
+}
+
+.test-suite
+{
+    font-weight: bold;
+}
+
+.test-case
+{
+}
+
+.test-duration
+{
+    text-align: right;
+}
+
+.test-status
+{
+}
+
+.SUCCESS
+{
+    color: green;
+}
+
+.IGNORED
+{
+    color: grey;
+}
+
+.ERROR, .FAILURE, .TIMED_OUT
+{
+    color: red;
+}
+
+.history-item:hover
+{
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.test-run-header
+{
+    font-size: 16px;
+}

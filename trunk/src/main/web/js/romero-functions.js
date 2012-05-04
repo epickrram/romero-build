@@ -24,9 +24,20 @@ function toTimeElements(durationMillis)
     return [hours, minutes, seconds];
 }
 
+function show(elementId)
+{
+    $('#' + elementId).removeClass('hidden');
+    $('#' + elementId).addClass('block');
+}
+
 function zeroPad(value)
 {
-    return value < 10 ? '0'+value : ''+value;
+    return charPad(value, '0');
+}
+
+function charPad(value, char)
+{
+    return value < 10 ? char+value : ''+value;
 }
 
 function invoke(postUrl, successHandler)
