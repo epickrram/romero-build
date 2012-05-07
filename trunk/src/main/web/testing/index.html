@@ -13,10 +13,16 @@
     <link href="css/main.css" rel="stylesheet"/>
 </head>
 <body>
+<div id="header">
+    <span class="header-title">Romero Server</span>
+</div>
 <div id="container">
     <div id="test-run-history">
     </div>
     <div id="test-results">
+    </div>
+    <div id="test-result-trend">
+        test-result-trend
     </div>
 </div>
 
@@ -24,7 +30,7 @@
 $(document).ready(function()
 {
     getTestRunHistory();
-    var interval = setInterval('getTestRunHistory()', 10000)
+    var interval = setInterval('getTestRunHistory()', 1000000)
 });
 </script>
 </body>
