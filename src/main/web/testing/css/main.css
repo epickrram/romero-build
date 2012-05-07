@@ -1,17 +1,33 @@
 #test-run-history
 {
     float: left;
+    margin-top: -12px;
+}
+
+.test-run-history-list
+{
+    list-style-type: none;
 }
 
 #test-results
 {
     float: left;
-    margin-left: 100px;
+    margin-left: 60px;
 }
 
 .test-results-table
 {
     border: 0px;
+}
+
+.test-results-table td
+{
+    vertical-align: top;
+}
+
+#test-result-trend
+{
+    float: right;
 }
 
 .test-suite
@@ -21,6 +37,19 @@
 
 .test-case
 {
+}
+
+.test-case-detail span
+{
+    font-size: 11px;
+    font-weight: bold;
+    font-decoration: underline;
+    padding-bottom: 4px;
+}
+
+.test-case-detail div
+{
+    font-size: 10px;
 }
 
 .test-duration
@@ -53,7 +82,35 @@
     cursor: pointer;
 }
 
+.failed-test-case:hover
+{
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.failed-icon
+{
+    display: inline-block;
+    background-image:url('/testing/img/failed-icon.png');
+    background-repeat: no-repeat;
+    width: 12px;
+    height: 12px;
+    padding-right: 8px;
+}
+
+.passed-icon
+{
+    display: inline-block;
+    background-image:url('/testing/img/passed-icon.png');
+    background-repeat: no-repeat;
+    width: 12px;
+    height: 12px;
+    padding-right: 8px;
+}
+
 .test-run-header
 {
     font-size: 16px;
+    background-color: #eee;
+    padding: 5px;
 }

@@ -43,15 +43,31 @@ function getTestRunResults(jobId, timestamp)
                 for(var j = 0, p = testCases.length; j < p; j++)
                 {
                     var testCase = testCases[j];
+                    var detail = ['<div class=\'test-case-detail\'>'];
+                    var isFailure = testCase.testStatus == 'FAILURE' || testCase.testStatus == 'ERROR';
+                    if(testCase.throwable)
+                    {
+                        detail.push('<div><span>Stack trace</span><pre>');
+                        detail.push(testCase.throwable);
+                        detail.push('</pre></div>');
+                    }
+                    detail.push('</div>');
+                    
+
                     var detailsDivId = [testSuiteResult.testClass.replace(/\./g, '-'), '-', testCase.testMethod].join('');
-                    html.push('<tr><td class=\'test-case\' onclick=\'show(\"');
+                    html.push('<tr><td class=\'test-case\' onclick=\'toggleVisibility(\"');
                     html.push(detailsDivId);
-                    html.push('\");\'>')
+                    html.push('\");\'><span class=\'');
+                    if(isFailure)
+                    {
+                        html.push('failed-test-case');
+                    }
+                    html.push('\'>');
                     html.push(testCase.testMethod);
-                    html.push('<div id=\'');
+                    html.push('</span><div id=\'');
                     html.push(detailsDivId);
                     html.push('\' class=\'hidden\'>');
-                    html.push('boo!')
+                    html.push(detail.join(''))
                     html.push('</div>');
                     html.push('</td><td class=\'test-status ');
                     html.push(testCase.testStatus);
@@ -81,7 +97,7 @@ function getTestRunHistory()
 			if(data)
 			{
 			    var firstEntry;
-			    var html = ['<ul>'];
+			    var html = ['<ul class=\'test-run-history-list\'>'];
 			    for(var i = 0, n = data.length; i < n; i++)
 			    {
 			        var datum = data[i];
@@ -90,11 +106,16 @@ function getTestRunHistory()
 			            firstEntry = datum;
 			        }
                     var jobId = datum.jobRunIdentifier;
+                    var hasFailures = datum.statusCountMap.ERROR != 0 || datum.statusCountMap.FAILURE != 0 || datum.statusCountMap.TIMED_OUT != 0;
+
                     html.push('<li class=\'history-item\' onclick=\'getTestRunResults(\"');
                     html.push(datum.jobRunIdentifier);
                     html.push('\", ');
                     html.push(datum.startTimestamp);
                     html.push(');\'>')
+                    html.push('<div class=\'');
+                    html.push(hasFailures ? 'failed-icon' : 'passed-icon');
+                    html.push('\'></div>');
                     html.push(formatJobRunIdentifier(jobId, datum.startTimestamp));
                     html.push(buildSummary(datum));
                     html.push('</li>');

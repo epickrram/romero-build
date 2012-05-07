@@ -24,10 +24,9 @@ function toTimeElements(durationMillis)
     return [hours, minutes, seconds];
 }
 
-function show(elementId)
+function toggleVisibility(elementId)
 {
-    $('#' + elementId).removeClass('hidden');
-    $('#' + elementId).addClass('block');
+    $('#' + elementId).toggleClass('hidden');
 }
 
 function zeroPad(value)
