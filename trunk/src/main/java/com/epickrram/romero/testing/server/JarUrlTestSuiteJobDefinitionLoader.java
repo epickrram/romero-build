@@ -74,6 +74,9 @@ public final class JarUrlTestSuiteJobDefinitionLoader implements JobDefinitionLo
                     definitionList.add(definition);
                 }
             }
+
+            jarFile.close();
+            download.delete();
             return definitionList;
         }
         catch(IOException e)

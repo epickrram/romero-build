@@ -16,16 +16,14 @@
 
 package com.epickrram.romero.testing.agent;
 
-import com.epickrram.romero.agent.Agent;
-import com.epickrram.romero.agent.JobResultHandler;
-import com.epickrram.romero.agent.JobResultHandlerImpl;
-import com.epickrram.romero.agent.SleeperImpl;
+import com.epickrram.romero.agent.*;
 import com.epickrram.romero.server.Server;
 import com.epickrram.romero.testing.agent.junit.JUnitClassExecutor;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 import com.epickrram.romero.testing.common.TestSuiteJobResult;
 import org.junit.runner.JUnitCore;
 
+import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -57,7 +55,9 @@ public final class JUnitAgentRunner
         agentModule.initialise();
         final Server<TestSuiteIdentifier, Properties, TestSuiteJobResult> server = agentModule.getServer();
         final JobResultHandler<TestSuiteJobResult> resultHandler = new JobResultHandlerImpl<>(server);
-        final Agent agent = new Agent(server, new JUnitClassExecutor(new JUnitCore(), resultHandler), new SleeperImpl(), agentId);
+        final Agent<TestSuiteIdentifier, Properties, TestSuiteJobResult> agent =
+                new Agent<>(server, new JUnitClassExecutor(new JUnitCore(), resultHandler), new SleeperImpl(), agentId,
+                        Collections.<ExecutionWrapper<TestSuiteIdentifier,Properties>>emptyList(), new ClasspathBuilderImpl(), new ClasspathElementScannerImpl());
 
         Executors.newScheduledThreadPool(1).scheduleAtFixedRate(agent, 0, 10, TimeUnit.SECONDS);
     }

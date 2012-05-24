@@ -14,6 +14,7 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
+
 package com.epickrram.romero.agent;
 
 import org.junit.Before;
@@ -22,39 +23,45 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.verify;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static com.epickrram.romero.agent.ExecutionWrapper.Priority.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class CompositeExecutionWrapperTest
+public final class ExecutionWrapperPriorityOrderComparatorTest
 {
-    private static final ExecutionContext EXECUTION_CONTEXT = new ExecutionContext();
     @Mock
-    private ExecutionWrapper delegateOne;
+    private ExecutionWrapper<String, String> highestPriority;
     @Mock
-    private ExecutionWrapper delegateTwo;
-    private CompositeExecutionWrapper composite;
-
-    @Test
-    public void shouldDelegateBeforeTest() throws Exception
-    {
-        composite.beforeExecution(EXECUTION_CONTEXT);
-
-        verify(delegateOne).beforeExecution(EXECUTION_CONTEXT);
-        verify(delegateTwo).beforeExecution(EXECUTION_CONTEXT);
-    }
-
-    @Test
-    public void shouldDelegateAfterTest() throws Exception
-    {
-        composite.afterExecution(EXECUTION_CONTEXT);
-
-        verify(delegateOne).afterExecution(EXECUTION_CONTEXT);
-        verify(delegateTwo).afterExecution(EXECUTION_CONTEXT);
-    }
+    private ExecutionWrapper<String, String> defaultPriority;
+    @Mock
+    private ExecutionWrapper<String, String> lowestPriority;
+    private List<ExecutionWrapper<String, String>> wrapperList;
 
     @Before
-    public void setup() throws Exception
+    public void setup()
     {
-        composite = new CompositeExecutionWrapper(delegateOne, delegateTwo);
+        wrapperList = new ArrayList<>();
+        wrapperList.add(defaultPriority);
+        wrapperList.add(lowestPriority);
+        wrapperList.add(highestPriority);
+    }
+
+    @Test
+    public void shouldOrderByPriority() throws Exception
+    {
+        when(highestPriority.getPriority()).thenReturn(HIGHEST);
+        when(defaultPriority.getPriority()).thenReturn(DEFAULT);
+        when(lowestPriority.getPriority()).thenReturn(LOWEST);
+        Collections.sort(wrapperList, ExecutionWrapperPriorityOrderComparator.INSTANCE);
+
+        assertThat(wrapperList.get(0), is(highestPriority));
+        assertThat(wrapperList.get(1), is(defaultPriority));
+        assertThat(wrapperList.get(2), is(lowestPriority));
     }
 }

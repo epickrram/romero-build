@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////////
+package com.epickrram.romero.agent;
 //   Copyright 2011   Mark Price     mark at epickrram.com                      //
 //                                                                              //
 //   Licensed under the Apache License, Version 2.0 (the "License");            //
@@ -14,32 +14,12 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
+import com.epickrram.romero.core.JobDefinition;
 
-public final class CompositeExecutionWrapper implements ExecutionWrapper
+import java.net.URL;
+import java.util.List;
+
+public interface ClasspathBuilder<K, D>
 {
-    private final ExecutionWrapper[] delegates;
-
-    public CompositeExecutionWrapper(final ExecutionWrapper... delegates)
-    {
-        this.delegates = delegates;
-    }
-
-    @Override
-    public void beforeExecution(final ExecutionContext executionContext)
-    {
-        for (ExecutionWrapper delegate : delegates)
-        {
-            delegate.beforeExecution(executionContext);
-        }
-    }
-
-    @Override
-    public void afterExecution(final ExecutionContext executionContext)
-    {
-        for (ExecutionWrapper delegate : delegates)
-        {
-            delegate.afterExecution(executionContext);
-        }
-    }
+    List<URL> getAdditionalClasspathElements(final JobDefinition<K, D> jobDefinition);
 }
