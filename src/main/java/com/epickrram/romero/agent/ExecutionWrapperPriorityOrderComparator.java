@@ -14,25 +14,18 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.stub;
 
-import com.epickrram.romero.agent.ExecutionWrapper;
-import com.epickrram.romero.agent.ExecutionContext;
+package com.epickrram.romero.agent;
 
-public final class StubTestWrapperOne implements ExecutionWrapper
+import java.util.Comparator;
+
+public final class ExecutionWrapperPriorityOrderComparator implements Comparator<ExecutionWrapper<?, ?>>
 {
-    public static int beforeTestCaseInvocationCount = 0;
-    public static int afterTestCaseInvocationCount = 0;
+    public static final Comparator<ExecutionWrapper<?, ?>> INSTANCE = new ExecutionWrapperPriorityOrderComparator();
 
     @Override
-    public void beforeExecution(final ExecutionContext executionContext)
+    public int compare(final ExecutionWrapper<?, ?> o1, final ExecutionWrapper<?, ?> o2)
     {
-        beforeTestCaseInvocationCount++;
-    }
-
-    @Override
-    public void afterExecution(final ExecutionContext executionContext)
-    {
-        afterTestCaseInvocationCount++;
+        return o1.getPriority().compareTo(o2.getPriority());
     }
 }

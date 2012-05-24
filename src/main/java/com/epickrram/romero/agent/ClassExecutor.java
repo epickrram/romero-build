@@ -16,7 +16,9 @@
 
 package com.epickrram.romero.agent;
 
-public interface ClassExecutor
+import com.epickrram.romero.core.JobDefinition;
+
+public interface ClassExecutor<K, D>
 {
-    void execute(final String className);
+    void execute(final JobDefinition<K, D> jobDefinition, final ExecutionContext executionContext);
 }

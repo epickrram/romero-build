@@ -20,7 +20,6 @@ public final class TestPropertyKeys
 {
     public static final String CLASSPATH_URL_PREFIX = "classpath.additional.url";
     public static final String SYSTEM_PROPERTY_PREFIX = "system.";
-    public static final String TEST_CASE_WRAPPER_PREFIX = "test.wrapper.";
 
     private TestPropertyKeys() {}
 }

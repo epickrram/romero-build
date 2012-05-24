@@ -14,24 +14,41 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.agent;
 
+package com.epickrram.romero.testing.agent;
+
+import com.epickrram.romero.agent.ExecutionContext;
+import com.epickrram.romero.agent.ExecutionWrapper;
 import com.epickrram.romero.core.JobDefinition;
+import com.epickrram.romero.testing.common.TestSuiteIdentifier;
 
-public interface ExecutionWrapper<K, D>
+import java.util.Properties;
+
+import static com.epickrram.romero.testing.common.TestPropertyKeys.SYSTEM_PROPERTY_PREFIX;
+
+public final class SystemPropertySetterExecutionWrapper implements ExecutionWrapper<TestSuiteIdentifier, Properties>
 {
-    enum Priority
+    @Override
+    public void beforeExecution(final JobDefinition<TestSuiteIdentifier, Properties> jobDefinition, final ExecutionContext executionContext)
     {
-        HIGHEST,
-        HIGHER,
-        HIGH,
-        DEFAULT,
-        LOW,
-        LOWER,
-        LOWEST
+        final Properties data = jobDefinition.getData();
+        for (String propertyKey : data.stringPropertyNames())
+        {
+            if(propertyKey.startsWith(SYSTEM_PROPERTY_PREFIX))
+            {
+                System.setProperty(propertyKey.substring(SYSTEM_PROPERTY_PREFIX.length()), data.getProperty(propertyKey));
+            }
+        }
     }
 
-    void beforeExecution(final JobDefinition<K, D> jobDefinition, final ExecutionContext executionContext);
-    void afterExecution(final JobDefinition<K, D> jobDefinition, final ExecutionContext executionContext);
-    Priority getPriority();
+    @Override
+    public void afterExecution(final JobDefinition<TestSuiteIdentifier, Properties> jobDefinition, final ExecutionContext executionContext)
+    {
+    }
+
+    @Override
+    public Priority getPriority()
+    {
+        return Priority.HIGHEST;
+    }
 }

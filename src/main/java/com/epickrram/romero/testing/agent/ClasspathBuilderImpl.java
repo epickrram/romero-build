@@ -14,41 +14,50 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.testing.agent.junit;
 
-import com.epickrram.romero.agent.ClassExecutor;
-import com.epickrram.romero.agent.ExecutionContext;
-import com.epickrram.romero.agent.JobResultHandler;
+package com.epickrram.romero.testing.agent;
+
+import com.epickrram.romero.agent.ClasspathBuilder;
 import com.epickrram.romero.core.JobDefinition;
+import com.epickrram.romero.testing.common.TestPropertyKeys;
 import com.epickrram.romero.testing.common.TestSuiteIdentifier;
-import com.epickrram.romero.testing.common.TestSuiteJobResult;
-import org.junit.runner.JUnitCore;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
-import static com.epickrram.romero.agent.ClassLoaderUtil.loadClass;
-
-public final class JUnitClassExecutor implements ClassExecutor<TestSuiteIdentifier, Properties>
+public final class ClasspathBuilderImpl implements ClasspathBuilder<TestSuiteIdentifier, Properties>
 {
-    private final JUnitCore jUnitCore;
-    private final JobResultHandler<TestSuiteJobResult> resultHandler;
-
-    public JUnitClassExecutor(final JUnitCore jUnitCore,
-                              final JobResultHandler<TestSuiteJobResult> resultHandler)
+    @Override
+    public List<URL> getAdditionalClasspathElements(final JobDefinition<TestSuiteIdentifier, Properties> jobDefinition)
     {
-        this.jUnitCore = jUnitCore;
-        this.resultHandler = resultHandler;
+        final List<URL> urlList = new ArrayList<>();
+        final Properties data = jobDefinition.getData();
+        final Set<String> propertyKeys = data.stringPropertyNames();
+        for (String propertyKey : propertyKeys)
+        {
+            if(propertyKey.startsWith(TestPropertyKeys.CLASSPATH_URL_PREFIX))
+            {
+                urlList.add(getUrl(data, propertyKey));
+            }
+        }
+
+        return urlList;
     }
 
-    @Override
-    public void execute(final JobDefinition<TestSuiteIdentifier, Properties> jobDefinition, final ExecutionContext executionContext)
+    private static URL getUrl(final Properties data, final String propertyKey)
     {
-        final String testClassName = jobDefinition.getKey().getTestClass();
-        final TestExecutionResultRunListener listener = new TestExecutionResultRunListener();
-        jUnitCore.addListener(listener);
-        final Class<?> testClass = loadClass(testClassName);
-        jUnitCore.run(testClass);
-
-        resultHandler.onJobResult(listener.getTestSuiteJobResult());
+        final String urlSpec = data.getProperty(propertyKey);
+        try
+        {
+            return new URL(urlSpec);
+        }
+        catch (MalformedURLException e)
+        {
+            throw new IllegalArgumentException("Could not parse URL: " + urlSpec, e);
+        }
     }
 }

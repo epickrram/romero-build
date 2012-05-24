@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////////
+package com.epickrram.romero.agent;
 //   Copyright 2011   Mark Price     mark at epickrram.com                      //
 //                                                                              //
 //   Licensed under the Apache License, Version 2.0 (the "License");            //
@@ -14,25 +14,11 @@
 //   limitations under the License.                                             //
 //////////////////////////////////////////////////////////////////////////////////
 
-package com.epickrram.romero.stub;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Set;
 
-import com.epickrram.romero.agent.ExecutionWrapper;
-import com.epickrram.romero.agent.ExecutionContext;
-
-public final class StubTestWrapperTwo implements ExecutionWrapper
+public interface ClasspathElementScanner
 {
-    public static int beforeTestCaseInvocationCount = 0;
-    public static int afterTestCaseInvocationCount = 0;
-
-    @Override
-    public void beforeExecution(final ExecutionContext executionContext)
-    {
-        beforeTestCaseInvocationCount++;
-    }
-
-    @Override
-    public void afterExecution(final ExecutionContext executionContext)
-    {
-        afterTestCaseInvocationCount++;
-    }
+    Set<String> findClassNamesMatching(final String regex, final Collection<URL> classpathElements);
 }

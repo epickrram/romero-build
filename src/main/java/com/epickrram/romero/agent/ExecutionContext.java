@@ -35,14 +35,4 @@ public final class ExecutionContext
     {
         valueMap.put(key, value);
     }
-
-    public void addClasspathElement(final URL url)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    public void addClasspathElement(final File file)
-    {
-        throw new UnsupportedOperationException();
-    }
 }

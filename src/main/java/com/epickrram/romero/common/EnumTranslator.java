@@ -22,7 +22,7 @@ import com.epickrram.freewheel.protocol.AbstractTranslator;
 
 import java.io.IOException;
 
-public class EnumTranslator<E extends Enum> extends AbstractTranslator<E>
+public final class EnumTranslator<E extends Enum> extends AbstractTranslator<E>
 {
     private final Class<E> value;
 
