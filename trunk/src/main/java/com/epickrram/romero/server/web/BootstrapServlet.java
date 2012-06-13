@@ -31,6 +31,7 @@ import com.epickrram.romero.testing.server.JobIdentifierUrlBuilder;
 import com.epickrram.romero.testing.server.TestCaseJobFactory;
 import com.epickrram.romero.testing.server.TestSuiteKeyFactory;
 import com.epickrram.romero.testing.server.TestingRomeroServerModule;
+import com.epickrram.romero.testing.server.UrlBuilder;
 import com.epickrram.romero.util.LoggingUtil;
 import com.epickrram.romero.util.UrlLoaderImpl;
 
@@ -89,8 +90,10 @@ public final class BootstrapServlet extends GenericServlet
         initialiseDatabase(queryUtil);
 
         final String loaderUrlPattern = serverConfig.getStringProperty(URL_PATTERN_PROPERTY);
-        final JobIdentifierUrlBuilder urlBuilder = new JobIdentifierUrlBuilder(loaderUrlPattern);
-        final JarUrlTestSuiteJobDefinitionLoader definitionLoader = new JarUrlTestSuiteJobDefinitionLoader(urlBuilder, urlLoader);
+        final JobIdentifierUrlBuilder jobResourceUrlBuilder = new JobIdentifierUrlBuilder(loaderUrlPattern);
+        final UrlBuilder testConfigPropertiesResourceUrlBuilder = new UrlBuilder(serverConfig.getStringProperty(JarUrlTestSuiteJobDefinitionLoader.TEST_CONFIG_RESOURCE_PATTERN_PROPERTY));
+        // TODO this should all come from the module
+        final JarUrlTestSuiteJobDefinitionLoader definitionLoader = new JarUrlTestSuiteJobDefinitionLoader(jobResourceUrlBuilder, urlLoader, testConfigPropertiesResourceUrlBuilder);
         final TestCaseJobFactory jobFactory = new TestCaseJobFactory();
         final JobRepository<TestSuiteIdentifier, Properties, TestSuiteJobResult> jobRepository =
                 new JobRepositoryImpl<>(definitionLoader, jobFactory, jobEventListener);

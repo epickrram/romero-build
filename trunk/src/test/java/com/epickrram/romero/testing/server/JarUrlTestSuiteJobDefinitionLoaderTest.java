@@ -52,7 +52,7 @@ public final class JarUrlTestSuiteJobDefinitionLoaderTest
     public void setup() throws Exception
     {
         final JobIdentifierUrlBuilder urlBuilder = new JobIdentifierUrlBuilder(URL_PATTERN);
-        jobDefinitionLoader = new JarUrlTestSuiteJobDefinitionLoader(urlBuilder, urlLoader);
+        jobDefinitionLoader = new JarUrlTestSuiteJobDefinitionLoader(urlBuilder, urlLoader, testConfigPropertiesResourceUrlBuilder);
     }
 
     @Test
